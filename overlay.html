@@ -10,8 +10,8 @@
             background-color: transparent; /* Прозрачный фон для OBS */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            width: 1920px;
-            height: 1080px;
+            width: 100vw; /* Подстраивается под размер Browser Source в OBS */
+            height: 100vh;
         }
 
         /* Контейнер позиционирования */
@@ -27,19 +27,20 @@
         #scoreboard {
             display: flex;
             align-items: center;
-            padding: 10px 30px;
+            padding: 12px 35px;
             border-radius: 8px;
-            gap: 20px;
+            gap: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             transition: background-color 0.3s, border 0.3s;
+            background-color: #1a1a1a; /* Дефолтный цвет */
         }
 
         /* Элементы табло */
-        .team-block { display: flex; align-items: center; gap: 10px; }
-        .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; }
-        .form-marker { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); }
-        .score { font-size: 36px; font-weight: 900; transition: color 0.3s; }
-        .timer-block { font-size: 32px; font-weight: bold; padding: 0 15px; border-left: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); transition: color 0.3s; }
+        .team-block { display: flex; align-items: center; gap: 12px; }
+        .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; color: #ffffff; }
+        .form-marker { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); display: none; }
+        .score { font-size: 38px; font-weight: 900; transition: color 0.3s; color: #ffffff; min-width: 25px; text-align: center; }
+        .timer-block { font-size: 32px; font-weight: bold; padding: 0 15px; border-left: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); transition: color 0.3s; color: #ffffff; }
 
         /* Анимация изменения счета */
         @keyframes scorePop {
@@ -50,16 +51,9 @@
         .score-animate { animation: scorePop 0.4s ease-out; }
 
         /* --- ДИЗАЙНЫ --- */
-        /* 1. Классика (по умолчанию) */
         .design-1 { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-
-        /* 2. Модерн (Стекло) */
         .design-2 { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(0,0,0,0.3); }
-
-        /* 3. Неон */
         .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
-
-        /* 4. Ретро ТВ */
         .design-4 { border-radius: 0 !important; border: 4px solid white; box-shadow: 8px 8px 0 rgba(0,0,0,0.8); }
     </style>
 </head>
@@ -75,7 +69,7 @@
             <div class="team-block">
                 <span id="awayScore" class="score">0</span>
                 <span id="awayName" class="team-name">ГОСТИ</span>
-                <div id="awayMarker" class="form-marker" style="background-color: #ffffff;"></div>
+                <div id="awayMarker" class="form-marker"></div>
             </div>
         </div>
     </div>
@@ -95,10 +89,9 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('match');
 
-        let prevHomeScore = 0, prevAwayScore = 0;
+        let prevHomeScore = -1, prevAwayScore = -1;
         let timerInterval = null;
 
-        // Форматирование времени
         function formatTime(ms) {
             const totalSec = Math.floor(ms / 1000);
             const m = Math.floor(totalSec / 60);
@@ -106,51 +99,66 @@
             return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // Обновление таймера каждую секунду
         function startLocalTimer(startTime, elapsed) {
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                const now = Date.now();
-                const currentElapsed = elapsed + (now - startTime);
+                const currentElapsed = elapsed + (Date.now() - startTime);
                 document.getElementById('timer').innerText = formatTime(currentElapsed);
             }, 100);
         }
 
-        // Слушатель базы данных
+        // Инициализация значений по умолчанию, если база пуста
+        db.once('value').then(snapshot => {
+            if (!snapshot.exists()) {
+                db.set({
+                    homeTeam: "ХОЗЯЕВА", awayTeam: "ГОСТИ", homeScore: 0, awayScore: 0,
+                    awayFormColor: "#ffffff", design: "1", position: "top-left",
+                    timer: { isRunning: false, startTime: 0, elapsed: 0 },
+                    colors: { bg: "#1a1a1a", timerFont: "#ffffff", teamFont: "#ffffff" }
+                });
+            }
+        });
+
+        // Основной слушатель изменений
         db.on('value', (snapshot) => {
-            const data = snapshot.val() || {};
+            const data = snapshot.val();
+            if (!data) return; // Защита от ошибки при удалении данных
             
-            // Имена и цвета
+            // Имена
             document.getElementById('homeName').innerText = data.homeTeam || 'ХОЗЯЕВА';
             document.getElementById('awayName').innerText = data.awayTeam || 'ГОСТИ';
-            document.getElementById('awayMarker').style.backgroundColor = data.awayFormColor || '#ffffff';
+            
+            // Метка формы
+            const marker = document.getElementById('awayMarker');
+            if (data.awayFormColor && data.awayFormColor !== 'transparent') {
+                marker.style.backgroundColor = data.awayFormColor;
+                marker.style.display = 'block';
+            } else {
+                marker.style.display = 'none';
+            }
 
-            // Применение цветов
+            // Цвета
             const colors = data.colors || {};
             document.getElementById('scoreboard').style.backgroundColor = colors.bg || '#1a1a1a';
             document.getElementById('timer').style.color = colors.timerFont || '#ffffff';
             document.querySelectorAll('.team-name').forEach(el => el.style.color = colors.teamFont || '#ffffff');
             document.querySelectorAll('.score').forEach(el => el.style.color = colors.timerFont || '#ffffff');
 
-            // Дизайн
-            const sb = document.getElementById('scoreboard');
-            sb.className = `design-${data.design || 1}`;
-
-            // Позиция
-            const wr = document.getElementById('wrapper');
-            wr.className = `pos-${data.position || 'top-left'}`;
+            // Дизайн и Позиция
+            document.getElementById('scoreboard').className = `design-${data.design || 1}`;
+            document.getElementById('wrapper').className = `pos-${data.position || 'top-left'}`;
 
             // Счет с анимацией
             const hs = data.homeScore || 0;
             const as = data.awayScore || 0;
 
-            if (hs !== prevHomeScore) {
+            if (hs !== prevHomeScore && prevHomeScore !== -1) {
                 const el = document.getElementById('homeScore');
                 el.classList.remove('score-animate');
-                void el.offsetWidth; // триггер reflow
+                void el.offsetWidth;
                 el.classList.add('score-animate');
             }
-            if (as !== prevAwayScore) {
+            if (as !== prevAwayScore && prevAwayScore !== -1) {
                 const el = document.getElementById('awayScore');
                 el.classList.remove('score-animate');
                 void el.offsetWidth;
