@@ -14,6 +14,8 @@
         .pos-top-center { top: 40px; left: 50%; transform: translateX(-50%); }
         .pos-top-right { top: 40px; right: 40px; }
 
+        /* --- ОСНОВНОЕ ТАБЛО --- */
+        #scoreboard-container { transition: opacity 0.3s; }
         #scoreboard {
             display: flex; align-items: center; padding: 12px 35px;
             border-radius: 8px; gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -30,45 +32,99 @@
             border-left: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); 
             transition: color 0.3s; color: #ffffff; 
         }
-        .added-time-block {
-            font-size: 16px; font-weight: bold; color: #ffdd57; margin-top: 4px;
-            display: none; /* Скрыт по умолчанию */
-        }
+        .added-time-block { font-size: 16px; font-weight: bold; color: #ffdd57; margin-top: 4px; display: none; }
 
-        @keyframes scorePop {
-            0% { transform: scale(1); } 50% { transform: scale(1.4); filter: brightness(1.5); } 100% { transform: scale(1); }
-        }
+        @keyframes scorePop { 0% { transform: scale(1); } 50% { transform: scale(1.4); filter: brightness(1.5); } 100% { transform: scale(1); } }
         .score-animate { animation: scorePop 0.4s ease-out; }
 
-        /* ДИЗАЙНЫ */
         .design-1 { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .design-2 { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(0,0,0,0.3); }
         .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
-        .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); } /* СКРУГЛЕННЫЙ */
+        .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+
+        /* --- ПОЛНОЭКРАННЫЕ ГРАФИКИ (ПЕРЕРЫВ / ФИНАЛ) --- */
+        .big-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px);
+            padding: 60px 120px; border-radius: 20px; 
+            display: none; flex-direction: column; align-items: center; gap: 40px;
+            color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8);
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        
+        .big-overlay-teams { display: flex; align-items: center; justify-content: center; gap: 50px; width: 100%; }
+        .big-team-card { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .big-logo { width: 100px; height: 100px; object-fit: contain; }
+        .big-team-name { font-size: 32px; font-weight: bold; text-transform: uppercase; }
+        .big-score-block { font-size: 64px; font-weight: 900; display: flex; align-items: center; gap: 20px; }
+        .big-score-separator { font-size: 40px; opacity: 0.5; }
+        .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: #ffdd57; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 221, 87, 0.5); }
     </style>
 </head>
 <body>
+    <!-- Основное табло -->
     <div id="wrapper" class="pos-top-left">
-        <div id="scoreboard" class="design-1">
-            <div class="team-block">
-                <div id="homeMarker" class="form-marker"></div>
-                <span id="homeName" class="team-name">ХОЗЯЕВА</span>
-                <span id="homeScore" class="score">0</span>
-            </div>
-            
-            <div class="timer-container">
-                <div id="timer" class="timer-block">00:00</div>
-                <div id="addedTimeBlock" class="added-time-block">
-                    д.в. <span id="addedTimeVal">+0</span> (<span id="addedTimer">00:00</span>)
+        <div id="scoreboard-container">
+            <div id="scoreboard" class="design-1">
+                <div class="team-block">
+                    <div id="homeMarker" class="form-marker"></div>
+                    <span id="homeName" class="team-name">ХОЗЯЕВА</span>
+                    <span id="homeScore" class="score">0</span>
+                </div>
+                <div class="timer-container">
+                    <div id="timer" class="timer-block">00:00</div>
+                    <div id="addedTimeBlock" class="added-time-block">
+                        д.в. <span id="addedTimeVal">+0</span> (<span id="addedTimer">00:00</span>)
+                    </div>
+                </div>
+                <div class="team-block">
+                    <span id="awayScore" class="score">0</span>
+                    <span id="awayName" class="team-name">ГОСТИ</span>
+                    <div id="awayMarker" class="form-marker"></div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="team-block">
-                <span id="awayScore" class="score">0</span>
-                <span id="awayName" class="team-name">ГОСТИ</span>
-                <div id="awayMarker" class="form-marker"></div>
+    <!-- График ПЕРЕРЫВ -->
+    <div id="halftime-overlay" class="big-overlay">
+        <div class="big-overlay-teams">
+            <div class="big-team-card">
+                <img id="ht-home-logo" class="big-logo" src="" style="display:none;">
+                <span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span>
+            </div>
+            <div class="big-score-block">
+                <span id="ht-home-score">0</span>
+                <span class="big-score-separator">:</span>
+                <span id="ht-away-score">0</span>
+            </div>
+            <div class="big-team-card">
+                <img id="ht-away-logo" class="big-logo" src="" style="display:none;">
+                <span id="ht-away-name" class="big-team-name">ГОСТИ</span>
             </div>
         </div>
+        <div class="big-status-text">ПЕРЕРЫВ</div>
+    </div>
+
+    <!-- График МАТЧ ОКОНЧЕН -->
+    <div id="fulltime-overlay" class="big-overlay">
+        <div class="big-overlay-teams">
+            <div class="big-team-card">
+                <img id="ft-home-logo" class="big-logo" src="" style="display:none;">
+                <span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span>
+            </div>
+            <div class="big-score-block">
+                <span id="ft-home-score">0</span>
+                <span class="big-score-separator">:</span>
+                <span id="ft-away-score">0</span>
+            </div>
+            <div class="big-team-card">
+                <img id="ft-away-logo" class="big-logo" src="" style="display:none;">
+                <span id="ft-away-name" class="big-team-name">ГОСТИ</span>
+            </div>
+        </div>
+        <div class="big-status-text">МАТЧ ОКОНЧЕН</div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -91,19 +147,20 @@
 
         function formatTime(ms) {
             const totalSec = Math.max(0, Math.floor(ms / 1000));
-            const m = Math.floor(totalSec / 60);
-            const s = totalSec % 60;
+            const m = Math.floor(totalSec / 60); const s = totalSec % 60;
             return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
         function applyMarker(elementId, color) {
             const marker = document.getElementById(elementId);
-            if (color && color !== 'transparent') {
-                marker.style.backgroundColor = color;
-                marker.style.display = 'block';
-            } else {
-                marker.style.display = 'none';
-            }
+            if (color && color !== 'transparent') { marker.style.backgroundColor = color; marker.style.display = 'block'; } 
+            else { marker.style.display = 'none'; }
+        }
+
+        function applyLogo(imgId, url) {
+            const img = document.getElementById(imgId);
+            if (url && url.trim() !== '') { img.src = url; img.style.display = 'block'; } 
+            else { img.style.display = 'none'; }
         }
 
         db.once('value').then(snapshot => {
@@ -111,7 +168,8 @@
                 db.set({
                     homeTeam: "ХОЗЯЕВА", awayTeam: "ГОСТИ", homeScore: 0, awayScore: 0,
                     homeFormColor: "transparent", awayFormColor: "transparent",
-                    design: "1", position: "top-left",
+                    homeLogo: "", awayLogo: "",
+                    design: "1", position: "top-left", overlayState: "main",
                     timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
                     addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
                     colors: { bg: "#1a1a1a", timerFont: "#ffffff", teamFont: "#ffffff" }
@@ -123,6 +181,21 @@
             const data = snapshot.val();
             if (!data) return;
             
+            // Управление состояниями экранов
+            const state = data.overlayState || 'main';
+            const mainContainer = document.getElementById('scoreboard-container');
+            const htOverlay = document.getElementById('halftime-overlay');
+            const ftOverlay = document.getElementById('fulltime-overlay');
+
+            if (state === 'halftime') {
+                mainContainer.style.display = 'none'; htOverlay.style.display = 'flex'; ftOverlay.style.display = 'none';
+            } else if (state === 'fulltime') {
+                mainContainer.style.display = 'none'; htOverlay.style.display = 'none'; ftOverlay.style.display = 'flex';
+            } else {
+                mainContainer.style.display = 'block'; htOverlay.style.display = 'none'; ftOverlay.style.display = 'none';
+            }
+
+            // Заполнение данных основного табло
             document.getElementById('homeName').innerText = data.homeTeam || 'ХОЗЯЕВА';
             document.getElementById('awayName').innerText = data.awayTeam || 'ГОСТИ';
             applyMarker('homeMarker', data.homeFormColor);
@@ -137,19 +210,22 @@
             document.getElementById('scoreboard').className = `design-${data.design || 1}`;
             document.getElementById('wrapper').className = `pos-${data.position || 'top-left'}`;
 
-            const hs = data.homeScore || 0;
-            const as = data.awayScore || 0;
-            if (hs !== prevHomeScore && prevHomeScore !== -1) {
-                const el = document.getElementById('homeScore');
-                el.classList.remove('score-animate'); void el.offsetWidth; el.classList.add('score-animate');
-            }
-            if (as !== prevAwayScore && prevAwayScore !== -1) {
-                const el = document.getElementById('awayScore');
-                el.classList.remove('score-animate'); void el.offsetWidth; el.classList.add('score-animate');
-            }
-            document.getElementById('homeScore').innerText = hs;
-            document.getElementById('awayScore').innerText = as;
+            const hs = data.homeScore || 0; const as = data.awayScore || 0;
+            if (hs !== prevHomeScore && prevHomeScore !== -1) { const el = document.getElementById('homeScore'); el.classList.remove('score-animate'); void el.offsetWidth; el.classList.add('score-animate'); }
+            if (as !== prevAwayScore && prevAwayScore !== -1) { const el = document.getElementById('awayScore'); el.classList.remove('score-animate'); void el.offsetWidth; el.classList.add('score-animate'); }
+            document.getElementById('homeScore').innerText = hs; document.getElementById('awayScore').innerText = as;
             prevHomeScore = hs; prevAwayScore = as;
+
+            // Заполнение данных больших оверлеев
+            const teamN = data.homeTeam || 'ХОЗЯЕВА'; const teamA = data.awayTeam || 'ГОСТИ';
+            ['ht', 'ft'].forEach(prefix => {
+                document.getElementById(`${prefix}-home-name`).innerText = teamN;
+                document.getElementById(`${prefix}-away-name`).innerText = teamA;
+                document.getElementById(`${prefix}-home-score`).innerText = hs;
+                document.getElementById(`${prefix}-away-score`).innerText = as;
+                applyLogo(`${prefix}-home-logo`, data.homeLogo);
+                applyLogo(`${prefix}-away-logo`, data.awayLogo);
+            });
 
             // --- ОСНОВНОЙ ТАЙМЕР ---
             clearInterval(mainTimerInterval);
@@ -160,38 +236,19 @@
             if (td.isRunning) {
                 mainTimerInterval = setInterval(() => {
                     let currentElapsed = baseMs + (td.elapsed || 0) + (Date.now() - td.startTime);
-                    if (currentElapsed >= maxMs) {
-                        currentElapsed = maxMs;
-                        clearInterval(mainTimerInterval);
-                        // Останавливаем таймер в базе, если достиг лимита
-                        db.child('timer').update({ isRunning: false, elapsed: maxMs - baseMs, startTime: 0 });
-                    }
+                    if (currentElapsed >= maxMs) { currentElapsed = maxMs; clearInterval(mainTimerInterval); db.child('timer').update({ isRunning: false, elapsed: maxMs - baseMs, startTime: 0 }); }
                     document.getElementById('timer').innerText = formatTime(currentElapsed);
                 }, 100);
-            } else {
-                document.getElementById('timer').innerText = formatTime(baseMs + (td.elapsed || 0));
-            }
+            } else { document.getElementById('timer').innerText = formatTime(baseMs + (td.elapsed || 0)); }
 
             // --- ДОБАВЛЕННОЕ ВРЕМЯ ---
             clearInterval(addedTimerInterval);
-            const at = data.addedTime || {};
-            const atBlock = document.getElementById('addedTimeBlock');
-            
+            const at = data.addedTime || {}; const atBlock = document.getElementById('addedTimeBlock');
             if (at.isActive && at.minutes > 0) {
-                atBlock.style.display = 'block';
-                document.getElementById('addedTimeVal').innerText = `+${at.minutes}`;
-                
-                if (at.isRunning) {
-                    addedTimerInterval = setInterval(() => {
-                        const currentAtElapsed = (at.elapsed || 0) + (Date.now() - at.startTime);
-                        document.getElementById('addedTimer').innerText = formatTime(currentAtElapsed);
-                    }, 100);
-                } else {
-                    document.getElementById('addedTimer').innerText = formatTime(at.elapsed || 0);
-                }
-            } else {
-                atBlock.style.display = 'none';
-            }
+                atBlock.style.display = 'block'; document.getElementById('addedTimeVal').innerText = `+${at.minutes}`;
+                if (at.isRunning) { addedTimerInterval = setInterval(() => { document.getElementById('addedTimer').innerText = formatTime((at.elapsed || 0) + (Date.now() - at.startTime)); }, 100); } 
+                else { document.getElementById('addedTimer').innerText = formatTime(at.elapsed || 0); }
+            } else { atBlock.style.display = 'none'; }
         });
     </script>
 </body>
