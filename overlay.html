@@ -1,119 +1,219 @@
-<script>
-    const firebaseConfig = { apiKey: "AIzaSyBf90bqaBPXIPiU2Y84CV1cVU7hVmxn8Vk", authDomain: "tablok4tv.firebaseapp.com", databaseURL: "https://tablok4tv-default-rtdb.firebaseio.com", projectId: "tablok4tv", storageBucket: "tablok4tv.firebasestorage.app", messagingSenderId: "449837394917", appId: "1:449837394917:web:b5115ffd8de2c001919d0c" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref('match');
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Football Overlay</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: transparent; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
+        #wrapper { position: absolute; transition: all 0.3s ease; }
+        .pos-top-left { top: 40px; left: 40px; } .pos-top-center { top: 40px; left: 50%; transform: translateX(-50%); } .pos-top-right { top: 40px; right: 40px; }
 
-    let prevHomeScore = -1, prevAwayScore = -1;
-    let mainTimerInterval = null, addedTimerInterval = null;
+        #scoreboard-container { transition: opacity 0.3s; }
+        #scoreboard { display: flex; align-items: center; padding: 12px 35px; border-radius: 8px; gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background-color: #1a1a1a; }
+        .team-block { display: flex; align-items: center; gap: 12px; }
+        .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; color: #ffffff; }
+        .form-marker { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); display: none; }
+        .score { font-size: 38px; font-weight: 900; transition: color 0.3s; color: #ffffff; min-width: 25px; text-align: center; }
+        .timer-container { display: flex; flex-direction: column; align-items: center; }
+        .timer-block { font-size: 32px; font-weight: bold; padding: 0 15px; border-left: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); transition: color 0.3s; color: #ffffff; }
+        .added-time-block { font-size: 16px; font-weight: bold; color: #ffdd57; margin-top: 4px; display: none; }
+        @keyframes scorePop { 0% { transform: scale(1); } 50% { transform: scale(1.4); filter: brightness(1.5); } 100% { transform: scale(1); } }
+        .score-animate { animation: scorePop 0.4s ease-out; }
+        .design-1 { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .design-2 { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(0,0,0,0.3); }
+        .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
+        .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-    const statTypes = [
-      { key: 'score', label: 'Счёт' },
-      { key: 'shots', label: 'Удары' },
-      { key: 'corners', label: 'Угловые' },
-      { key: 'offsides', label: 'Оффсайды' },
-      { key: 'fouls', label: 'Наруш.' },
-      { key: 'yellowCards', label: 'ЖК' },
-      { key: 'redCards', label: 'КК' }
-    ];
+        .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: 20px; display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        .big-overlay-teams { display: flex; align-items: center; justify-content: center; gap: 50px; width: 100%; }
+        .big-team-card { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .big-logo { width: 100px; height: 100px; object-fit: contain; }
+        .big-team-name { font-size: 32px; font-weight: bold; text-transform: uppercase; }
+        .big-score-block { font-size: 64px; font-weight: 900; display: flex; align-items: center; gap: 20px; }
+        .big-score-separator { font-size: 40px; opacity: 0.5; }
+        .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: #ffdd57; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 221, 87, 0.5); }
+        .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; }
 
-    const summaryRowsContainer = document.getElementById('summary-stats-rows');
-    statTypes.forEach(s => {
-      summaryRowsContainer.innerHTML += `<div class="summary-row" id="sum-row-${s.key}"><span class="summary-val" id="sum-${s.key}-home">0</span><span class="summary-label">${s.label}</span><span class="summary-val" id="sum-${s.key}-away">0</span></div>`;
-    });
+        .bottom-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(15px); padding: 20px 40px; border-radius: 15px; display: none; grid-template-columns: auto 350px auto; align-items: center; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 40px rgba(0,0,0,0.8); animation: fadeInBottom 0.5s ease-out; width: fit-content; max-width: 95vw; }
+        @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .bottom-team-group { display: flex; align-items: center; gap: 15px; z-index: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bottom-team-group.home { justify-content: flex-end; padding-right: 15px; }
+        .bottom-team-group.away { justify-content: flex-start; padding-left: 15px; }
+        .bottom-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; }
+        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; }
+        .bottom-center-box { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.95); padding: 12px 35px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 2; max-width: 340px; width: max-content; }
+        .bottom-status-text { font-size: 22px; font-weight: 900; color: #ffdd57; text-transform: uppercase; letter-spacing: 2px; }
+        .bottom-score-box { background: transparent; padding: 0; border-radius: 0; font-size: 36px; font-weight: 900; display: flex; align-items: center; gap: 15px; }
+        .bottom-score-sep { opacity: 0.5; font-size: 24px; }
 
-    function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
-    function applyMarker(id, c) { const m = document.getElementById(id); if(c && c!=='transparent'){m.style.backgroundColor=c;m.style.display='block';}else{m.style.display='none';} }
-    function applyLogo(id, u) { const i = document.getElementById(id); if(u&&u.trim()!==''){i.src=u;i.style.display='block';}else{i.style.display='none';} }
+        #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; width: fit-content; }
+        .stat-modular-item { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 10px 30px; border-radius: 10px; display: flex; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInBottom 0.3s ease-out; }
+        .stat-mod-val { font-size: 28px; font-weight: 900; min-width: 30px; text-align: center; }
+        .stat-mod-label { font-size: 18px; font-weight: 500; color: #ffdd57; text-transform: uppercase; }
 
-    db.once('value').then(s => { if(!s.exists()){ db.set({ homeTeam:"ХОЗЯЕВА", awayTeam:"ГОСТИ", homeScore:0, awayScore:0, homeFormColor:"transparent", awayFormColor:"transparent", homeLogo:"", awayLogo:"", tournamentName:"", design:"1", position:"top-left", overlayState:"main", timer:{isRunning:false,startTime:0,elapsed:0,manualStartMin:0,maxMinutes:90}, addedTime:{isActive:false,minutes:0,isRunning:false,startTime:0,elapsed:0}, colors:{bg:"#1a1a1a",timerFont:"#ffffff",teamFont:"#ffffff"}, stats:{ score:{isVisible:false}, shots:{home:0,away:0,isVisible:false}, corners:{home:0,away:0,isVisible:false}, offsides:{home:0,away:0,isVisible:false}, fouls:{home:0,away:0,isVisible:false}, yellowCards:{home:0,away:0,isVisible:false}, redCards:{home:0,away:0,isVisible:false} } }); }});
+        #possession-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 60vw; height: 30px; display: none; border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); z-index: 50; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; transition: width 0.5s ease; }
 
-    db.on('value', (snapshot) => {
-        const data = snapshot.val(); if(!data) return;
-        const state = data.overlayState || 'main';
-        const mainC = document.getElementById('scoreboard-container');
-        const nsO = document.getElementById('notstarted-overlay');
-        const htO = document.getElementById('halftime-overlay');
-        const ftO = document.getElementById('fulltime-overlay');
-        const htBO = document.getElementById('halftime-bottom-overlay');
-        const ftBO = document.getElementById('fulltime-bottom-overlay');
-        const sumO = document.getElementById('stats-summary-overlay');
+        #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: 20px; display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 600px; }
+        .summary-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px; }
+        .summary-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .summary-score { font-size: 36px; font-weight: 900; color: #ffdd57; }
+        .summary-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .summary-val { font-size: 22px; font-weight: 900; text-align: center; }
+        .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div id="wrapper" class="pos-top-left">
+        <div id="scoreboard-container">
+            <div id="scoreboard" class="design-1">
+                <div class="team-block"><div id="homeMarker" class="form-marker"></div><span id="homeName" class="team-name">ХОЗЯЕВА</span><span id="homeScore" class="score">0</span></div>
+                <div class="timer-container"><div id="timer" class="timer-block">00:00</div><div id="addedTimeBlock" class="added-time-block">д.в. <span id="addedTimeVal">+0</span> (<span id="addedTimer">00:00</span>)</div></div>
+                <div class="team-block"><span id="awayScore" class="score">0</span><span id="awayName" class="team-name">ГОСТИ</span><div id="awayMarker" class="form-marker"></div></div>
+            </div>
+        </div>
+    </div>
 
-        mainC.style.display='none'; nsO.style.display='none'; htO.style.display='none'; ftO.style.display='none'; htBO.style.display='none'; ftBO.style.display='none'; sumO.style.display='none';
+    <div id="notstarted-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card"><img id="ns-home-logo" class="big-logo" src="" style="display:none;"><span id="ns-home-name" class="big-team-name">ХОЗЯЕВА</span></div><div class="big-score-block"><span id="ns-home-score">0</span><span class="big-score-separator">:</span><span id="ns-away-score">0</span></div><div class="big-team-card"><img id="ns-away-logo" class="big-logo" src="" style="display:none;"><span id="ns-away-name" class="big-team-name">ГОСТИ</span></div></div><div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div><div id="ns-tournament" class="big-tournament-text"></div></div>
+    <div id="halftime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card"><img id="ht-home-logo" class="big-logo" src="" style="display:none;"><span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span></div><div class="big-score-block"><span id="ht-home-score">0</span><span class="big-score-separator">:</span><span id="ht-away-score">0</span></div><div class="big-team-card"><img id="ht-away-logo" class="big-logo" src="" style="display:none;"><span id="ht-away-name" class="big-team-name">ГОСТИ</span></div></div><div class="big-status-text">ПЕРЕРЫВ</div><div id="ht-tournament" class="big-tournament-text"></div></div>
+    <div id="fulltime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card"><img id="ft-home-logo" class="big-logo" src="" style="display:none;"><span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span></div><div class="big-score-block"><span id="ft-home-score">0</span><span class="big-score-separator">:</span><span id="ft-away-score">0</span></div><div class="big-team-card"><img id="ft-away-logo" class="big-logo" src="" style="display:none;"><span id="ft-away-name" class="big-team-name">ГОСТИ</span></div></div><div class="big-status-text">МАТЧ ОКОНЧЕН</div><div id="ft-tournament" class="big-tournament-text"></div></div>
 
-        if(state==='notstarted') nsO.style.display='flex';
-        else if(state==='halftime') htO.style.display='flex';
-        else if(state==='fulltime') ftO.style.display='flex';
-        else if(state==='halftime-bottom') htBO.style.display='grid';
-        else if(state==='fulltime-bottom') ftBO.style.display='grid';
-        else if(state==='stats-summary') sumO.style.display='flex';
-        else if(state==='hidden') {}
-        else mainC.style.display='block';
+    <div id="halftime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="htb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="htb-away-name" class="bottom-team-name">ГОСТИ</span><img id="htb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРЕРЫВ</span><div class="bottom-score-box"><span id="htb-home-score">0</span><span class="bottom-score-sep">:</span><span id="htb-away-score">0</span></div></div></div>
+    <div id="fulltime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span><img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">МАТЧ ОКОНЧЕН</span><div class="bottom-score-box"><span id="ftb-home-score">0</span><span class="bottom-score-sep">:</span><span id="ftb-away-score">0</span></div></div></div>
 
-        document.getElementById('homeName').innerText = data.homeTeam||'ХОЗЯЕВА';
-        document.getElementById('awayName').innerText = data.awayTeam||'ГОСТИ';
-        applyMarker('homeMarker', data.homeFormColor); applyMarker('awayMarker', data.awayFormColor);
-        const colors = data.colors||{};
-        document.getElementById('scoreboard').style.backgroundColor=colors.bg||'#1a1a1a';
-        document.getElementById('timer').style.color=colors.timerFont||'#ffffff';
-        document.querySelectorAll('.team-name').forEach(el=>el.style.color=colors.teamFont||'#ffffff');
-        document.querySelectorAll('.score').forEach(el=>el.style.color=colors.timerFont||'#ffffff');
-        document.getElementById('scoreboard').className=`design-${data.design||1}`;
-        document.getElementById('wrapper').className=`pos-${data.position||'top-left'}`;
+    <div id="stats-modular-container"></div>
+    <div id="possession-container"><div id="poss-home-bar" class="poss-bar" style="background: #ff0000; width: 50%;">50%</div><div id="poss-away-bar" class="poss-bar" style="background: #00ffff; width: 50%;">50%</div></div>
 
-        const hs=data.homeScore||0, as=data.awayScore||0;
-        if(hs!==prevHomeScore&&prevHomeScore!==-1){const e=document.getElementById('homeScore');e.classList.remove('score-animate');void e.offsetWidth;e.classList.add('score-animate');}
-        if(as!==prevAwayScore&&prevAwayScore!==-1){const e=document.getElementById('awayScore');e.classList.remove('score-animate');void e.offsetWidth;e.classList.add('score-animate');}
-        document.getElementById('homeScore').innerText=hs; document.getElementById('awayScore').innerText=as; prevHomeScore=hs; prevAwayScore=as;
+    <div id="stats-summary-overlay">
+        <div class="summary-header"><span id="sum-home-name" class="summary-team-name">ХОЗЯЕВА</span><div class="summary-score"><span id="sum-home-score">0</span> : <span id="sum-away-score">0</span></div><span id="sum-away-name" class="summary-team-name">ГОСТИ</span></div>
+        <div id="summary-stats-rows"></div>
+    </div>
 
-        const teamN=data.homeTeam||'ХОЗЯЕВА', teamA=data.awayTeam||'ГОСТИ', tournament=data.tournamentName||'';
-        ['ns','ht','ft','htb','ftb'].forEach(p=>{ document.getElementById(`${p}-home-name`).innerText=teamN; document.getElementById(`${p}-away-name`).innerText=teamA; document.getElementById(`${p}-home-score`).innerText=hs; document.getElementById(`${p}-away-score`).innerText=as; applyLogo(`${p}-home-logo`,data.homeLogo); applyLogo(`${p}-away-logo`,data.awayLogo); });
-        ['ns','ht','ft'].forEach(p=>{ const tEl=document.getElementById(`${p}-tournament`); if(tournament.trim()!==''){tEl.innerText=tournament;tEl.style.display='block';}else{tEl.style.display='none';} });
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyBf90bqaBPXIPiU2Y84CV1cVU7hVmxn8Vk", authDomain: "tablok4tv.firebaseapp.com", databaseURL: "https://tablok4tv-default-rtdb.firebaseio.com", projectId: "tablok4tv", storageBucket: "tablok4tv.firebasestorage.app", messagingSenderId: "449837394917", appId: "1:449837394917:web:b5115ffd8de2c001919d0c" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref('match');
 
-        clearInterval(mainTimerInterval); const td=data.timer||{}; const baseMs=((td.manualStartMin||0)*60000); const maxMs=((td.maxMinutes||999)*60000);
-        if(td.isRunning){mainTimerInterval=setInterval(()=>{let c=baseMs+(td.elapsed||0)+(Date.now()-td.startTime);if(c>=maxMs){c=maxMs;clearInterval(mainTimerInterval);db.child('timer').update({isRunning:false,elapsed:maxMs-baseMs,startTime:0});}document.getElementById('timer').innerText=formatTime(c);},100);}else{document.getElementById('timer').innerText=formatTime(baseMs+(td.elapsed||0));}
-        clearInterval(addedTimerInterval); const at=data.addedTime||{}; const atB=document.getElementById('addedTimeBlock');
-        if(at.isActive&&at.minutes>0){atB.style.display='block';document.getElementById('addedTimeVal').innerText=`+${at.minutes}`;if(at.isRunning){addedTimerInterval=setInterval(()=>{document.getElementById('addedTimer').innerText=formatTime((at.elapsed||0)+(Date.now()-at.startTime));},100);}else{document.getElementById('addedTimer').innerText=formatTime(at.elapsed||0);}}else{atB.style.display='none';}
+        let prevHomeScore = -1, prevAwayScore = -1;
+        let mainTimerInterval = null, addedTimerInterval = null;
 
-        // --- СТАТИСТИКА ---
-        const stats = data.stats || {};
-        const modContainer = document.getElementById('stats-modular-container');
-        modContainer.innerHTML = ''; 
-        let hasModularStats = false;
+        const statTypes = [
+          { key: 'possession', label: 'Владение' },
+          { key: 'score', label: 'Счёт' },
+          { key: 'shots', label: 'Удары' },
+          { key: 'corners', label: 'Угловые' },
+          { key: 'offsides', label: 'Оффсайды' },
+          { key: 'fouls', label: 'Наруш.' },
+          { key: 'yellowCards', label: 'ЖК' },
+          { key: 'redCards', label: 'КК' }
+        ];
 
+        const summaryRowsContainer = document.getElementById('summary-stats-rows');
         statTypes.forEach(s => {
-            let d, hVal, aVal;
-            if (s.key === 'score') {
-                d = stats.score || { isVisible: false };
-                hVal = hs; aVal = as;
-            } else {
-                d = stats[s.key] || { home: 0, away: 0, isVisible: false };
-                hVal = d.home || 0; aVal = d.away || 0;
-            }
-            
-            if (d.isVisible && state === 'main') {
-                hasModularStats = true;
-                modContainer.innerHTML += `<div class="stat-modular-item"><span class="stat-mod-val">${hVal}</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">${aVal}</span></div>`;
-            }
-
-            document.getElementById(`sum-${s.key}-home`).innerText = hVal;
-            document.getElementById(`sum-${s.key}-away`).innerText = aVal;
+          summaryRowsContainer.innerHTML += `<div class="summary-row" id="sum-row-${s.key}"><span class="summary-val" id="sum-${s.key}-home">0</span><span class="summary-label">${s.label}</span><span class="summary-val" id="sum-${s.key}-away">0</span></div>`;
         });
 
-        document.getElementById('sum-home-name').innerText = teamN;
-        document.getElementById('sum-away-name').innerText = teamA;
-        document.getElementById('sum-home-score').innerText = hs;
-        document.getElementById('sum-away-score').innerText = as;
+        function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
+        function applyMarker(id, c) { const m = document.getElementById(id); if(c && c!=='transparent'){m.style.backgroundColor=c;m.style.display='block';}else{m.style.display='none';} }
+        function applyLogo(id, u) { const i = document.getElementById(id); if(u&&u.trim()!==''){i.src=u;i.style.display='block';}else{i.style.display='none';} }
 
-        modContainer.style.display = hasModularStats ? 'flex' : 'none';
+        db.once('value').then(s => { if(!s.exists()){ db.set({ homeTeam:"ХОЗЯЕВА", awayTeam:"ГОСТИ", homeScore:0, awayScore:0, homeFormColor:"transparent", awayFormColor:"transparent", homeLogo:"", awayLogo:"", tournamentName:"", design:"1", position:"top-left", overlayState:"main", timer:{isRunning:false,startTime:0,elapsed:0,manualStartMin:0,maxMinutes:90}, addedTime:{isActive:false,minutes:0,isRunning:false,startTime:0,elapsed:0}, colors:{bg:"#1a1a1a",timerFont:"#ffffff",teamFont:"#ffffff"}, stats:{ possession:{home:50,away:50,isVisible:false}, score:{isVisible:false}, shots:{home:0,away:0,isVisible:false}, corners:{home:0,away:0,isVisible:false}, offsides={home:0,away:0,isVisible:false}, fouls:{home:0,away:0,isVisible:false}, yellowCards:{home:0,away:0,isVisible:false}, redCards:{home:0,away:0,isVisible:false} } }); }});
 
-        const poss = stats.possession || { home: 50, away: 50, isVisible: false };
-        const possC = document.getElementById('possession-container');
-        if (poss.isVisible && state === 'main') {
-            possC.style.display = 'flex';
-            const hBar = document.getElementById('poss-home-bar');
-            const aBar = document.getElementById('poss-away-bar');
-            hBar.style.width = poss.home + '%'; hBar.style.background = data.homeFormColor || '#ff0000'; hBar.innerText = poss.home + '%';
-            aBar.style.width = poss.away + '%'; aBar.style.background = data.awayFormColor || '#00ffff'; aBar.innerText = poss.away + '%';
-        } else { possC.style.display = 'none'; }
-    });
-</script>
+        db.on('value', (snapshot) => {
+            const data = snapshot.val(); if(!data) return;
+            const state = data.overlayState || 'main';
+            const mainC = document.getElementById('scoreboard-container');
+            const nsO = document.getElementById('notstarted-overlay');
+            const htO = document.getElementById('halftime-overlay');
+            const ftO = document.getElementById('fulltime-overlay');
+            const htBO = document.getElementById('halftime-bottom-overlay');
+            const ftBO = document.getElementById('fulltime-bottom-overlay');
+            const sumO = document.getElementById('stats-summary-overlay');
+
+            mainC.style.display='none'; nsO.style.display='none'; htO.style.display='none'; ftO.style.display='none'; htBO.style.display='none'; ftBO.style.display='none'; sumO.style.display='none';
+
+            if(state==='notstarted') nsO.style.display='flex';
+            else if(state==='halftime') htO.style.display='flex';
+            else if(state==='fulltime') ftO.style.display='flex';
+            else if(state==='halftime-bottom') htBO.style.display='grid';
+            else if(state==='fulltime-bottom') ftBO.style.display='grid';
+            else if(state==='stats-summary') sumO.style.display='flex';
+            else if(state==='hidden') {}
+            else mainC.style.display='block';
+
+            document.getElementById('homeName').innerText = data.homeTeam||'ХОЗЯЕВА';
+            document.getElementById('awayName').innerText = data.awayTeam||'ГОСТИ';
+            applyMarker('homeMarker', data.homeFormColor); applyMarker('awayMarker', data.awayFormColor);
+            const colors = data.colors||{};
+            document.getElementById('scoreboard').style.backgroundColor=colors.bg||'#1a1a1a';
+            document.getElementById('timer').style.color=colors.timerFont||'#ffffff';
+            document.querySelectorAll('.team-name').forEach(el=>el.style.color=colors.teamFont||'#ffffff');
+            document.querySelectorAll('.score').forEach(el=>el.style.color=colors.timerFont||'#ffffff');
+            document.getElementById('scoreboard').className=`design-${data.design||1}`;
+            document.getElementById('wrapper').className=`pos-${data.position||'top-left'}`;
+
+            const hs=data.homeScore||0, as=data.awayScore||0;
+            if(hs!==prevHomeScore&&prevHomeScore!==-1){const e=document.getElementById('homeScore');e.classList.remove('score-animate');void e.offsetWidth;e.classList.add('score-animate');}
+            if(as!==prevAwayScore&&prevAwayScore!==-1){const e=document.getElementById('awayScore');e.classList.remove('score-animate');void e.offsetWidth;e.classList.add('score-animate');}
+            document.getElementById('homeScore').innerText=hs; document.getElementById('awayScore').innerText=as; prevHomeScore=hs; prevAwayScore=as;
+
+            const teamN=data.homeTeam||'ХОЗЯЕВА', teamA=data.awayTeam||'ГОСТИ', tournament=data.tournamentName||'';
+            ['ns','ht','ft','htb','ftb'].forEach(p=>{ document.getElementById(`${p}-home-name`).innerText=teamN; document.getElementById(`${p}-away-name`).innerText=teamA; document.getElementById(`${p}-home-score`).innerText=hs; document.getElementById(`${p}-away-score`).innerText=as; applyLogo(`${p}-home-logo`,data.homeLogo); applyLogo(`${p}-away-logo`,data.awayLogo); });
+            ['ns','ht','ft'].forEach(p=>{ const tEl=document.getElementById(`${p}-tournament`); if(tournament.trim()!==''){tEl.innerText=tournament;tEl.style.display='block';}else{tEl.style.display='none';} });
+
+            clearInterval(mainTimerInterval); const td=data.timer||{}; const baseMs=((td.manualStartMin||0)*60000); const maxMs=((td.maxMinutes||999)*60000);
+            if(td.isRunning){mainTimerInterval=setInterval(()=>{let c=baseMs+(td.elapsed||0)+(Date.now()-td.startTime);if(c>=maxMs){c=maxMs;clearInterval(mainTimerInterval);db.child('timer').update({isRunning:false,elapsed:maxMs-baseMs,startTime:0});}document.getElementById('timer').innerText=formatTime(c);},100);}else{document.getElementById('timer').innerText=formatTime(baseMs+(td.elapsed||0));}
+            clearInterval(addedTimerInterval); const at=data.addedTime||{}; const atB=document.getElementById('addedTimeBlock');
+            if(at.isActive&&at.minutes>0){atB.style.display='block';document.getElementById('addedTimeVal').innerText=`+${at.minutes}`;if(at.isRunning){addedTimerInterval=setInterval(()=>{document.getElementById('addedTimer').innerText=formatTime((at.elapsed||0)+(Date.now()-at.startTime));},100);}else{document.getElementById('addedTimer').innerText=formatTime(at.elapsed||0);}}else{atB.style.display='none';}
+
+            // --- СТАТИСТИКА ---
+            const stats = data.stats || {};
+            const modContainer = document.getElementById('stats-modular-container');
+            modContainer.innerHTML = ''; 
+            let hasModularStats = false;
+
+            statTypes.forEach(s => {
+                let d, hVal, aVal, format = v => v;
+                if (s.key === 'possession') {
+                    d = stats.possession || { home: 50, away: 50, isVisible: false };
+                    hVal = d.home; aVal = d.away; format = v => v + '%';
+                } else if (s.key === 'score') {
+                    d = stats.score || { isVisible: false };
+                    hVal = hs; aVal = as;
+                } else {
+                    d = stats[s.key] || { home: 0, away: 0, isVisible: false };
+                    hVal = d.home || 0; aVal = d.away || 0;
+                }
+                
+                if (d.isVisible && state === 'main') {
+                    hasModularStats = true;
+                    modContainer.innerHTML += `<div class="stat-modular-item"><span class="stat-mod-val">${format(hVal)}</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">${format(aVal)}</span></div>`;
+                }
+
+                document.getElementById(`sum-${s.key}-home`).innerText = format(hVal);
+                document.getElementById(`sum-${s.key}-away`).innerText = format(aVal);
+            });
+
+            document.getElementById('sum-home-name').innerText = teamN;
+            document.getElementById('sum-away-name').innerText = teamA;
+            document.getElementById('sum-home-score').innerText = hs;
+            document.getElementById('sum-away-score').innerText = as;
+
+            modContainer.style.display = hasModularStats ? 'flex' : 'none';
+
+            const poss = stats.possession || { home: 50, away: 50, isVisible: false };
+            const possC = document.getElementById('possession-container');
+            if (poss.isVisible && state === 'main') {
+                possC.style.display = 'flex';
+                const hBar = document.getElementById('poss-home-bar');
+                const aBar = document.getElementById('poss-away-bar');
+                hBar.style.width = poss.home + '%'; hBar.style.background = data.homeFormColor || '#ff0000'; hBar.innerText = poss.home + '%';
+                aBar.style.width = poss.away + '%'; aBar.style.background = data.awayFormColor || '#00ffff'; aBar.innerText = poss.away + '%';
+            } else { possC.style.display = 'none'; }
+        });
+    </script>
+</body>
+</html>
