@@ -116,8 +116,201 @@
           summaryRowsContainer.innerHTML += `<div class="summary-row" id="sum-row-${s.key}"><span class="summary-val" id="sum-${s.key}-home">0</span><span class="summary-label">${s.label}</span><span class="summary-val" id="sum-${s.key}-away">0</span></div>`;
         });
 
-        function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
-        function applyMarker(id, c) { const m = document.getElementById(id); if(c && c!=='transparent'){m.style.backgroundColor=c;m.style.display='block';}else{m.style.display='none';} }
-        function applyLogo(id, u) { const i = document.getElementById(id); if(u&&u.trim()!==''){i.src=u;i.style.display='block';}else{i.style.display='none';} }
+        const el = id => document.getElementById(id);
+        const setText = (id, v) => { const e = el(id); if (e) e.textContent = v; };
+        const num = (v, def) => (typeof v === 'number' && isFinite(v)) ? v : def;
+        const hex = (c, def) => (typeof c === 'string' && c.startsWith('#')) ? c : def;
 
-        db.once('value').then(s => { if(!s.exists()){ db.set({ homeTeam:"ХОЗЯЕВА", awayTeam:"ГОСТИ", homeScore:0, awayScore:0, homeFormColor:"transparent", awayFormColor:"transparent", homeLogo:"", awayLogo:"", tournamentName:"", design:"1", position:"top-left", overlayState:"main", timer:{isRunning:false,startTime:0,elapsed:0,manualStartMin:0,maxMinutes:90}, addedTime:{isActive:false,minutes:0,isRunning:false,startTime:0,elapsed:0}, colors:{bg:"#1a1a1
+        function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
+        function applyMarker(id, c) { const m = el(id); if (c && c !== 'transparent') { m.style.backgroundColor = c; m.style.display = 'block'; } else { m.style.display = 'none'; } }
+        function applyLogo(id, u) { const i = el(id); if (u && typeof u === 'string' && u.trim() !== '') { i.src = u; i.style.display = 'block'; } else { i.style.display = 'none'; } }
+
+        // Первичное создание полной структуры базы
+        db.once('value').then(s => {
+          if (!s.exists()) {
+            db.set({
+              homeTeam: "ХОЗЯЕВА", awayTeam: "ГОСТИ",
+              homeScore: 0, awayScore: 0,
+              homeFormColor: "transparent", awayFormColor: "transparent",
+              homeLogo: "", awayLogo: "",
+              tournamentName: "",
+              design: "1", position: "top-left",
+              overlayState: "main",
+              timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
+              addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
+              colors: { bg: "#1a1a1a", timerFont: "#ffffff", teamFont: "#ffffff" },
+              stats: {
+                possession: { home: 50, away: 50, isVisible: false },
+                score: { isVisible: true },
+                shots: { home: 0, away: 0, isVisible: false },
+                corners: { home: 0, away: 0, isVisible: false },
+                offsides: { home: 0, away: 0, isVisible: false },
+                fouls: { home: 0, away: 0, isVisible: false },
+                yellowCards: { home: 0, away: 0, isVisible: false },
+                redCards: { home: 0, away: 0, isVisible: false }
+              }
+            });
+          }
+        });
+
+        db.on('value', snapshot => {
+          const d = snapshot.val() || {};
+          const timer = d.timer || {};
+          const added = d.addedTime || {};
+          const colors = d.colors || {};
+          const stats = d.stats || {};
+          const state = d.overlayState || 'main';
+
+          const homeName = d.homeTeam || 'ХОЗЯЕВА';
+          const awayName = d.awayTeam || 'ГОСТИ';
+          const homeScore = num(d.homeScore, 0);
+          const awayScore = num(d.awayScore, 0);
+
+          /* --- Табло --- */
+          setText('homeName', homeName);
+          setText('awayName', awayName);
+          const hSc = el('homeScore'), aSc = el('awayScore');
+          hSc.textContent = homeScore;
+          aSc.textContent = awayScore;
+          if (prevHomeScore !== -1 && homeScore !== prevHomeScore) { hSc.classList.remove('score-animate'); void hSc.offsetWidth; hSc.classList.add('score-animate'); }
+          if (prevAwayScore !== -1 && awayScore !== prevAwayScore) { aSc.classList.remove('score-animate'); void aSc.offsetWidth; aSc.classList.add('score-animate'); }
+          prevHomeScore = homeScore; prevAwayScore = awayScore;
+
+          applyMarker('homeMarker', d.homeFormColor);
+          applyMarker('awayMarker', d.awayFormColor);
+
+          const sb = el('scoreboard');
+          ['design-1', 'design-2', 'design-3', 'design-4'].forEach(c => sb.classList.remove(c));
+          sb.classList.add('design-' + (d.design || '1'));
+          sb.style.backgroundColor = colors.bg || '#1a1a1a';
+
+          const wrapper = el('wrapper');
+          wrapper.classList.remove('pos-top-left', 'pos-top-center', 'pos-top-right');
+          wrapper.classList.add('pos-' + (d.position || 'top-left'));
+
+          const teamColor = colors.teamFont || '#ffffff';
+          const timerColor = colors.timerFont || '#ffffff';
+          el('homeName').style.color = teamColor;
+          el('awayName').style.color = teamColor;
+          hSc.style.color = teamColor;
+          aSc.style.color = teamColor;
+
+          /* --- Таймеры: единая конвенция elapsed + (now - startTime) --- */
+          const maxMs = num(timer.maxMinutes, 90) * 60000;
+          const manualMs = num(timer.manualStartMin, 0) * 60000;
+
+          const renderMainTimer = () => {
+            const live = (timer.isRunning && timer.startTime) ? Date.now() - timer.startTime : 0;
+            const total = manualMs + num(timer.elapsed, 0) + live;
+            const t = el('timer');
+            t.textContent = formatTime(total);
+            t.style.color = (maxMs > 0 && total >= maxMs) ? '#ff4d4d' : timerColor;
+          };
+          const renderAddedTimer = () => {
+            const live = (added.isRunning && added.startTime) ? Date.now() - added.startTime : 0;
+            setText('addedTimer', formatTime(num(added.elapsed, 0) + live));
+          };
+
+          renderMainTimer();
+
+          const atb = el('addedTimeBlock');
+          if (added.isActive) {
+            atb.style.display = 'block';
+            setText('addedTimeVal', '+' + num(added.minutes, 0));
+            renderAddedTimer();
+          } else {
+            atb.style.display = 'none';
+          }
+
+          clearInterval(mainTimerInterval);
+          clearInterval(addedTimerInterval);
+          if (timer.isRunning) mainTimerInterval = setInterval(renderMainTimer, 250);
+          if (added.isActive && added.isRunning) addedTimerInterval = setInterval(renderAddedTimer, 250);
+
+          /* --- Сводная статистика --- */
+          statTypes.forEach(s => {
+            const row = el('sum-row-' + s.key);
+            if (!row) return;
+            if (s.key === 'possession') {
+              setText('sum-possession-home', num(stats.possession && stats.possession.home, 50) + '%');
+              setText('sum-possession-away', num(stats.possession && stats.possession.away, 50) + '%');
+            } else if (s.key === 'score') {
+              setText('sum-score-home', homeScore);
+              setText('sum-score-away', awayScore);
+              row.style.display = (stats.score && stats.score.isVisible === false) ? 'none' : 'grid';
+            } else {
+              const node = stats[s.key] || {};
+              setText('sum-' + s.key + '-home', num(node.home, 0));
+              setText('sum-' + s.key + '-away', num(node.away, 0));
+            }
+          });
+
+          /* --- Тексты и логотипы больших оверлеев --- */
+          ['ns', 'ht', 'ft'].forEach(p => {
+            setText(p + '-home-name', homeName);
+            setText(p + '-away-name', awayName);
+            setText(p + '-home-score', homeScore);
+            setText(p + '-away-score', awayScore);
+            applyLogo(p + '-home-logo', d.homeLogo);
+            applyLogo(p + '-away-logo', d.awayLogo);
+            const t = el(p + '-tournament');
+            if (d.tournamentName) { t.textContent = d.tournamentName; t.style.display = 'block'; }
+            else { t.style.display = 'none'; }
+          });
+          ['htb', 'ftb'].forEach(p => {
+            setText(p + '-home-name', homeName);
+            setText(p + '-away-name', awayName);
+            setText(p + '-home-score', homeScore);
+            setText(p + '-away-score', awayScore);
+            applyLogo(p + '-home-logo', d.homeLogo);
+            applyLogo(p + '-away-logo', d.awayLogo);
+          });
+
+          /* --- Переключение режимов --- */
+          const show = (id, on, disp) => { const e = el(id); if (e) e.style.display = on ? disp : 'none'; };
+          show('notstarted-overlay', state === 'notstarted', 'flex');
+          show('halftime-overlay', state === 'halftime', 'flex');
+          show('fulltime-overlay', state === 'fulltime', 'flex');
+          show('halftime-bottom-overlay', state === 'halftime-bottom', 'grid');
+          show('fulltime-bottom-overlay', state === 'fulltime-bottom', 'grid');
+          show('stats-summary-overlay', state === 'stats-summary', 'flex');
+
+          const isMain = state === 'main';
+          show('scoreboard-container', isMain, 'block');
+
+          /* --- Модульная статистика (только в основном режиме) --- */
+          const mod = el('stats-modular-container');
+          mod.innerHTML = '';
+          if (isMain) {
+            const hC = hex(d.homeFormColor, '#ffffff');
+            const aC = hex(d.awayFormColor, '#ffffff');
+            statTypes.forEach(s => {
+              if (s.key === 'possession' || s.key === 'score') return;
+              const node = stats[s.key];
+              if (!node || !node.isVisible) return;
+              const item = document.createElement('div');
+              item.className = 'stat-modular-item';
+              item.innerHTML = `<span class="stat-mod-val" style="color:${hC}">${num(node.home, 0)}</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val" style="color:${aC}">${num(node.away, 0)}</span>`;
+              mod.appendChild(item);
+            });
+          }
+          mod.style.display = mod.children.length ? 'flex' : 'none';
+
+          /* --- Полоса владения --- */
+          const poss = el('possession-container');
+          const possVisible = isMain && stats.possession && stats.possession.isVisible;
+          if (possVisible) {
+            const h = num(stats.possession.home, 50);
+            const a = num(stats.possession.away, 50);
+            const hb = el('poss-home-bar'), ab = el('poss-away-bar');
+            hb.style.width = h + '%'; ab.style.width = a + '%';
+            hb.textContent = h + '%'; ab.textContent = a + '%';
+            hb.style.background = hex(d.homeFormColor, '#ff0000');
+            ab.style.background = hex(d.awayFormColor, '#00ffff');
+          }
+          poss.style.display = possVisible ? 'flex' : 'none';
+          mod.style.bottom = (possVisible && mod.children.length) ? '60px' : '40px';
+        });
+    </script>
+</body>
+</html>
