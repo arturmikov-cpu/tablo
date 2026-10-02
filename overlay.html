@@ -69,6 +69,42 @@
         .summary-row { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .summary-val { font-size: 22px; font-weight: 900; text-align: center; color: #ffffff; }
         .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
+
+        /* === Блок составов === */
+        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 35px 50px; border-radius: 16px; display: none; flex-direction: column; gap: 22px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; max-height: 88vh; overflow: hidden; }
+        .lineup-header { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 2px solid rgba(255,255,255,0.2); }
+        .lineup-header .stripe { width: 6px; height: 60px; flex-shrink: 0; }
+        .lineup-header .logo { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; display: none; }
+        .lineup-header .team-info { flex: 1; min-width: 0; }
+        .lineup-header .team-name { font-size: 36px; font-weight: 900; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 2px; }
+        .lineup-header .team-tag { font-size: 12px; font-weight: 600; color: #ffdd57; letter-spacing: 4px; text-transform: uppercase; margin-top: 3px; }
+        .lineup-body { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; overflow-y: auto; padding-right: 6px; max-height: calc(88vh - 180px); }
+        .lineup-body::-webkit-scrollbar { width: 6px; }
+        .lineup-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .lineup-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        .lineup-section { min-width: 0; }
+        .lineup-section-title { font-size: 13px; font-weight: 700; color: #ffdd57; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .lineup-player { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 16px; }
+        .lineup-player .num { font-family: 'Russo One', sans-serif; font-size: 18px; min-width: 36px; text-align: center; padding: 3px 6px; background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .lineup-player .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+        .lineup-player .badges { display: flex; gap: 4px; flex-shrink: 0; }
+        .lineup-player .badge { font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 3px; letter-spacing: 1px; }
+        .lineup-player .badge.gk { background: #ffdd57; color: #1a1a1a; }
+        .lineup-player .badge.cap { background: #ff5148; color: #fff; }
+        .lineup-player .badge.sub-min { background: rgba(255,255,255,0.15); color: #fff; }
+        .lineup-official { padding: 5px 0; font-size: 14px; }
+        .lineup-official .role { color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+        .lineup-official .name { font-weight: 600; margin-top: 2px; }
+
+        /* === Блок судей === */
+        #referees-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 35px 60px; border-radius: 16px; display: none; flex-direction: column; align-items: center; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; min-width: 480px; }
+        .referees-title { font-size: 14px; font-weight: 700; color: #ffdd57; letter-spacing: 5px; text-transform: uppercase; padding-bottom: 14px; border-bottom: 2px solid rgba(255,255,255,0.2); width: 100%; text-align: center; }
+        .referees-list { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+        .referee-row { display: flex; align-items: center; gap: 16px; padding: 12px 18px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 4px solid #ffdd57; }
+        .referee-icon { width: 32px; height: 32px; flex-shrink: 0; color: #ffdd57; }
+        .referee-info { flex: 1; min-width: 0; }
+        .referee-role { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
+        .referee-name { font-size: 22px; font-weight: 700; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     </style>
 </head>
 <body>
@@ -99,6 +135,35 @@
     <div id="stats-summary-overlay">
         <div class="summary-header"><span id="sum-home-name" class="summary-team-name">ХОЗЯЕВА</span><div class="summary-score"><span id="sum-home-score">0</span> : <span id="sum-away-score">0</span></div><span id="sum-away-name" class="summary-team-name">ГОСТИ</span></div>
         <div id="summary-stats-rows"></div>
+    </div>
+
+    <!-- Блок состава команды -->
+    <div id="lineup-overlay">
+        <div class="lineup-header">
+            <div class="stripe" id="lineup-stripe"></div>
+            <img class="logo" id="lineup-logo" src="" alt="">
+            <div class="team-info">
+                <div class="team-name" id="lineup-team-name">КОМАНДА</div>
+                <div class="team-tag" id="lineup-team-tag">ОСНОВНОЙ СОСТАВ</div>
+            </div>
+        </div>
+        <div class="lineup-body" id="lineup-body">
+            <div class="lineup-section">
+                <div class="lineup-section-title">Основной состав</div>
+                <div id="lineup-starters"></div>
+            </div>
+            <div class="lineup-section">
+                <div class="lineup-section-title">Запасные · Представители</div>
+                <div id="lineup-subs"></div>
+                <div id="lineup-officials" style="margin-top:18px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок судейской бригады -->
+    <div id="referees-overlay">
+        <div class="referees-title">СУДЕЙСКАЯ БРИГАДА</div>
+        <div class="referees-list" id="referees-list"></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -135,6 +200,7 @@
 
         const el = id => document.getElementById(id);
         const setText = (id, v) => { const e = el(id); if (e) e.textContent = v; };
+        const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         const num = (v, def) => (typeof v === 'number' && isFinite(v)) ? v : def;
         const hex = (c, def) => (typeof c === 'string' && c.startsWith('#')) ? c : def;
 
@@ -303,9 +369,54 @@
           show('firsthalf-bottom-overlay', state === 'firsthalf-bottom', 'grid');
           show('secondhalf-bottom-overlay', state === 'secondhalf-bottom', 'grid');
           show('stats-summary-overlay', state === 'stats-summary', 'flex');
+          show('lineup-overlay', state === 'lineup-home' || state === 'lineup-away', 'flex');
+          show('referees-overlay', state === 'referees', 'flex');
 
           const isMain = state === 'main';
           show('scoreboard-container', isMain, 'block');
+
+          /* === Рендер состава === */
+          if (state === 'lineup-home' || state === 'lineup-away') {
+            const side = state === 'lineup-home' ? 'home' : 'away';
+            const lineup = d.lineup || {};
+            const team = lineup[side] || { starters: [], substitutes: [], officials: [] };
+            const teamName = side === 'home' ? homeName : awayName;
+            const teamLogo = side === 'home' ? d.homeLogo : d.awayLogo;
+            const teamColor = side === 'home' ? hex(d.homeFormColor, '#ff5148') : hex(d.awayFormColor, '#45c4ff');
+
+            el('lineup-stripe').style.background = teamColor;
+            setText('lineup-team-name', teamName || (side === 'home' ? 'ХОЗЯЕВА' : 'ГОСТИ'));
+            setText('lineup-team-tag', side === 'home' ? 'ОСНОВНОЙ СОСТАВ' : 'ОСНОВНОЙ СОСТАВ');
+            const logoEl = el('lineup-logo');
+            if (teamLogo) { logoEl.src = teamLogo; logoEl.style.display = 'block'; } else { logoEl.style.display = 'none'; }
+
+            const startersEl = el('lineup-starters');
+            startersEl.innerHTML = (team.starters || []).map(p => {
+              const badges = [];
+              if (p.isGoalkeeper) badges.push('<span class="badge gk">ВР</span>');
+              if (p.isCaptain) badges.push('<span class="badge cap">К</span>');
+              if (p.minuteOut) badges.push('<span class="badge sub-min">↓' + p.minuteOut + '</span>');
+              return '<div class="lineup-player"><span class="num">' + (p.number || '') + '</span><span class="name">' + escapeHtml(p.name) + '</span><span class="badges">' + badges.join('') + '</span></div>';
+            }).join('') || '<div style="color:rgba(255,255,255,0.4);font-size:13px;">Нет данных</div>';
+
+            const subsEl = el('lineup-subs');
+            subsEl.innerHTML = (team.substitutes || []).map(p => {
+              const badges = [];
+              if (p.isGoalkeeper) badges.push('<span class="badge gk">ВР</span>');
+              if (p.minuteIn) badges.push('<span class="badge sub-min">↑' + p.minuteIn + '</span>');
+              return '<div class="lineup-player"><span class="num">' + (p.number || '') + '</span><span class="name">' + escapeHtml(p.name) + '</span><span class="badges">' + badges.join('') + '</span></div>';
+            }).join('') || '<div style="color:rgba(255,255,255,0.4);font-size:13px;">Нет данных</div>';
+
+            const offEl = el('lineup-officials');
+            offEl.innerHTML = (team.officials || []).map(o => '<div class="lineup-official"><div class="role">' + escapeHtml(o.role) + '</div><div class="name">' + escapeHtml(o.name) + '</div></div>').join('');
+          }
+
+          /* === Рендер судей === */
+          if (state === 'referees') {
+            const refs = d.referees || [];
+            const refListEl = el('referees-list');
+            refListEl.innerHTML = refs.length ? refs.map(r => '<div class="referee-row"><svg class="referee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2"/><circle cx="12" cy="12" r="6"/><path d="M9 9h6M9 12h6M9 15h6"/></svg><div class="referee-info"><div class="referee-role">' + escapeHtml(r.role) + '</div><div class="referee-name">' + escapeHtml(r.name) + '</div></div></div>').join('') : '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">Судьи не найдены. Распарсите матч в пульте.</div>';
+          }
 
           /* --- Модульная статистика: автоскрытие 10 с, значения белые --- */
           statTypes.forEach(s => {
