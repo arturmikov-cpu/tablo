@@ -11,7 +11,7 @@
         #scoreboard-container { transition: opacity 0.3s; }
         #scoreboard { display: flex; align-items: center; padding: 12px 35px; border-radius: 8px; gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background-color: #1a1a1a; }
         .team-block { display: flex; align-items: center; gap: 12px; }
-        .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; color: #ffffff; }
+        .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; color: #ffffff; white-space: nowrap; }
         .form-marker { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); display: none; }
         .score { font-size: 38px; font-weight: 900; transition: color 0.3s; color: #ffffff; min-width: 25px; text-align: center; }
         .timer-container { display: flex; flex-direction: column; align-items: center; }
@@ -27,21 +27,21 @@
         .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: 20px; display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         .big-overlay-teams { display: flex; align-items: center; justify-content: center; gap: 50px; width: 100%; }
-        .big-team-card { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .big-team-card { display: flex; flex-direction: column; align-items: center; gap: 15px; min-width: 0; }
         .big-logo { width: 100px; height: 100px; object-fit: contain; }
-        .big-team-name { font-size: 32px; font-weight: bold; text-transform: uppercase; }
+        .big-team-name { font-size: 32px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
         .big-score-block { font-size: 64px; font-weight: 900; display: flex; align-items: center; gap: 20px; }
         .big-score-separator { font-size: 40px; opacity: 0.5; }
-        .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: #ffdd57; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 221, 87, 0.5); }
-        .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; }
+        .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: #ffdd57; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 221, 87, 0.5); white-space: nowrap; }
+        .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; white-space: nowrap; }
 
-        .bottom-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(15px); padding: 20px 40px; border-radius: 15px; display: none; grid-template-columns: auto 350px auto; align-items: center; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 40px rgba(0,0,0,0.8); animation: fadeInBottom 0.5s ease-out; width: fit-content; max-width: 95vw; }
+        .bottom-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(15px); padding: 20px 40px; border-radius: 15px; display: none; grid-template-columns: 1fr 350px 1fr; align-items: center; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 40px rgba(0,0,0,0.8); animation: fadeInBottom 0.5s ease-out; width: fit-content; max-width: 95vw; }
         @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        .bottom-team-group { display: flex; align-items: center; gap: 15px; z-index: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bottom-team-group { display: flex; align-items: center; gap: 15px; z-index: 1; min-width: 0; }
         .bottom-team-group.home { justify-content: flex-end; padding-right: 15px; }
         .bottom-team-group.away { justify-content: flex-start; padding-left: 15px; }
         .bottom-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; }
-        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; }
+        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         .bottom-center-box { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.95); padding: 12px 35px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 2; max-width: 340px; width: max-content; }
         .bottom-status-text { font-size: 22px; font-weight: 900; color: #ffdd57; text-transform: uppercase; letter-spacing: 2px; }
         .bottom-score-box { background: transparent; padding: 0; border-radius: 0; font-size: 36px; font-weight: 900; display: flex; align-items: center; gap: 15px; }
@@ -49,18 +49,18 @@
 
         #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; width: fit-content; }
         .stat-modular-item { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 10px 30px; border-radius: 10px; display: flex; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInBottom 0.3s ease-out; }
-        .stat-mod-val { font-size: 28px; font-weight: 900; min-width: 30px; text-align: center; }
+        .stat-mod-val { font-size: 28px; font-weight: 900; min-width: 30px; text-align: center; color: #ffffff; }
         .stat-mod-label { font-size: 18px; font-weight: 500; color: #ffdd57; text-transform: uppercase; }
 
         #possession-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 60vw; height: 30px; display: none; border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); z-index: 50; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; transition: width 0.5s ease; }
 
         #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: 20px; display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 600px; }
-        .summary-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px; }
-        .summary-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; }
-        .summary-score { font-size: 36px; font-weight: 900; color: #ffdd57; }
-        .summary-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .summary-val { font-size: 22px; font-weight: 900; text-align: center; }
+        .summary-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px; }
+        .summary-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; min-width: 0; }
+        .summary-score { font-size: 36px; font-weight: 900; color: #ffdd57; text-align: center; }
+        .summary-row { display: grid; grid-template-columns: 1fr 190px 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .summary-val { font-size: 22px; font-weight: 900; text-align: center; color: #ffffff; }
         .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
     </style>
 </head>
@@ -195,7 +195,7 @@
           hSc.style.color = teamColor;
           aSc.style.color = teamColor;
 
-          /* --- Таймеры: единая конвенция elapsed + (now - startTime) --- */
+          /* --- Таймеры --- */
           const maxMs = num(timer.maxMinutes, 90) * 60000;
           const manualMs = num(timer.manualStartMin, 0) * 60000;
 
@@ -227,13 +227,20 @@
           if (timer.isRunning) mainTimerInterval = setInterval(renderMainTimer, 250);
           if (added.isActive && added.isRunning) addedTimerInterval = setInterval(renderAddedTimer, 250);
 
-          /* --- Сводная статистика --- */
+          /* --- Сводная статистика: шапка --- */
+          setText('sum-home-name', homeName);
+          setText('sum-away-name', awayName);
+          setText('sum-home-score', homeScore);
+          setText('sum-away-score', awayScore);
+
+          /* --- Сводная статистика: строки --- */
           statTypes.forEach(s => {
             const row = el('sum-row-' + s.key);
             if (!row) return;
             if (s.key === 'possession') {
-              setText('sum-possession-home', num(stats.possession && stats.possession.home, 50) + '%');
-              setText('sum-possession-away', num(stats.possession && stats.possession.away, 50) + '%');
+              const hv = el('sum-possession-home'), av = el('sum-possession-away');
+              if (hv) { hv.textContent = num(stats.possession && stats.possession.home, 50) + '%'; hv.style.color = hex(d.homeFormColor, '#ffffff'); }
+              if (av) { av.textContent = num(stats.possession && stats.possession.away, 50) + '%'; av.style.color = hex(d.awayFormColor, '#ffffff'); }
             } else if (s.key === 'score') {
               setText('sum-score-home', homeScore);
               setText('sum-score-away', awayScore);
@@ -245,7 +252,7 @@
             }
           });
 
-          /* --- Тексты и логотипы больших оверлеев --- */
+          /* --- Большие плашки (центр) --- */
           ['ns', 'ht', 'ft'].forEach(p => {
             setText(p + '-home-name', homeName);
             setText(p + '-away-name', awayName);
@@ -257,9 +264,18 @@
             if (d.tournamentName) { t.textContent = d.tournamentName; t.style.display = 'block'; }
             else { t.style.display = 'none'; }
           });
+
+          /* --- Маленькие плашки (низ): адаптивный размер под самое длинное название --- */
+          const maxLen = Math.max(homeName.length, awayName.length);
+          let bfs = 26;
+          if (maxLen > 24) bfs = 14;
+          else if (maxLen > 20) bfs = 16;
+          else if (maxLen > 16) bfs = 19;
+          else if (maxLen > 12) bfs = 22;
+          const bls = bfs >= 22 ? 50 : bfs >= 18 ? 42 : 36;
           ['htb', 'ftb'].forEach(p => {
-            setText(p + '-home-name', homeName);
-            setText(p + '-away-name', awayName);
+            [p + '-home-name', p + '-away-name'].forEach(id => { const e = el(id); if (e) { e.textContent = (id === p + '-home-name') ? homeName : awayName; e.style.fontSize = bfs + 'px'; } });
+            [p + '-home-logo', p + '-away-logo'].forEach(id => { const e = el(id); if (e) { e.style.width = bls + 'px'; e.style.height = bls + 'px'; } });
             setText(p + '-home-score', homeScore);
             setText(p + '-away-score', awayScore);
             applyLogo(p + '-home-logo', d.homeLogo);
@@ -278,25 +294,23 @@
           const isMain = state === 'main';
           show('scoreboard-container', isMain, 'block');
 
-          /* --- Модульная статистика (только в основном режиме) --- */
+          /* --- Модульная статистика (значения всегда белые) --- */
           const mod = el('stats-modular-container');
           mod.innerHTML = '';
           if (isMain) {
-            const hC = hex(d.homeFormColor, '#ffffff');
-            const aC = hex(d.awayFormColor, '#ffffff');
             statTypes.forEach(s => {
               if (s.key === 'possession' || s.key === 'score') return;
               const node = stats[s.key];
               if (!node || !node.isVisible) return;
               const item = document.createElement('div');
               item.className = 'stat-modular-item';
-              item.innerHTML = `<span class="stat-mod-val" style="color:${hC}">${num(node.home, 0)}</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val" style="color:${aC}">${num(node.away, 0)}</span>`;
+              item.innerHTML = `<span class="stat-mod-val">${num(node.home, 0)}</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">${num(node.away, 0)}</span>`;
               mod.appendChild(item);
             });
           }
           mod.style.display = mod.children.length ? 'flex' : 'none';
 
-          /* --- Полоса владения --- */
+          /* --- Полоса владения (цвета команд) --- */
           const poss = el('possession-container');
           const possVisible = isMain && stats.possession && stats.possession.isVisible;
           if (possVisible) {
