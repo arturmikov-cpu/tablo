@@ -62,31 +62,41 @@
         .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: #ffdd57; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 221, 87, 0.5); }
         .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; }
 
-        /* --- ГРАФИКИ ВНИЗУ (СТРОКА) --- */
+        /* --- ГРАФИКИ ВНИЗУ (ЛЕНТА) --- */
         .bottom-overlay {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px);
-            padding: 15px 50px; border-radius: 15px; 
-            /* Изменили на колонку, чтобы статус был сверху, а команды снизу */
-            display: none; flex-direction: column; align-items: center; gap: 10px;
-            color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            /* Полупрозрачный фон ленты */
+            background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(15px);
+            padding: 20px 60px; border-radius: 15px; 
+            /* Команды расходятся по краям */
+            display: none; justify-content: space-between; align-items: center; gap: 20px;
+            color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 40px rgba(0,0,0,0.8);
             animation: fadeInBottom 0.5s ease-out;
         }
         @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         
-        /* Внутренняя строка для команд и счета */
-        .bottom-main-row {
-            display: flex; align-items: center; gap: 30px;
+        .bottom-team-group {
+            display: flex; align-items: center; gap: 15px; z-index: 1;
         }
-
         .bottom-logo { width: 50px; height: 50px; object-fit: contain; }
-        .bottom-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; }
+
+        /* Центральный контейнер поверх ленты */
+        .bottom-center-box {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            /* Менее прозрачный (почти непрозрачный) фон */
+            background: rgba(0, 0, 0, 0.95); 
+            padding: 12px 40px; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 2;
+        }
+        .bottom-status-text { font-size: 22px; font-weight: 900; color: #ffdd57; text-transform: uppercase; letter-spacing: 2px; }
         .bottom-score-box {
-            background: rgba(255,255,255,0.15); padding: 8px 25px; border-radius: 8px;
-            font-size: 32px; font-weight: 900; display: flex; align-items: center; gap: 15px;
+            background: transparent; padding: 0; border-radius: 0;
+            font-size: 36px; font-weight: 900; display: flex; align-items: center; gap: 15px;
         }
         .bottom-score-sep { opacity: 0.5; font-size: 24px; }
-        .bottom-status-text { font-size: 28px; font-weight: 900; color: #ffdd57; text-transform: uppercase; letter-spacing: 2px; padding: 0; }
     </style>
 </head>
 <body>
@@ -179,17 +189,21 @@
 
     <!-- График ПЕРЕРЫВ (Низ) -->
     <div id="halftime-bottom-overlay" class="bottom-overlay">
-        <!-- Статус сверху -->
-        <span class="bottom-status-text">ПЕРЕРЫВ</span>
-        <!-- Команды и счет снизу -->
-        <div class="bottom-main-row">
+        <div class="bottom-team-group">
             <img id="htb-home-logo" class="bottom-logo" src="" style="display:none;">
             <span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
+        </div>
+        
+        <div class="bottom-center-box">
+            <span class="bottom-status-text">ПЕРЕРЫВ</span>
             <div class="bottom-score-box">
                 <span id="htb-home-score">0</span>
                 <span class="bottom-score-sep">:</span>
                 <span id="htb-away-score">0</span>
             </div>
+        </div>
+        
+        <div class="bottom-team-group">
             <span id="htb-away-name" class="bottom-team-name">ГОСТИ</span>
             <img id="htb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
@@ -197,17 +211,21 @@
 
     <!-- График МАТЧ ОКОНЧЕН (Низ) -->
     <div id="fulltime-bottom-overlay" class="bottom-overlay">
-        <!-- Статус сверху -->
-        <span class="bottom-status-text">МАТЧ ОКОНЧЕН</span>
-        <!-- Команды и счет снизу -->
-        <div class="bottom-main-row">
+        <div class="bottom-team-group">
             <img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;">
             <span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
+        </div>
+        
+        <div class="bottom-center-box">
+            <span class="bottom-status-text">МАТЧ ОКОНЧЕН</span>
             <div class="bottom-score-box">
                 <span id="ftb-home-score">0</span>
                 <span class="bottom-score-sep">:</span>
                 <span id="ftb-away-score">0</span>
             </div>
+        </div>
+        
+        <div class="bottom-team-group">
             <span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span>
             <img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
