@@ -31,9 +31,10 @@
         .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: 20px; display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         .big-overlay-teams { display: flex; align-items: center; gap: 40px; width: 100%; }
-        .big-team-card { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 15px; }
+        .big-team-card { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
         .big-team-card.home { align-items: flex-end; }
         .big-team-card.away { align-items: flex-start; }
+        .big-team-inner { display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .big-logo { width: 100px; height: 100px; object-fit: contain; }
         .big-team-name { font-size: 32px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
         .big-score-block { font-size: 64px; font-weight: 900; display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
@@ -61,11 +62,11 @@
         #possession-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 60vw; height: 30px; display: none; border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); z-index: 50; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; transition: width 0.5s ease; }
 
-        #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: 20px; display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 600px; }
-        .summary-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px; }
+        #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: 20px; display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 680px; }
+        .summary-header { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px; }
         .summary-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; min-width: 0; }
         .summary-score { font-size: 36px; font-weight: 900; color: #ffdd57; text-align: center; }
-        .summary-row { display: grid; grid-template-columns: 1fr 190px 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .summary-row { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .summary-val { font-size: 22px; font-weight: 900; text-align: center; color: #ffffff; }
         .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
     </style>
@@ -83,9 +84,9 @@
         </div>
     </div>
 
-    <div id="notstarted-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><img id="ns-home-logo" class="big-logo" src="" style="display:none;"><span id="ns-home-name" class="big-team-name">ХОЗЯЕВА</span></div><div class="big-score-block"><span id="ns-home-score">0</span><span class="big-score-separator">:</span><span id="ns-away-score">0</span></div><div class="big-team-card away"><img id="ns-away-logo" class="big-logo" src="" style="display:none;"><span id="ns-away-name" class="big-team-name">ГОСТИ</span></div></div><div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div><div id="ns-tournament" class="big-tournament-text"></div></div>
-    <div id="halftime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><img id="ht-home-logo" class="big-logo" src="" style="display:none;"><span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span></div><div class="big-score-block"><span id="ht-home-score">0</span><span class="big-score-separator">:</span><span id="ht-away-score">0</span></div><div class="big-team-card away"><img id="ht-away-logo" class="big-logo" src="" style="display:none;"><span id="ht-away-name" class="big-team-name">ГОСТИ</span></div></div><div class="big-status-text">ПЕРЕРЫВ</div><div id="ht-tournament" class="big-tournament-text"></div></div>
-    <div id="fulltime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><img id="ft-home-logo" class="big-logo" src="" style="display:none;"><span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span></div><div class="big-score-block"><span id="ft-home-score">0</span><span class="big-score-separator">:</span><span id="ft-away-score">0</span></div><div class="big-team-card away"><img id="ft-away-logo" class="big-logo" src="" style="display:none;"><span id="ft-away-name" class="big-team-name">ГОСТИ</span></div></div><div class="big-status-text">МАТЧ ОКОНЧЕН</div><div id="ft-tournament" class="big-tournament-text"></div></div>
+    <div id="notstarted-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ns-home-logo" class="big-logo" src="" style="display:none;"><span id="ns-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ns-home-score">0</span><span class="big-score-separator">:</span><span id="ns-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ns-away-logo" class="big-logo" src="" style="display:none;"><span id="ns-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div><div id="ns-tournament" class="big-tournament-text"></div></div>
+    <div id="halftime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ht-home-logo" class="big-logo" src="" style="display:none;"><span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ht-home-score">0</span><span class="big-score-separator">:</span><span id="ht-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ht-away-logo" class="big-logo" src="" style="display:none;"><span id="ht-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">ПЕРЕРЫВ</div><div id="ht-tournament" class="big-tournament-text"></div></div>
+    <div id="fulltime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ft-home-logo" class="big-logo" src="" style="display:none;"><span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ft-home-score">0</span><span class="big-score-separator">:</span><span id="ft-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ft-away-logo" class="big-logo" src="" style="display:none;"><span id="ft-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ ОКОНЧЕН</div><div id="ft-tournament" class="big-tournament-text"></div></div>
 
     <div id="halftime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="htb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="htb-away-name" class="bottom-team-name">ГОСТИ</span><img id="htb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРЕРЫВ</span><div class="bottom-score-box"><span id="htb-home-score">0</span><span class="bottom-score-sep">:</span><span id="htb-away-score">0</span></div></div></div>
     <div id="fulltime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span><img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">МАТЧ ОКОНЧЕН</span><div class="bottom-score-box"><span id="ftb-home-score">0</span><span class="bottom-score-sep">:</span><span id="ftb-away-score">0</span></div></div></div>
@@ -108,7 +109,13 @@
         const db = firebase.database().ref('match');
 
         let prevHomeScore = -1, prevAwayScore = -1;
-        let mainTimerInterval = null, addedTimerInterval = null;
+        let latestData = null;
+
+        // Автоскрытие метрик: 10 секунд с момента первого показа
+        const AUTO_HIDE_MS = 10000;
+        const shownAt = {};
+        const modItems = {};
+        const modContainer = document.getElementById('stats-modular-container');
 
         const statTypes = [
           { key: 'possession', label: 'Владение' },
@@ -133,7 +140,7 @@
 
         function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
         function applyMarker(id, c) { const m = el(id); if (c && c !== 'transparent') { m.style.backgroundColor = c; m.style.display = 'block'; } else { m.style.display = 'none'; } }
-        function applyLogo(id, u) { const i = el(id); if (u && typeof u === 'string' && u.trim() !== '') { i.src = u; i.style.display = 'block'; } else { i.style.display = 'none'; } }
+        function applyLogo(id, u) { const i = el(id); const has = u && typeof u === 'string' && u.trim() !== ''; if (has) { if (i.getAttribute('src') !== u) i.setAttribute('src', u); i.style.display = 'block'; } else { i.style.display = 'none'; } }
 
         // Первичное создание полной структуры базы
         db.once('value').then(s => {
@@ -163,8 +170,9 @@
           }
         });
 
-        db.on('value', snapshot => {
-          const d = snapshot.val() || {};
+        function render() {
+          if (latestData === null) return;
+          const d = latestData;
           const timer = d.timer || {};
           const added = d.addedTime || {};
           const colors = d.colors || {};
@@ -190,13 +198,11 @@
           applyMarker('awayMarker', d.awayFormColor);
 
           const sb = el('scoreboard');
-          // Дизайн 2 (Модерн) удалён: старое значение "2" трактуется как "1" (Классика)
           const designVal = (d.design === '3' || d.design === '4') ? d.design : '1';
           ['design-1', 'design-2', 'design-3', 'design-4'].forEach(c => sb.classList.remove(c));
           sb.classList.add('design-' + designVal);
           sb.style.backgroundColor = colors.bg || '#1a1a1a';
 
-          // Полоски форм (видны только в Классике, display управляется CSS)
           el('stripeHome').style.backgroundColor = hex(d.homeFormColor, '') || 'transparent';
           el('stripeAway').style.backgroundColor = hex(d.awayFormColor, '') || 'transparent';
 
@@ -211,37 +217,26 @@
           hSc.style.color = teamColor;
           aSc.style.color = teamColor;
 
-          /* --- Таймеры --- */
+          /* --- Таймеры (рендер каждые 250 мс тиком ниже) --- */
           const maxMs = num(timer.maxMinutes, 90) * 60000;
           const manualMs = num(timer.manualStartMin, 0) * 60000;
-
-          const renderMainTimer = () => {
-            const live = (timer.isRunning && timer.startTime) ? Date.now() - timer.startTime : 0;
-            const total = manualMs + num(timer.elapsed, 0) + live;
-            const t = el('timer');
-            t.textContent = formatTime(total);
-            t.style.color = (maxMs > 0 && total >= maxMs) ? '#ff4d4d' : timerColor;
-          };
-          const renderAddedTimer = () => {
-            const live = (added.isRunning && added.startTime) ? Date.now() - added.startTime : 0;
-            setText('addedTimer', formatTime(num(added.elapsed, 0) + live));
-          };
-
-          renderMainTimer();
+          const liveMain = (timer.isRunning && timer.startTime) ? Date.now() - timer.startTime : 0;
+          let totalMs = manualMs + num(timer.elapsed, 0) + liveMain;
+          let atLimit = false;
+          if (maxMs > 0 && totalMs >= maxMs) { totalMs = maxMs; atLimit = true; } // стоп на лимите
+          const tEl = el('timer');
+          tEl.textContent = formatTime(totalMs);
+          tEl.style.color = atLimit ? '#ff4d4d' : timerColor;
 
           const atb = el('addedTimeBlock');
           if (added.isActive) {
             atb.style.display = 'block';
             setText('addedTimeVal', '+' + num(added.minutes, 0));
-            renderAddedTimer();
+            const liveA = (added.isRunning && added.startTime) ? Date.now() - added.startTime : 0;
+            setText('addedTimer', formatTime(num(added.elapsed, 0) + liveA));
           } else {
             atb.style.display = 'none';
           }
-
-          clearInterval(mainTimerInterval);
-          clearInterval(addedTimerInterval);
-          if (timer.isRunning) mainTimerInterval = setInterval(renderMainTimer, 250);
-          if (added.isActive && added.isRunning) addedTimerInterval = setInterval(renderAddedTimer, 250);
 
           /* --- Сводная статистика: шапка --- */
           setText('sum-home-name', homeName);
@@ -281,7 +276,7 @@
             else { t.style.display = 'none'; }
           });
 
-          /* --- Маленькие плашки (низ): адаптивный размер под самое длинное название --- */
+          /* --- Маленькие плашки (низ): адаптивный размер --- */
           const maxLen = Math.max(homeName.length, awayName.length);
           let bfs = 26;
           if (maxLen > 24) bfs = 14;
@@ -312,37 +307,70 @@
           const isMain = state === 'main';
           show('scoreboard-container', isMain, 'block');
 
-          /* --- Модульная статистика (значения всегда белые) --- */
-          const mod = el('stats-modular-container');
-          mod.innerHTML = '';
-          if (isMain) {
-            statTypes.forEach(s => {
-              if (s.key === 'possession' || s.key === 'score') return;
-              const node = stats[s.key];
-              if (!node || !node.isVisible) return;
-              const item = document.createElement('div');
-              item.className = 'stat-modular-item';
-              item.innerHTML = `<span class="stat-mod-val">${num(node.home, 0)}</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">${num(node.away, 0)}</span>`;
-              mod.appendChild(item);
-            });
-          }
-          mod.style.display = mod.children.length ? 'flex' : 'none';
+          /* --- Модульная статистика: автоскрытие 10 с, значения белые --- */
+          statTypes.forEach(s => {
+            if (s.key === 'possession' || s.key === 'score') return;
+            const node = stats[s.key] || {};
+            let showIt = false;
+            if (isMain && node.isVisible) {
+              if (!shownAt[s.key]) shownAt[s.key] = Date.now();
+              showIt = (Date.now() - shownAt[s.key]) < AUTO_HIDE_MS;
+            } else {
+              delete shownAt[s.key];
+            }
+            let item = modItems[s.key];
+            if (showIt) {
+              if (!item) {
+                item = document.createElement('div');
+                item.className = 'stat-modular-item';
+                item.dataset.key = s.key;
+                item.innerHTML = `<span class="stat-mod-val">0</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">0</span>`;
+                const order = statTypes.findIndex(x => x.key === s.key);
+                let ref = null;
+                for (const ch of modContainer.children) {
+                  const o = statTypes.findIndex(x => x.key === ch.dataset.key);
+                  if (o > order) { ref = ch; break; }
+                }
+                modContainer.insertBefore(item, ref);
+                modItems[s.key] = item;
+              }
+              const vals = item.querySelectorAll('.stat-mod-val');
+              const hv = String(num(node.home, 0)), av = String(num(node.away, 0));
+              if (vals[0].textContent !== hv) vals[0].textContent = hv;
+              if (vals[1].textContent !== av) vals[1].textContent = av;
+            } else if (item) {
+              item.remove();
+              delete modItems[s.key];
+            }
+          });
+          modContainer.style.display = modContainer.children.length ? 'flex' : 'none';
 
-          /* --- Полоса владения (цвета команд) --- */
+          /* --- Полоса владения: автоскрытие 10 с, цвета команд --- */
           const poss = el('possession-container');
-          const possVisible = isMain && stats.possession && stats.possession.isVisible;
-          if (possVisible) {
-            const h = num(stats.possession.home, 50);
-            const a = num(stats.possession.away, 50);
+          let possShow = false;
+          const pnode = stats.possession || {};
+          if (isMain && pnode.isVisible) {
+            if (!shownAt['possession']) shownAt['possession'] = Date.now();
+            possShow = (Date.now() - shownAt['possession']) < AUTO_HIDE_MS;
+          } else {
+            delete shownAt['possession'];
+          }
+          if (possShow) {
+            const h = num(pnode.home, 50);
+            const a = num(pnode.away, 50);
             const hb = el('poss-home-bar'), ab = el('poss-away-bar');
             hb.style.width = h + '%'; ab.style.width = a + '%';
             hb.textContent = h + '%'; ab.textContent = a + '%';
             hb.style.background = hex(d.homeFormColor, '#ff0000');
             ab.style.background = hex(d.awayFormColor, '#00ffff');
           }
-          poss.style.display = possVisible ? 'flex' : 'none';
-          mod.style.bottom = (possVisible && mod.children.length) ? '60px' : '40px';
-        });
+          poss.style.display = possShow ? 'flex' : 'none';
+          modContainer.style.bottom = (possShow && modContainer.children.length) ? '60px' : '40px';
+        }
+
+        db.on('value', snapshot => { latestData = snapshot.val(); render(); });
+        // Тик: обновление таймеров и срабатывание автоскрытия без изменения БД
+        setInterval(render, 250);
     </script>
 </body>
 </html>
