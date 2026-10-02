@@ -77,12 +77,12 @@
             display: flex; align-items: center; gap: 15px; z-index: 1;
         }
         .bottom-logo { width: 50px; height: 50px; object-fit: contain; }
-        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase5; }
+        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; }
 
         /* Невидимая распорка, чтобы команды не заходили за счет */
         .bottom-center-spacer {
-            width: 240px; /* Чуть больше ширины .bottom-center-box (которая ~200px) */
-            flex-shrink: 0; /* Чтобы ширина не сжималась на маленьких экранах */
+            width: 240px; /* Чуть больше ширины .bottom-center-box */
+            flex-shrink: 0;
         }
 
         /* Центральный контейнер поверх ленты */
@@ -197,7 +197,6 @@
             <span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
         </div>
         
-        <!-- Невидимая распорка -->
         <div class="bottom-center-spacer"></div>
         
         <div class="bottom-team-group">
@@ -205,7 +204,6 @@
             <img id="htb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
 
-        <!-- Плавающий контейнер поверх распорки -->
         <div class="bottom-center-box">
             <span class="bottom-status-text">ПЕРЕРЫВ</span>
             <div class="bottom-score-box">
@@ -223,7 +221,6 @@
             <span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
         </div>
         
-        <!-- Невидимая распорка -->
         <div class="bottom-center-spacer"></div>
         
         <div class="bottom-team-group">
@@ -231,7 +228,6 @@
             <img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
 
-        <!-- Плавающий контейнер поверх распорки -->
         <div class="bottom-center-box">
             <span class="bottom-status-text">МАТЧ ОКОНЧЕН</span>
             <div class="bottom-score-box">
@@ -255,7 +251,7 @@
             appId: "1:449837394917:web:b5115ffd8de2c001919d0c"
         };
         firebase.initializeApp(firebaseConfig);
-4       const db = firebase.database().ref('match');
+        const db = firebase.database().ref('match');
 
         let prevHomeScore = -1, prevAwayScore = -1;
         let mainTimerInterval = null, addedTimerInterval = null;
