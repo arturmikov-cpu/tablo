@@ -66,33 +66,44 @@
         .bottom-overlay {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
             background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(15px);
-            padding: 20px 60px; border-radius: 15px; 
-            display: none; justify-content: space-between; align-items: center; gap: 20px;
+            padding: 20px 40px; border-radius: 15px; 
+            /* ИСПОЛЬЗУЕМ GRID ДЛЯ ЖЕСТКОГО РАЗДЕЛЕНИЯ ЗОН */
+            display: none; grid-template-columns: 1fr 350px 1fr; align-items: center;
             color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 40px rgba(0,0,0,0.8);
             animation: fadeInBottom 0.5s ease-out;
+            width: 80vw; /* Ширина плашки 80% от экрана, чтобы точно хватило места командам */
         }
         @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         
         .bottom-team-group {
             display: flex; align-items: center; gap: 15px; z-index: 1;
+            /* Защита от слишком длинных названий */
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
         }
-        .bottom-logo { width: 50px; height: 50px; object-fit: contain; }
+        /* Хозяева прижимаются вправо (к центру) */
+        .bottom-team-group.home {
+            justify-content: flex-end;
+            padding-right: 15px;
+        }
+        /* Гости прижимаются влево (к центру) */
+        .bottom-team-group.away {
+            justify-content: flex-start;
+            padding-left: 15px;
+        }
+
+        .bottom-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; }
         .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; }
 
-        /* Невидимая распорка, чтобы команды не заходили за счет */
-        .bottom-center-spacer {
-            width: 240px; /* Чуть больше ширины .bottom-center-box */
-            flex-shrink: 0;
-        }
-
-        /* Центральный контейнер поверх ленты */
+        /* Центральный контейнер поверх сетки */
         .bottom-center-box {
             position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.95); 
-            padding: 12px 40px; border-radius: 12px;
+            padding: 12px 35px; border-radius: 12px;
             display: flex; flex-direction: column; align-items: center; gap: 5px;
             border: 1px solid rgba(255,255,255,0.2);
             box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 2;
+            max-width: 340px; /* Ограничение, чтобы влез в зарезервированную зону 350px */
+            width: max-content;
         }
         .bottom-status-text { font-size: 22px; font-weight: 900; color: #ffdd57; text-transform: uppercase; letter-spacing: 2px; }
         .bottom-score-box {
@@ -192,14 +203,14 @@
 
     <!-- График ПЕРЕРЫВ (Низ) -->
     <div id="halftime-bottom-overlay" class="bottom-overlay">
-        <div class="bottom-team-group">
+        <div class="bottom-team-group home">
             <img id="htb-home-logo" class="bottom-logo" src="" style="display:none;">
             <span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
         </div>
         
         <div class="bottom-center-spacer"></div>
         
-        <div class="bottom-team-group">
+        <div class="bottom-team-group away">
             <span id="htb-away-name" class="bottom-team-name">ГОСТИ</span>
             <img id="htb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
@@ -216,14 +227,14 @@
 
     <!-- График МАТЧ ОКОНЧЕН (Низ) -->
     <div id="fulltime-bottom-overlay" class="bottom-overlay">
-        <div class="bottom-team-group">
+        <div class="bottom-team-group home">
             <img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;">
             <span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
         </div>
         
         <div class="bottom-center-spacer"></div>
         
-        <div class="bottom-team-group">
+        <div class="bottom-team-group away">
             <span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span>
             <img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
@@ -307,8 +318,8 @@
             if (state === 'notstarted') nsOverlay.style.display = 'flex';
             else if (state === 'halftime') htOverlay.style.display = 'flex';
             else if (state === 'fulltime') ftOverlay.style.display = 'flex';
-            else if (state === 'halftime-bottom') htBottomOverlay.style.display = 'flex';
-            else if (state === 'fulltime-bottom') ftBottomOverlay.style.display = 'flex';
+            else if (state === 'halftime-bottom') htBottomOverlay.style.display = 'grid'; /* Включаем Grid */
+            else if (state === 'fulltime-bottom') ftBottomOverlay.style.display = 'grid'; /* Включаем Grid */
             else if (state === 'hidden') { }
             else mainContainer.style.display = 'block';
 
