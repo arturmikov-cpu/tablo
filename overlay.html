@@ -42,7 +42,7 @@
         .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
         .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        /* --- ПОЛНОЭКРАННЫЕ ГРАФИКИ (ПЕРЕРЫВ / ФИНАЛ) --- */
+        /* --- ПОЛНОЭКРАННЫЕ ГРАФИКИ --- */
         .big-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px);
@@ -85,6 +85,26 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- График МАТЧ НЕ НАЧАЛСЯ -->
+    <div id="notstarted-overlay" class="big-overlay">
+        <div class="big-overlay-teams">
+            <div class="big-team-card">
+                <img id="ns-home-logo" class="big-logo" src="" style="display:none;">
+                <span id="ns-home-name" class="big-team-name">ХОЗЯЕВА</span>
+            </div>
+            <div class="big-score-block">
+                <span id="ns-home-score">0</span>
+                <span class="big-score-separator">:</span>
+                <span id="ns-away-score">0</span>
+            </div>
+            <div class="big-team-card">
+                <img id="ns-away-logo" class="big-logo" src="" style="display:none;">
+                <span id="ns-away-name" class="big-team-name">ГОСТИ</span>
+            </div>
+        </div>
+        <div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div>
     </div>
 
     <!-- График ПЕРЕРЫВ -->
@@ -184,16 +204,22 @@
             // Управление состояниями экранов
             const state = data.overlayState || 'main';
             const mainContainer = document.getElementById('scoreboard-container');
+            const nsOverlay = document.getElementById('notstarted-overlay');
             const htOverlay = document.getElementById('halftime-overlay');
             const ftOverlay = document.getElementById('fulltime-overlay');
 
-            if (state === 'halftime') {
-                mainContainer.style.display = 'none'; htOverlay.style.display = 'flex'; ftOverlay.style.display = 'none';
-            } else if (state === 'fulltime') {
-                mainContainer.style.display = 'none'; htOverlay.style.display = 'none'; ftOverlay.style.display = 'flex';
-            } else {
-                mainContainer.style.display = 'block'; htOverlay.style.display = 'none'; ftOverlay.style.display = 'none';
-            }
+            // Скрываем всё по умолчанию
+            mainContainer.style.display = 'none';
+            nsOverlay.style.display = 'none';
+            htOverlay.style.display = 'none';
+            ftOverlay.style.display = 'none';
+
+            // Показываем нужное в зависимости от состояния
+            if (state === 'notstarted') nsOverlay.style.display = 'flex';
+            else if (state === 'halftime') htOverlay.style.display = 'flex';
+            else if (state === 'fulltime') ftOverlay.style.display = 'flex';
+            else if (state === 'hidden') { /* Всё уже скрыто */ }
+            else mainContainer.style.display = 'block'; // 'main'
 
             // Заполнение данных основного табло
             document.getElementById('homeName').innerText = data.homeTeam || 'ХОЗЯЕВА';
@@ -216,9 +242,9 @@
             document.getElementById('homeScore').innerText = hs; document.getElementById('awayScore').innerText = as;
             prevHomeScore = hs; prevAwayScore = as;
 
-            // Заполнение данных больших оверлеев
+            // Заполнение данных больших оверлеев (ns - not started, ht - halftime, ft - fulltime)
             const teamN = data.homeTeam || 'ХОЗЯЕВА'; const teamA = data.awayTeam || 'ГОСТИ';
-            ['ht', 'ft'].forEach(prefix => {
+            ['ns', 'ht', 'ft'].forEach(prefix => {
                 document.getElementById(`${prefix}-home-name`).innerText = teamN;
                 document.getElementById(`${prefix}-away-name`).innerText = teamA;
                 document.getElementById(`${prefix}-home-score`).innerText = hs;
