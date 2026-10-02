@@ -65,10 +65,8 @@
         /* --- ГРАФИКИ ВНИЗУ (ЛЕНТА) --- */
         .bottom-overlay {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            /* Полупрозрачный фон ленты */
             background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(15px);
             padding: 20px 60px; border-radius: 15px; 
-            /* Команды расходятся по краям */
             display: none; justify-content: space-between; align-items: center; gap: 20px;
             color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 40px rgba(0,0,0,0.8);
             animation: fadeInBottom 0.5s ease-out;
@@ -79,12 +77,17 @@
             display: flex; align-items: center; gap: 15px; z-index: 1;
         }
         .bottom-logo { width: 50px; height: 50px; object-fit: contain; }
-        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase; }
+        .bottom-team-name { font-size: 26px; font-weight: bold; text-transform: uppercase5; }
+
+        /* Невидимая распорка, чтобы команды не заходили за счет */
+        .bottom-center-spacer {
+            width: 240px; /* Чуть больше ширины .bottom-center-box (которая ~200px) */
+            flex-shrink: 0; /* Чтобы ширина не сжималась на маленьких экранах */
+        }
 
         /* Центральный контейнер поверх ленты */
         .bottom-center-box {
             position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            /* Менее прозрачный (почти непрозрачный) фон */
             background: rgba(0, 0, 0, 0.95); 
             padding: 12px 40px; border-radius: 12px;
             display: flex; flex-direction: column; align-items: center; gap: 5px;
@@ -194,6 +197,15 @@
             <span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
         </div>
         
+        <!-- Невидимая распорка -->
+        <div class="bottom-center-spacer"></div>
+        
+        <div class="bottom-team-group">
+            <span id="htb-away-name" class="bottom-team-name">ГОСТИ</span>
+            <img id="htb-away-logo" class="bottom-logo" src="" style="display:none;">
+        </div>
+
+        <!-- Плавающий контейнер поверх распорки -->
         <div class="bottom-center-box">
             <span class="bottom-status-text">ПЕРЕРЫВ</span>
             <div class="bottom-score-box">
@@ -201,11 +213,6 @@
                 <span class="bottom-score-sep">:</span>
                 <span id="htb-away-score">0</span>
             </div>
-        </div>
-        
-        <div class="bottom-team-group">
-            <span id="htb-away-name" class="bottom-team-name">ГОСТИ</span>
-            <img id="htb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
     </div>
 
@@ -216,6 +223,15 @@
             <span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
         </div>
         
+        <!-- Невидимая распорка -->
+        <div class="bottom-center-spacer"></div>
+        
+        <div class="bottom-team-group">
+            <span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span>
+            <img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;">
+        </div>
+
+        <!-- Плавающий контейнер поверх распорки -->
         <div class="bottom-center-box">
             <span class="bottom-status-text">МАТЧ ОКОНЧЕН</span>
             <div class="bottom-score-box">
@@ -223,11 +239,6 @@
                 <span class="bottom-score-sep">:</span>
                 <span id="ftb-away-score">0</span>
             </div>
-        </div>
-        
-        <div class="bottom-team-group">
-            <span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span>
-            <img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;">
         </div>
     </div>
 
@@ -244,7 +255,7 @@
             appId: "1:449837394917:web:b5115ffd8de2c001919d0c"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('match');
+4       const db = firebase.database().ref('match');
 
         let prevHomeScore = -1, prevAwayScore = -1;
         let mainTimerInterval = null, addedTimerInterval = null;
@@ -285,7 +296,6 @@
             const data = snapshot.val();
             if (!data) return;
             
-            // Управление состояниями экранов
             const state = data.overlayState || 'main';
             const mainContainer = document.getElementById('scoreboard-container');
             const nsOverlay = document.getElementById('notstarted-overlay');
@@ -294,21 +304,18 @@
             const htBottomOverlay = document.getElementById('halftime-bottom-overlay');
             const ftBottomOverlay = document.getElementById('fulltime-bottom-overlay');
 
-            // Скрываем всё по умолчанию
             mainContainer.style.display = 'none';
             nsOverlay.style.display = 'none'; htOverlay.style.display = 'none'; ftOverlay.style.display = 'none';
             htBottomOverlay.style.display = 'none'; ftBottomOverlay.style.display = 'none';
 
-            // Показываем нужное
             if (state === 'notstarted') nsOverlay.style.display = 'flex';
             else if (state === 'halftime') htOverlay.style.display = 'flex';
             else if (state === 'fulltime') ftOverlay.style.display = 'flex';
             else if (state === 'halftime-bottom') htBottomOverlay.style.display = 'flex';
             else if (state === 'fulltime-bottom') ftBottomOverlay.style.display = 'flex';
-            else if (state === 'hidden') { /* Всё уже скрыто */ }
-            else mainContainer.style.display = 'block'; // 'main'
+            else if (state === 'hidden') { }
+            else mainContainer.style.display = 'block';
 
-            // Заполнение данных основного табло
             document.getElementById('homeName').innerText = data.homeTeam || 'ХОЗЯЕВА';
             document.getElementById('awayName').innerText = data.awayTeam || 'ГОСТИ';
             applyMarker('homeMarker', data.homeFormColor);
@@ -329,11 +336,9 @@
             document.getElementById('homeScore').innerText = hs; document.getElementById('awayScore').innerText = as;
             prevHomeScore = hs; prevAwayScore = as;
 
-            // Заполнение больших оверлеев и нижних строк
             const teamN = data.homeTeam || 'ХОЗЯЕВА'; const teamA = data.awayTeam || 'ГОСТИ';
             const tournament = data.tournamentName || '';
 
-            // Префиксы: ns (not started), ht (halftime), ft (fulltime), htb (ht bottom), ftb (ft bottom)
             ['ns', 'ht', 'ft', 'htb', 'ftb'].forEach(prefix => {
                 document.getElementById(`${prefix}-home-name`).innerText = teamN;
                 document.getElementById(`${prefix}-away-name`).innerText = teamA;
@@ -343,14 +348,12 @@
                 applyLogo(`${prefix}-away-logo`, data.awayLogo);
             });
 
-            // Заполнение названия турнира (только для больших центральных плашек)
             ['ns', 'ht', 'ft'].forEach(prefix => {
                 const tEl = document.getElementById(`${prefix}-tournament`);
                 if (tournament.trim() !== '') { tEl.innerText = tournament; tEl.style.display = 'block'; } 
                 else { tEl.style.display = 'none'; }
             });
 
-            // --- ОСНОВНОЙ ТАЙМЕР ---
             clearInterval(mainTimerInterval);
             const td = data.timer || {};
             const baseMs = ((td.manualStartMin || 0) * 60000);
@@ -364,7 +367,6 @@
                 }, 100);
             } else { document.getElementById('timer').innerText = formatTime(baseMs + (td.elapsed || 0)); }
 
-            // --- ДОБАВЛЕННОЕ ВРЕМЯ ---
             clearInterval(addedTimerInterval);
             const at = data.addedTime || {}; const atBlock = document.getElementById('addedTimeBlock');
             if (at.isActive && at.minutes > 0) {
