@@ -42,12 +42,12 @@
         .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
         .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        /* --- ПОЛНОЭКРАННЫЕ ГРАФИКИ --- */
+        /* --- ПОЛНОЭКРАННЫЕ ГРАФИКИ (ЦЕНТР) --- */
         .big-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px);
             padding: 60px 120px; border-radius: 20px; 
-            display: none; flex-direction: column; align-items: center; gap: 40px;
+            display: none; flex-direction: column; align-items: center; gap: 30px;
             color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8);
             animation: fadeIn 0.5s ease-out;
         }
@@ -60,6 +60,27 @@
         .big-score-block { font-size: 64px; font-weight: 900; display: flex; align-items: center; gap: 20px; }
         .big-score-separator { font-size: 40px; opacity: 0.5; }
         .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: #ffdd57; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 221, 87, 0.5); }
+        .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; }
+
+        /* --- ГРАФИКИ ВНИЗУ (СТРОКА) --- */
+        .bottom-overlay {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px);
+            padding: 15px 50px; border-radius: 15px; 
+            display: none; align-items: center; gap: 25px;
+            color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            animation: fadeInBottom 0.5s ease-out;
+        }
+        @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        
+        .bottom-logo { width: 50px; height: 50px; object-fit: contain; }
+        .bottom-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .bottom-score-box {
+            background: rgba(255,255,255,0.15); padding: 8px 25px; border-radius: 8px;
+            font-size: 32px; font-weight: 900; display: flex; align-items: center; gap: 15px;
+        }
+        .bottom-score-sep { opacity: 0.5; font-size: 24px; }
+        .bottom-status-text { font-size: 26px; font-weight: 900; color: #ffdd57; text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -105,9 +126,10 @@
             </div>
         </div>
         <div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div>
+        <div id="ns-tournament" class="big-tournament-text"></div>
     </div>
 
-    <!-- График ПЕРЕРЫВ -->
+    <!-- График ПЕРЕРЫВ (Центр) -->
     <div id="halftime-overlay" class="big-overlay">
         <div class="big-overlay-teams">
             <div class="big-team-card">
@@ -125,9 +147,10 @@
             </div>
         </div>
         <div class="big-status-text">ПЕРЕРЫВ</div>
+        <div id="ht-tournament" class="big-tournament-text"></div>
     </div>
 
-    <!-- График МАТЧ ОКОНЧЕН -->
+    <!-- График МАТЧ ОКОНЧЕН (Центр) -->
     <div id="fulltime-overlay" class="big-overlay">
         <div class="big-overlay-teams">
             <div class="big-team-card">
@@ -145,6 +168,35 @@
             </div>
         </div>
         <div class="big-status-text">МАТЧ ОКОНЧЕН</div>
+        <div id="ft-tournament" class="big-tournament-text"></div>
+    </div>
+
+    <!-- График ПЕРЕРЫВ (Низ) -->
+    <div id="halftime-bottom-overlay" class="bottom-overlay">
+        <img id="htb-home-logo" class="bottom-logo" src="" style="display:none;">
+        <span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
+        <div class="bottom-score-box">
+            <span id="htb-home-score">0</span>
+            <span class="bottom-score-sep">:</span>
+            <span id="htb-away-score">0</span>
+        </div>
+        <span class="bottom-status-text">ПЕРЕРЫВ</span>
+        <span id="htb-away-name" class="bottom-team-name">ГОСТИ</span>
+        <img id="htb-away-logo" class="bottom-logo" src="" style="display:none;">
+    </div>
+
+    <!-- График МАТЧ ОКОНЧЕН (Низ) -->
+    <div id="fulltime-bottom-overlay" class="bottom-overlay">
+        <img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;">
+        <span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span>
+        <div class="bottom-score-box">
+            <span id="ftb-home-score">0</span>
+            <span class="bottom-score-sep">:</span>
+            <span id="ftb-away-score">0</span>
+        </div>
+        <span class="bottom-status-text">МАТЧ ОКОНЧЕН</span>
+        <span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span>
+        <img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;">
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -188,7 +240,7 @@
                 db.set({
                     homeTeam: "ХОЗЯЕВА", awayTeam: "ГОСТИ", homeScore: 0, awayScore: 0,
                     homeFormColor: "transparent", awayFormColor: "transparent",
-                    homeLogo: "", awayLogo: "",
+                    homeLogo: "", awayLogo: "", tournamentName: "",
                     design: "1", position: "top-left", overlayState: "main",
                     timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
                     addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
@@ -207,17 +259,20 @@
             const nsOverlay = document.getElementById('notstarted-overlay');
             const htOverlay = document.getElementById('halftime-overlay');
             const ftOverlay = document.getElementById('fulltime-overlay');
+            const htBottomOverlay = document.getElementById('halftime-bottom-overlay');
+            const ftBottomOverlay = document.getElementById('fulltime-bottom-overlay');
 
             // Скрываем всё по умолчанию
             mainContainer.style.display = 'none';
-            nsOverlay.style.display = 'none';
-            htOverlay.style.display = 'none';
-            ftOverlay.style.display = 'none';
+            nsOverlay.style.display = 'none'; htOverlay.style.display = 'none'; ftOverlay.style.display = 'none';
+            htBottomOverlay.style.display = 'none'; ftBottomOverlay.style.display = 'none';
 
-            // Показываем нужное в зависимости от состояния
+            // Показываем нужное
             if (state === 'notstarted') nsOverlay.style.display = 'flex';
             else if (state === 'halftime') htOverlay.style.display = 'flex';
             else if (state === 'fulltime') ftOverlay.style.display = 'flex';
+            else if (state === 'halftime-bottom') htBottomOverlay.style.display = 'flex';
+            else if (state === 'fulltime-bottom') ftBottomOverlay.style.display = 'flex';
             else if (state === 'hidden') { /* Всё уже скрыто */ }
             else mainContainer.style.display = 'block'; // 'main'
 
@@ -242,15 +297,25 @@
             document.getElementById('homeScore').innerText = hs; document.getElementById('awayScore').innerText = as;
             prevHomeScore = hs; prevAwayScore = as;
 
-            // Заполнение данных больших оверлеев (ns - not started, ht - halftime, ft - fulltime)
+            // Заполнение больших оверлеев и нижних строк
             const teamN = data.homeTeam || 'ХОЗЯЕВА'; const teamA = data.awayTeam || 'ГОСТИ';
-            ['ns', 'ht', 'ft'].forEach(prefix => {
+            const tournament = data.tournamentName || '';
+
+            // Префиксы: ns (not started), ht (halftime), ft (fulltime), htb (ht bottom), ftb (ft bottom)
+            ['ns', 'ht', 'ft', 'htb', 'ftb'].forEach(prefix => {
                 document.getElementById(`${prefix}-home-name`).innerText = teamN;
                 document.getElementById(`${prefix}-away-name`).innerText = teamA;
                 document.getElementById(`${prefix}-home-score`).innerText = hs;
                 document.getElementById(`${prefix}-away-score`).innerText = as;
                 applyLogo(`${prefix}-home-logo`, data.homeLogo);
                 applyLogo(`${prefix}-away-logo`, data.awayLogo);
+            });
+
+            // Заполнение названия турнира (только для больших центральных плашек)
+            ['ns', 'ht', 'ft'].forEach(prefix => {
+                const tEl = document.getElementById(`${prefix}-tournament`);
+                if (tournament.trim() !== '') { tEl.innerText = tournament; tEl.style.display = 'block'; } 
+                else { tEl.style.display = 'none'; }
             });
 
             // --- ОСНОВНОЙ ТАЙМЕР ---
