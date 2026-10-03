@@ -92,19 +92,22 @@
         .lineup-player .badge.gk { background: #ffdd57; color: #1a1a1a; }
         .lineup-player .badge.cap { background: #ff5148; color: #fff; }
         .lineup-player .badge.sub-min { background: rgba(255,255,255,0.15); color: #fff; }
-        .lineup-official { padding: 5px 0; font-size: 14px; }
-        .lineup-official .role { color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
-        .lineup-official .name { font-weight: 600; margin-top: 2px; }
+        .lineup-officials-wrap { padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 6px; }
+        .lineup-officials { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .lineup-official { padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 3px solid #ffdd57; }
+        .lineup-official .role { color: #ffdd57; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .lineup-official .name { font-weight: 600; margin-top: 4px; font-size: 15px; }
 
-        /* === Блок судей === */
-        #referees-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 35px 60px; border-radius: 16px; display: none; flex-direction: column; align-items: center; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; min-width: 480px; }
-        .referees-title { font-size: 14px; font-weight: 700; color: #ffdd57; letter-spacing: 5px; text-transform: uppercase; padding-bottom: 14px; border-bottom: 2px solid rgba(255,255,255,0.2); width: 100%; text-align: center; }
-        .referees-list { display: flex; flex-direction: column; gap: 14px; width: 100%; }
-        .referee-row { display: flex; align-items: center; gap: 16px; padding: 12px 18px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 4px solid #ffdd57; }
-        .referee-icon { width: 32px; height: 32px; flex-shrink: 0; color: #ffdd57; }
+        /* === Блок судей (внизу экрана, в ряд) === */
+        #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 22px 36px; border-radius: 14px; display: none; flex-direction: column; gap: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInBottom 0.5s ease-out; max-width: 92vw; }
+        .referees-title { font-size: 13px; font-weight: 700; color: #ffdd57; letter-spacing: 5px; text-transform: uppercase; padding-bottom: 10px; border-bottom: 2px solid rgba(255,221,87,0.3); text-align: center; }
+        .referees-list { display: flex; flex-direction: row; gap: 24px; justify-content: center; align-items: stretch; flex-wrap: wrap; }
+        .referee-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(255,255,255,0.04); border-radius: 10px; border-left: 3px solid #ffdd57; min-width: 220px; }
+        .referee-icon { width: 26px; height: 26px; flex-shrink: 0; color: #ffdd57; }
         .referee-info { flex: 1; min-width: 0; }
-        .referee-role { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
-        .referee-name { font-size: 22px; font-weight: 700; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .referee-role { font-size: 10px; font-weight: 600; color: rgba(255,221,87,0.7); letter-spacing: 2px; text-transform: uppercase; }
+        .referee-name { font-size: 18px; font-weight: 700; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 720px) { .referees-list { flex-direction: column; } .referee-row { min-width: 100%; } }
     </style>
 </head>
 <body>
@@ -153,10 +156,13 @@
                 <div id="lineup-starters"></div>
             </div>
             <div class="lineup-section">
-                <div class="lineup-section-title">Запасные · Представители</div>
+                <div class="lineup-section-title">Запасные</div>
                 <div id="lineup-subs"></div>
-                <div id="lineup-officials" style="margin-top:18px;"></div>
             </div>
+        </div>
+        <div class="lineup-officials-wrap">
+            <div class="lineup-section-title">Представители</div>
+            <div class="lineup-officials" id="lineup-officials"></div>
         </div>
     </div>
 
