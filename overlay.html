@@ -56,9 +56,9 @@
         .bottom-score-sep { opacity: 0.5; font-size: 24px; }
 
         #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; }
-        .stat-modular-item { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 10px 30px; border-radius: 10px; display: flex; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; }
-        .stat-mod-val { font-size: 28px; font-weight: 900; min-width: 44px; text-align: center; color: #ffffff; line-height: 1; }
-        .stat-mod-label { font-size: 18px; font-weight: 500; color: #ffdd57; text-transform: uppercase; line-height: 1; }
+        .stat-modular-item { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 13px 39px; border-radius: 13px; display: flex; align-items: center; gap: 39px; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; }
+        .stat-mod-val { font-size: 36px; font-weight: 900; min-width: 57px; text-align: center; color: #ffffff; line-height: 1; }
+        .stat-mod-label { font-size: 23px; font-weight: 500; color: #ffdd57; text-transform: uppercase; line-height: 1; }
 
         #possession-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 60vw; height: 30px; display: none; border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); z-index: 50; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; }
@@ -116,6 +116,18 @@
         .referee-name { font-size: 21px; font-weight: 700; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         @media (max-width: 720px) { .referees-list { flex-direction: column; gap: 14px; } .referee-row { min-width: 100%; padding: 14px 16px; } .referee-name { font-size: 18px; } .referee-role { font-size: 10px; } .referee-icon { width: 26px; height: 26px; } }
 
+        /* === Плашка «СПАСИБО ЗА СЕЗОН» === */
+        #thanks-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 40px 50px; border-radius: 20px; display: none; flex-direction: row; align-items: center; gap: 40px; color: white; border: 1px solid rgba(255,221,87,0.4); box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 30px rgba(255,221,87,0.15); animation: fadeIn 0.6s ease-out; z-index: 70; max-width: 92vw; max-height: 90vh; }
+        .thanks-photo { flex-shrink: 0; width: 200px; height: 200px; border-radius: 16px; overflow: hidden; border: 3px solid #ffdd57; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        .thanks-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thanks-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 28px; }
+        .thanks-title { font: 900 64px 'Russo One', sans-serif; color: #ffdd57; text-transform: uppercase; letter-spacing: 4px; line-height: 1; text-shadow: 0 0 20px rgba(255,221,87,0.4); }
+        .thanks-credits { display: flex; flex-direction: column; gap: 14px; }
+        .credit-row { display: flex; flex-direction: column; gap: 2px; }
+        .credit-name { font: 700 26px 'Segoe UI', sans-serif; color: #ffffff; text-transform: uppercase; letter-spacing: 2px; }
+        .credit-role { font: 500 16px 'Segoe UI', sans-serif; color: rgba(255,221,87,0.8); text-transform: lowercase; letter-spacing: 1px; }
+        @media (max-width: 720px) { #thanks-overlay { flex-direction: column; padding: 24px 22px; gap: 20px; } .thanks-photo { width: 140px; height: 140px; } .thanks-title { font-size: 36px; letter-spacing: 2px; text-align: center; } .credit-name { font-size: 18px; } .credit-role { font-size: 13px; } .thanks-credits { align-items: center; } .credit-row { align-items: center; } }
+
         /* === Плашки игровых событий (нижние углы) === */
         .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 21px; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 24px 33px; border-radius: 21px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; z-index: 60; max-width: 46vw; }
         #event-home-overlay { left: 36px; }
@@ -124,8 +136,8 @@
         .event-overlay .ev-icon { width: 72px; height: 72px; flex-shrink: 0; display: grid; place-items: center; }
         .event-overlay .ev-icon svg { width: 100%; height: 100%; }
         .event-overlay .ev-info { min-width: 0; flex: 1; }
-        .event-overlay .ev-top { display: flex; align-items: center; gap: 15px; margin-bottom: 6px; }
-        .event-overlay .ev-min { font: 700 27px 'Russo One', sans-serif; color: #ffdd57; min-width: 66px; text-align: center; flex-shrink: 0; }
+        .event-overlay .ev-top { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 6px; }
+        .event-overlay .ev-min { font: 700 27px 'Russo One', sans-serif; color: #ffdd57; min-width: 66px; text-align: left; flex-shrink: 0; }
         .event-overlay .ev-min::after { content: "'"; }
         .event-overlay .ev-action { font: 700 21px 'Segoe UI', sans-serif; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
         .event-overlay .ev-team { font: 700 20px 'Segoe UI', sans-serif; color: #ffdd57; letter-spacing: 3px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -220,6 +232,20 @@
     <div id="referees-overlay">
         <div class="referees-title">СУДЕЙСКАЯ БРИГАДА</div>
         <div class="referees-list" id="referees-list"></div>
+    </div>
+
+    <!-- Плашка СПАСИБО ЗА СЕЗОН -->
+    <div id="thanks-overlay">
+      <div class="thanks-photo">
+        <img id="thanks-photo-img" src="https://sun9-2.vkuserphoto.ru/s/v1/ig2/2SQHqQt9d4MPCWEHJHwaXtHvsLVuE8vEWEKj1oqvu26T_1va6vSIrlgCQWse3bGCjJxBUl4O0WmuFyyAZmcEcRpi.jpg" alt="">
+      </div>
+      <div class="thanks-content">
+        <div class="thanks-title">СПАСИБО ЗА СЕЗОН</div>
+        <div class="thanks-credits">
+          <div class="credit-row"><span class="credit-name">АРТУР МИКОВ</span><span class="credit-role">комментатор</span></div>
+          <div class="credit-row"><span class="credit-name">ДМИТРИЙ ЩИПИЦИН</span><span class="credit-role">видеооператор</span></div>
+        </div>
+      </div>
     </div>
 
     <!-- Плашки игровых событий -->
@@ -449,6 +475,7 @@
           show('stats-summary-overlay', state === 'stats-summary', 'flex');
           show('lineup-overlay', state === 'lineup-home' || state === 'lineup-away', 'flex');
           show('referees-overlay', state === 'referees', 'flex');
+          show('thanks-overlay', state === 'thanks', 'flex');
 
           const isMain = state === 'main';
           show('scoreboard-container', isMain, 'block');
@@ -574,7 +601,7 @@
            ============================================================ */
 
         const EVENT_ICONS = {
-          goal: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/><polygon points="12,7 15.5,9.5 14.2,13.5 9.8,13.5 8.5,9.5" fill="#1a1a1a"/><line x1="12" y1="7" x2="12" y2="3" stroke="#1a1a1a" stroke-width="1.2"/><line x1="15.5" y1="9.5" x2="19" y2="7.5" stroke="#1a1a1a" stroke-width="1.2"/><line x1="14.2" y1="13.5" x2="17" y2="17" stroke="#1a1a1a" stroke-width="1.2"/><line x1="9.8" y1="13.5" x2="7" y2="17" stroke="#1a1a1a" stroke-width="1.2"/><line x1="8.5" y1="9.5" x2="5" y2="7.5" stroke="#1a1a1a" stroke-width="1.2"/></svg>',
+          goal: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/><polygon points="12,9 14.4,10.7 13.5,13.4 10.5,13.4 9.6,10.7" fill="#1a1a1a"/><path d="M12 9 L12 4" stroke="#1a1a1a" stroke-width="1.5"/><path d="M14.4 10.7 L18.5 8.5" stroke="#1a1a1a" stroke-width="1.5"/><path d="M13.5 13.4 L16.5 17" stroke="#1a1a1a" stroke-width="1.5"/><path d="M10.5 13.4 L7.5 17" stroke="#1a1a1a" stroke-width="1.5"/><path d="M9.6 10.7 L5.5 8.5" stroke="#1a1a1a" stroke-width="1.5"/></svg>',
           yc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ffd21f" transform="rotate(7 12 12)"/></svg>',
           rc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ff4757" transform="rotate(7 12 12)"/></svg>',
         };
