@@ -114,6 +114,39 @@
         .referee-role { font-size: 10px; font-weight: 600; color: rgba(255,221,87,0.7); letter-spacing: 2px; text-transform: uppercase; }
         .referee-name { font-size: 18px; font-weight: 700; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         @media (max-width: 720px) { .referees-list { flex-direction: column; } .referee-row { min-width: 100%; } }
+
+        /* === Плашки игровых событий (нижние углы) === */
+        .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 14px; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 16px 22px; border-radius: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInBottom 0.4s ease-out; z-index: 60; max-width: 46vw; }
+        #event-home-overlay { left: 36px; }
+        #event-away-overlay { right: 36px; }
+        .event-overlay .ev-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; display: none; }
+        .event-overlay .ev-icon { width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center; }
+        .event-overlay .ev-icon svg { width: 100%; height: 100%; }
+        .event-overlay .ev-info { min-width: 0; flex: 1; }
+        .event-overlay .ev-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .event-overlay .ev-min { font: 700 18px 'Russo One', sans-serif; color: #ffdd57; min-width: 38px; }
+        .event-overlay .ev-min::after { content: "'"; }
+        .event-overlay .ev-action { font: 700 14px 'Segoe UI', sans-serif; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+        .event-overlay .ev-team { font: 700 13px 'Segoe UI', sans-serif; color: #ffdd57; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .event-overlay .ev-player { font: 700 22px 'Segoe UI', sans-serif; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+        .event-overlay .ev-player .ev-num { font-family: 'Russo One', sans-serif; color: #ffdd57; margin-right: 8px; }
+        .event-overlay .ev-sub-row { display: flex; align-items: center; gap: 8px; font: 600 16px 'Segoe UI', sans-serif; }
+        .event-overlay .ev-sub-row.out { color: #ff7a7a; }
+        .event-overlay .ev-sub-row.in { color: #7aff9a; }
+        .event-overlay .ev-sub-row .ev-arrow { width: 18px; height: 18px; flex-shrink: 0; }
+        .event-overlay .ev-sub-row .ev-sub-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 720px) {
+          .event-overlay { max-width: calc(100vw - 28px); padding: 12px 14px; gap: 10px; bottom: 20px; }
+          #event-home-overlay { left: 14px; right: auto; }
+          #event-away-overlay { right: 14px; left: auto; }
+          .event-overlay .ev-logo { width: 38px; height: 38px; }
+          .event-overlay .ev-icon { width: 36px; height: 36px; }
+          .event-overlay .ev-min { font-size: 16px; min-width: 32px; }
+          .event-overlay .ev-action { font-size: 11px; }
+          .event-overlay .ev-team { font-size: 11px; }
+          .event-overlay .ev-player { font-size: 17px; }
+          .event-overlay .ev-sub-row { font-size: 14px; }
+        }
     </style>
 </head>
 <body>
@@ -186,6 +219,26 @@
     <div id="referees-overlay">
         <div class="referees-title">СУДЕЙСКАЯ БРИГАДА</div>
         <div class="referees-list" id="referees-list"></div>
+    </div>
+
+    <!-- Плашки игровых событий -->
+    <div id="event-home-overlay" class="event-overlay">
+        <img id="ev-home-logo" class="ev-logo" src="" alt="">
+        <div id="ev-home-icon" class="ev-icon"></div>
+        <div class="ev-info">
+            <div class="ev-top"><span id="ev-home-min" class="ev-min">0</span><span id="ev-home-action" class="ev-action">ГОЛ</span></div>
+            <div id="ev-home-team" class="ev-team">ХОЗЯЕВА</div>
+            <div id="ev-home-body"></div>
+        </div>
+    </div>
+    <div id="event-away-overlay" class="event-overlay">
+        <img id="ev-away-logo" class="ev-logo" src="" alt="">
+        <div id="ev-away-icon" class="ev-icon"></div>
+        <div class="ev-info">
+            <div class="ev-top"><span id="ev-away-min" class="ev-min">0</span><span id="ev-away-action" class="ev-action">ГОЛ</span></div>
+            <div id="ev-away-team" class="ev-team">ГОСТИ</div>
+            <div id="ev-away-body"></div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -513,7 +566,69 @@
 
         db.on('value', snapshot => { latestData = snapshot.val(); render(); });
         // Тик: обновление таймеров и срабатывание автоскрытия без изменения БД
-        setInterval(render, 250);
+        setInterval(() => { render(); renderEvents(); }, 250);
+
+        /* ============================================================
+           Рендер плашек игровых событий
+           ============================================================ */
+
+        const EVENT_ICONS = {
+          goal: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/><path d="M12 2v20M2 12h20" stroke="#000" stroke-width="1.2"/><polygon points="12,4.5 14.3,11.7 21.5,12 14.3,12.3 12,19.5 9.7,12.3 2.5,12 9.7,11.7" fill="none" stroke="#000" stroke-width="0.8"/></svg>',
+          yc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ffd21f" transform="rotate(7 12 12)"/></svg>',
+          rc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ff4757" transform="rotate(7 12 12)"/></svg>',
+        };
+
+        const ACTION_LABELS = { goal: 'ГОЛ', sub: 'ЗАМЕНА', yc: 'ПРЕДУПРЕЖДЕНИЕ', rc: 'УДАЛЕНИЕ' };
+
+        function renderEventOverlay(side) {
+          const key = side === 'home' ? 'eventHome' : 'eventAway';
+          const ev = latestData && latestData[key];
+          const overlay = el('event-' + side + '-overlay');
+          if (!overlay) return;
+
+          if (!ev || ev.hidden || !ev.type || Date.now() > (ev.expiresAt || 0)) {
+            overlay.style.display = 'none';
+            return;
+          }
+
+          overlay.style.display = 'flex';
+
+          const logoEl = el('ev-' + side + '-logo');
+          if (ev.teamLogo) { logoEl.src = ev.teamLogo; logoEl.style.display = 'block'; } else { logoEl.style.display = 'none'; }
+
+          const iconEl = el('ev-' + side + '-icon');
+          if (ev.type === 'sub') {
+            iconEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#5fa7d1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17V4M3 8l4-4 4 4M17 7v13M13 16l4 4 4-4"/></svg>';
+          } else {
+            iconEl.innerHTML = EVENT_ICONS[ev.type] || '';
+          }
+
+          el('ev-' + side + '-min').textContent = num(ev.minute, 0);
+          el('ev-' + side + '-action').textContent = ACTION_LABELS[ev.type] || ev.type;
+          el('ev-' + side + '-team').textContent = ev.teamName || (side === 'home' ? 'Хозяева' : 'Гости');
+
+          const bodyEl = el('ev-' + side + '-body');
+          if (ev.type === 'sub') {
+            let html = '';
+            if (ev.outPlayerName) {
+              html += '<div class="ev-sub-row out"><svg class="ev-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg><span class="ev-sub-name">' + escapeHtml(ev.outPlayerName) + '</span></div>';
+            }
+            if (ev.inPlayerName) {
+              html += '<div class="ev-sub-row in"><svg class="ev-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg><span class="ev-sub-name">' + escapeHtml(ev.inPlayerName) + '</span></div>';
+            }
+            if (!html) html = '<div class="ev-player">—</div>';
+            bodyEl.innerHTML = html;
+          } else {
+            const numHtml = ev.playerNumber ? '<span class="ev-num">' + escapeHtml(ev.playerNumber) + '</span>' : '';
+            bodyEl.innerHTML = '<div class="ev-player">' + numHtml + escapeHtml(ev.playerName || '') + '</div>';
+          }
+        }
+
+        function renderEvents() {
+          if (latestData === null) return;
+          renderEventOverlay('home');
+          renderEventOverlay('away');
+        }
     </script>
 </body>
 </html>
