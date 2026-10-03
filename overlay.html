@@ -30,6 +30,7 @@
 
         .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: 20px; display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        @keyframes fadeInX { from { opacity: 0; } to { opacity: 1; } }
         .big-overlay-teams { display: flex; align-items: center; gap: 40px; width: 100%; }
         .big-team-card { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
         .big-team-card.home { align-items: flex-end; }
@@ -54,13 +55,13 @@
         .bottom-score-box { background: transparent; padding: 0; border-radius: 0; font-size: 36px; font-weight: 900; display: flex; align-items: center; gap: 15px; }
         .bottom-score-sep { opacity: 0.5; font-size: 24px; }
 
-        #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; width: fit-content; }
-        .stat-modular-item { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 10px 30px; border-radius: 10px; display: flex; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInBottom 0.3s ease-out; }
-        .stat-mod-val { font-size: 28px; font-weight: 900; min-width: 30px; text-align: center; color: #ffffff; }
+        #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; }
+        .stat-modular-item { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px); padding: 10px 30px; border-radius: 10px; display: flex; align-items: center; gap: 30px; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; }
+        .stat-mod-val { font-size: 28px; font-weight: 900; min-width: 44px; text-align: center; color: #ffffff; }
         .stat-mod-label { font-size: 18px; font-weight: 500; color: #ffdd57; text-transform: uppercase; }
 
         #possession-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 60vw; height: 30px; display: none; border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); z-index: 50; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; transition: width 0.5s ease; }
+        .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; }
 
         #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: 20px; display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 680px; }
         .summary-header { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px; }
@@ -103,7 +104,7 @@
         @media (max-width: 720px) { #lineup-overlay { max-width: 96vw; padding: 18px 18px; } .lineup-body { grid-template-columns: 1fr; gap: 14px; } .lineup-header .team-name { font-size: 24px; } .lineup-player { font-size: 16px; } .lineup-player .num { font-size: 16px; min-width: 30px; } .lineup-official .name { font-size: 15px; } .lineup-official .role { font-size: 11px; } }
 
         /* === Блок судей (внизу экрана, в ряд) === */
-        #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 22px 36px; border-radius: 14px; display: none; flex-direction: column; gap: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInBottom 0.5s ease-out; max-width: 92vw; }
+        #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 22px 36px; border-radius: 14px; display: none; flex-direction: column; gap: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; max-width: 92vw; }
         .referees-title { font-size: 13px; font-weight: 700; color: #ffdd57; letter-spacing: 5px; text-transform: uppercase; padding-bottom: 10px; border-bottom: 2px solid rgba(255,221,87,0.3); text-align: center; }
         .referees-list { display: flex; flex-direction: row; gap: 24px; justify-content: center; align-items: stretch; flex-wrap: wrap; }
         .referee-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(255,255,255,0.04); border-radius: 10px; border-left: 3px solid #ffdd57; min-width: 220px; }
@@ -116,15 +117,15 @@
         @media (max-width: 720px) { .referees-list { flex-direction: column; } .referee-row { min-width: 100%; } }
 
         /* === Плашки игровых событий (нижние углы) === */
-        .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 14px; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 16px 22px; border-radius: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInBottom 0.4s ease-out; z-index: 60; max-width: 46vw; }
+        .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 14px; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 16px 22px; border-radius: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; z-index: 60; max-width: 46vw; }
         #event-home-overlay { left: 36px; }
         #event-away-overlay { right: 36px; }
-        .event-overlay .ev-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; display: none; }
+        .event-overlay .ev-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s; }
         .event-overlay .ev-icon { width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center; }
         .event-overlay .ev-icon svg { width: 100%; height: 100%; }
         .event-overlay .ev-info { min-width: 0; flex: 1; }
         .event-overlay .ev-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-        .event-overlay .ev-min { font: 700 18px 'Russo One', sans-serif; color: #ffdd57; min-width: 38px; }
+        .event-overlay .ev-min { font: 700 18px 'Russo One', sans-serif; color: #ffdd57; min-width: 44px; text-align: center; flex-shrink: 0; }
         .event-overlay .ev-min::after { content: "'"; }
         .event-overlay .ev-action { font: 700 14px 'Segoe UI', sans-serif; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
         .event-overlay .ev-team { font: 700 13px 'Segoe UI', sans-serif; color: #ffdd57; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -281,7 +282,7 @@
 
         function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
         function applyMarker(id, c) { const m = el(id); if (c && c !== 'transparent') { m.style.backgroundColor = c; m.style.display = 'block'; } else { m.style.display = 'none'; } }
-        function applyLogo(id, u) { const i = el(id); const has = u && typeof u === 'string' && u.trim() !== ''; if (has) { if (i.getAttribute('src') !== u) i.setAttribute('src', u); i.style.display = 'block'; } else { i.style.display = 'none'; } }
+        function applyLogo(id, u) { const i = el(id); const has = u && typeof u === 'string' && u.trim() !== ''; if (has) { if (i.getAttribute('src') !== u) i.setAttribute('src', u); i.style.visibility = 'visible'; i.style.opacity = '1'; } else { i.style.visibility = 'hidden'; i.style.opacity = '0'; } }
 
         // Первичное создание полной структуры базы
         db.once('value').then(s => {
@@ -593,8 +594,7 @@
 
           overlay.style.display = 'flex';
 
-          const logoEl = el('ev-' + side + '-logo');
-          if (ev.teamLogo) { logoEl.src = ev.teamLogo; logoEl.style.display = 'block'; } else { logoEl.style.display = 'none'; }
+          applyLogo('ev-' + side + '-logo', ev.teamLogo);
 
           const iconEl = el('ev-' + side + '-icon');
           if (ev.type === 'sub') {
