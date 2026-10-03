@@ -120,7 +120,7 @@
         .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 14px; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 16px 22px; border-radius: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; z-index: 60; max-width: 46vw; }
         #event-home-overlay { left: 36px; }
         #event-away-overlay { right: 36px; }
-        .event-overlay .ev-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s; }
+        .event-overlay .ev-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; display: block !important; visibility: hidden; opacity: 0; transition: opacity 0.2s; }
         .event-overlay .ev-icon { width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center; }
         .event-overlay .ev-icon svg { width: 100%; height: 100%; }
         .event-overlay .ev-info { min-width: 0; flex: 1; }
@@ -140,7 +140,7 @@
           .event-overlay { max-width: calc(100vw - 28px); padding: 12px 14px; gap: 10px; bottom: 20px; }
           #event-home-overlay { left: 14px; right: auto; }
           #event-away-overlay { right: 14px; left: auto; }
-          .event-overlay .ev-logo { width: 38px; height: 38px; }
+          .event-overlay .ev-logo { width: 38px; height: 38px; display: block !important; }
           .event-overlay .ev-icon { width: 36px; height: 36px; }
           .event-overlay .ev-min { font-size: 16px; min-width: 32px; }
           .event-overlay .ev-action { font-size: 11px; }
@@ -282,7 +282,7 @@
 
         function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
         function applyMarker(id, c) { const m = el(id); if (c && c !== 'transparent') { m.style.backgroundColor = c; m.style.display = 'block'; } else { m.style.display = 'none'; } }
-        function applyLogo(id, u) { const i = el(id); const has = u && typeof u === 'string' && u.trim() !== ''; if (has) { if (i.getAttribute('src') !== u) i.setAttribute('src', u); i.style.visibility = 'visible'; i.style.opacity = '1'; } else { i.style.visibility = 'hidden'; i.style.opacity = '0'; } }
+        function applyLogo(id, u) { const i = el(id); const has = u && typeof u === 'string' && u.trim() !== ''; if (has) { if (i.getAttribute('src') !== u) i.setAttribute('src', u); i.style.display = 'block'; i.style.visibility = 'visible'; i.style.opacity = '1'; } else { i.style.display = 'none'; i.style.visibility = 'hidden'; i.style.opacity = '0'; } }
 
         // Первичное создание полной структуры базы
         db.once('value').then(s => {
