@@ -75,31 +75,32 @@
         .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
 
         /* === Блок составов (компактный, адаптивная ширина) === */
-        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 22px 30px; border-radius: 14px; display: none; flex-direction: column; gap: 12px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; width: fit-content; max-width: 92vw; max-height: 92vh; overflow: hidden; }
-        .lineup-header { display: flex; align-items: center; gap: 14px; padding-bottom: 10px; border-bottom: 2px solid rgba(255,255,255,0.2); }
-        .lineup-header .stripe { width: 5px; height: 48px; flex-shrink: 0; }
-        .lineup-header .logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; display: none; }
+        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 24px 33px; border-radius: 16px; display: none; flex-direction: column; gap: 13px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; width: fit-content; max-width: 92vw; max-height: 92vh; overflow: hidden; }
+        .lineup-header { display: flex; align-items: center; gap: 15px; padding-bottom: 11px; border-bottom: 2px solid rgba(255,255,255,0.2); }
+        .lineup-header .stripe { width: 6px; height: 53px; flex-shrink: 0; }
+        .lineup-header .logo { width: 62px; height: 62px; object-fit: contain; flex-shrink: 0; display: none; }
         .lineup-header .team-info { flex: 1; min-width: 0; }
-        .lineup-header .team-name { font-size: 28px; font-weight: 900; text-transform: uppercase; white-space: nowrap; letter-spacing: 2px; }
-        .lineup-header .team-tag { font-size: 10px; font-weight: 600; color: #ffdd57; letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; }
-        .lineup-body { display: grid; grid-template-columns: max-content max-content; gap: 22px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; flex: 1; min-height: 0; }
-        .lineup-body::-webkit-scrollbar { width: 5px; }
+        .lineup-header .team-name { font-size: 31px; font-weight: 900; text-transform: uppercase; white-space: nowrap; letter-spacing: 2px; }
+        .lineup-header .team-tag { font-size: 11px; font-weight: 600; color: #ffdd57; letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; }
+        .lineup-body { display: grid; grid-template-columns: max-content max-content; gap: 24px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; flex: 1; min-height: 0; }
+        .lineup-body::-webkit-scrollbar { width: 6px; }
         .lineup-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         .lineup-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
         .lineup-section { min-width: 0; }
-        .lineup-section-title { font-size: 13px; font-weight: 700; color: #ffdd57; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .lineup-player { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 16px; line-height: 1.3; }
-        .lineup-player .num { font-family: 'Russo One', sans-serif; font-size: 16px; min-width: 30px; text-align: center; padding: 2px 5px; background: rgba(255,255,255,0.08); border-radius: 3px; }
+        .lineup-section-title { font-size: 14px; font-weight: 700; color: #ffdd57; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 9px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .lineup-player { display: flex; align-items: center; gap: 9px; padding: 3px 0; font-size: 18px; line-height: 1.3; }
+        .lineup-player .num { font-family: 'Russo One', sans-serif; font-size: 18px; min-width: 33px; text-align: center; padding: 2px 6px; background: rgba(255,255,255,0.08); border-radius: 3px; }
         .lineup-player .num-empty { min-width: 0; padding: 0; background: transparent; }
         .lineup-player .name { flex: 0 0 auto; min-width: 0; white-space: nowrap; font-weight: 500; }
         .lineup-player .name .mark { display: inline; margin-left: 0.55em; color: #ffdd57; font-weight: 700; font-size: 0.85em; letter-spacing: 0.5px; }
         .lineup-player .name .mark.cap { color: #ff5148; }
         .lineup-player .name .mark.sub { color: rgba(255,255,255,0.65); font-size: 0.8em; }
-        .lineup-officials-wrap { padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 4px; flex-shrink: 0; }
-        .lineup-officials { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
-        .lineup-official { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(255,255,255,0.04); border-radius: 6px; border-left: 3px solid #ffdd57; }
-        .lineup-official .role { color: #ffdd57; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
-        .lineup-official .name { font-weight: 600; font-size: 15px; white-space: nowrap; }
+        .lineup-officials-wrap { padding-top: 11px; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 4px; flex-shrink: 0; }
+        .lineup-officials { display: flex; flex-direction: column; gap: 9px; align-items: stretch; }
+        .lineup-official { display: flex; align-items: center; gap: 9px; padding: 7px 13px; background: rgba(255,255,255,0.04); border-radius: 7px; border-left: 3px solid #ffdd57; }
+        .lineup-official .role { color: #ffdd57; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+        .lineup-official .name { font-weight: 600; font-size: 17px; white-space: nowrap; }
+        @media (max-width: 720px) { #lineup-overlay { max-width: 96vw; padding: 18px 18px; } .lineup-body { grid-template-columns: 1fr; gap: 14px; } .lineup-header .team-name { font-size: 24px; } .lineup-player { font-size: 16px; } .lineup-player .num { font-size: 16px; min-width: 30px; } .lineup-official .name { font-size: 15px; } .lineup-official .role { font-size: 11px; } }
 
         /* === Блок судей (внизу экрана, в ряд) === */
         #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 22px 36px; border-radius: 14px; display: none; flex-direction: column; gap: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInBottom 0.5s ease-out; max-width: 92vw; }
