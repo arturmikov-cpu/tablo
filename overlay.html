@@ -71,14 +71,14 @@
         .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
 
         /* === Блок составов === */
-        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 35px 50px; border-radius: 16px; display: none; flex-direction: column; gap: 22px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; max-height: 88vh; overflow: hidden; }
+        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 32px 48px; border-radius: 16px; display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; max-width: 92vw; max-height: 92vh; overflow: hidden; }
         .lineup-header { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 2px solid rgba(255,255,255,0.2); }
         .lineup-header .stripe { width: 6px; height: 60px; flex-shrink: 0; }
         .lineup-header .logo { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; display: none; }
         .lineup-header .team-info { flex: 1; min-width: 0; }
         .lineup-header .team-name { font-size: 36px; font-weight: 900; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 2px; }
         .lineup-header .team-tag { font-size: 12px; font-weight: 600; color: #ffdd57; letter-spacing: 4px; text-transform: uppercase; margin-top: 3px; }
-        .lineup-body { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; overflow-y: auto; padding-right: 6px; max-height: calc(88vh - 180px); }
+        .lineup-body { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; overflow-y: auto; padding-right: 6px; flex: 1; min-height: 0; }
         .lineup-body::-webkit-scrollbar { width: 6px; }
         .lineup-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         .lineup-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
@@ -86,17 +86,18 @@
         .lineup-section-title { font-size: 13px; font-weight: 700; color: #ffdd57; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .lineup-player { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 16px; }
         .lineup-player .num { font-family: 'Russo One', sans-serif; font-size: 18px; min-width: 36px; text-align: center; padding: 3px 6px; background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .lineup-player .num-empty { min-width: 0; padding: 0; background: transparent; }
         .lineup-player .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
         .lineup-player .badges { display: flex; gap: 4px; flex-shrink: 0; }
         .lineup-player .badge { font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 3px; letter-spacing: 1px; }
         .lineup-player .badge.gk { background: #ffdd57; color: #1a1a1a; }
         .lineup-player .badge.cap { background: #ff5148; color: #fff; }
         .lineup-player .badge.sub-min { background: rgba(255,255,255,0.15); color: #fff; }
-        .lineup-officials-wrap { padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 6px; }
-        .lineup-officials { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-        .lineup-official { padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 3px solid #ffdd57; }
-        .lineup-official .role { color: #ffdd57; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-        .lineup-official .name { font-weight: 600; margin-top: 4px; font-size: 15px; }
+        .lineup-officials-wrap { padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 6px; flex-shrink: 0; }
+        .lineup-officials { display: flex; flex-direction: row; gap: 18px; flex-wrap: wrap; }
+        .lineup-official { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 3px solid #ffdd57; }
+        .lineup-official .role { color: #ffdd57; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+        .lineup-official .name { font-weight: 600; font-size: 15px; white-space: nowrap; }
 
         /* === Блок судей (внизу экрана, в ряд) === */
         #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(20px); padding: 22px 36px; border-radius: 14px; display: none; flex-direction: column; gap: 14px; color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInBottom 0.5s ease-out; max-width: 92vw; }
@@ -104,6 +105,8 @@
         .referees-list { display: flex; flex-direction: row; gap: 24px; justify-content: center; align-items: stretch; flex-wrap: wrap; }
         .referee-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(255,255,255,0.04); border-radius: 10px; border-left: 3px solid #ffdd57; min-width: 220px; }
         .referee-icon { width: 26px; height: 26px; flex-shrink: 0; color: #ffdd57; }
+        .referee-icon.whistle { color: #ffdd57; }
+        .referee-icon.flag { width: 28px; height: 28px; }
         .referee-info { flex: 1; min-width: 0; }
         .referee-role { font-size: 10px; font-weight: 600; color: rgba(255,221,87,0.7); letter-spacing: 2px; text-transform: uppercase; }
         .referee-name { font-size: 18px; font-weight: 700; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -402,7 +405,8 @@
               if (p.isGoalkeeper) badges.push('<span class="badge gk">ВР</span>');
               if (p.isCaptain) badges.push('<span class="badge cap">К</span>');
               if (p.minuteOut) badges.push('<span class="badge sub-min">↓' + p.minuteOut + '</span>');
-              return '<div class="lineup-player"><span class="num">' + (p.number || '') + '</span><span class="name">' + escapeHtml(p.name) + '</span><span class="badges">' + badges.join('') + '</span></div>';
+              const numHtml = p.number ? '<span class="num">' + escapeHtml(p.number) + '</span>' : '<span class="num num-empty"></span>';
+              return '<div class="lineup-player">' + numHtml + '<span class="name">' + escapeHtml(p.name) + '</span><span class="badges">' + badges.join('') + '</span></div>';
             }).join('') || '<div style="color:rgba(255,255,255,0.4);font-size:13px;">Нет данных</div>';
 
             const subsEl = el('lineup-subs');
@@ -410,18 +414,25 @@
               const badges = [];
               if (p.isGoalkeeper) badges.push('<span class="badge gk">ВР</span>');
               if (p.minuteIn) badges.push('<span class="badge sub-min">↑' + p.minuteIn + '</span>');
-              return '<div class="lineup-player"><span class="num">' + (p.number || '') + '</span><span class="name">' + escapeHtml(p.name) + '</span><span class="badges">' + badges.join('') + '</span></div>';
+              const numHtml = p.number ? '<span class="num">' + escapeHtml(p.number) + '</span>' : '<span class="num num-empty"></span>';
+              return '<div class="lineup-player">' + numHtml + '<span class="name">' + escapeHtml(p.name) + '</span><span class="badges">' + badges.join('') + '</span></div>';
             }).join('') || '<div style="color:rgba(255,255,255,0.4);font-size:13px;">Нет данных</div>';
 
             const offEl = el('lineup-officials');
-            offEl.innerHTML = (team.officials || []).map(o => '<div class="lineup-official"><div class="role">' + escapeHtml(o.role) + '</div><div class="name">' + escapeHtml(o.name) + '</div></div>').join('');
+            offEl.innerHTML = (team.officials || []).map(o => '<div class="lineup-official"><span class="role">' + escapeHtml(o.role) + '</span><span class="name">' + escapeHtml(o.name) + '</span></div>').join('') || '<div style="color:rgba(255,255,255,0.4);font-size:13px;">Нет представителей</div>';
           }
 
           /* === Рендер судей === */
           if (state === 'referees') {
             const refs = d.referees || [];
             const refListEl = el('referees-list');
-            refListEl.innerHTML = refs.length ? refs.map(r => '<div class="referee-row"><svg class="referee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2"/><circle cx="12" cy="12" r="6"/><path d="M9 9h6M9 12h6M9 15h6"/></svg><div class="referee-info"><div class="referee-role">' + escapeHtml(r.role) + '</div><div class="referee-name">' + escapeHtml(r.name) + '</div></div></div>').join('') : '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">Судьи не найдены. Распарсите матч в пульте.</div>';
+            refListEl.innerHTML = refs.length ? refs.map(r => {
+              const isAssistant = /assist|_помощни/i.test(r.role) || /Первый помощник|Второй помощник/i.test(r.role);
+              const icon = isAssistant
+                ? '<svg class="referee-icon flag" viewBox="0 0 24 24" fill="none" stroke-linejoin="round"><defs><pattern id="checker" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="2" height="2" fill="#ef4444"/><rect x="2" y="2" width="2" height="2" fill="#ef4444"/><rect x="2" width="2" height="2" fill="#ffd21f"/><rect y="2" width="2" height="2" fill="#ffd21f"/></pattern></defs><path d="M5 21V3.5C5 3 5.4 2.5 6 2.5h12.5c0.6 0 0.9 0.7 0.5 1.2l-3 3.6c-0.2 0.3-0.2 0.7 0 1l3 3.6c0.4 0.5 0.1 1.2-0.5 1.2H6" fill="url(#checker)"/><path d="M5 21V3.5C5 3 5.4 2.5 6 2.5h12.5c0.6 0 0.9 0.7 0.5 1.2l-3 3.6c-0.2 0.3-0.2 0.7 0 1l3 3.6c0.4 0.5 0.1 1.2-0.5 1.2H6" stroke="#ffdd57" stroke-width="0.8" fill="none"/><line x1="5" y1="21" x2="5" y2="3" stroke="#fff" stroke-width="1.5"/></svg>'
+                : '<svg class="referee-icon whistle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h11a5 5 0 1 1-5 5H4z"/><circle cx="16" cy="14" r="1.4" fill="currentColor"/><path d="M4 9L3 6h-1"/><path d="M9 14v0"/></svg>';
+              return '<div class="referee-row">' + icon + '<div class="referee-info"><div class="referee-role">' + escapeHtml(r.role) + '</div><div class="referee-name">' + escapeHtml(r.name) + '</div></div></div>';
+            }).join('') : '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">Судьи не найдены. Распарсите матч в пульте.</div>';
           }
 
           /* --- Модульная статистика: автоскрытие 10 с, значения белые --- */
