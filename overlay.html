@@ -147,7 +147,7 @@
             <img class="logo" id="lineup-logo" src="" alt="">
             <div class="team-info">
                 <div class="team-name" id="lineup-team-name">КОМАНДА</div>
-                <div class="team-tag" id="lineup-team-tag">ОСНОВНОЙ СОСТАВ</div>
+                <div class="team-tag" id="lineup-team-tag">ЗАЯВКА КОМАНДЫ</div>
             </div>
         </div>
         <div class="lineup-body" id="lineup-body">
@@ -392,7 +392,7 @@
 
             el('lineup-stripe').style.background = teamColor;
             setText('lineup-team-name', teamName || (side === 'home' ? 'ХОЗЯЕВА' : 'ГОСТИ'));
-            setText('lineup-team-tag', side === 'home' ? 'ОСНОВНОЙ СОСТАВ' : 'ОСНОВНОЙ СОСТАВ');
+            setText('lineup-team-tag', 'ЗАЯВКА КОМАНДЫ');
             const logoEl = el('lineup-logo');
             if (teamLogo) { logoEl.src = teamLogo; logoEl.style.display = 'block'; } else { logoEl.style.display = 'none'; }
 
