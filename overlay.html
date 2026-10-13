@@ -120,6 +120,52 @@
         .bottom-score-box { background: transparent; padding: 0; border-radius: 0; font-size: 36px; font-weight: 900; display: flex; align-items: center; gap: 15px; }
         .bottom-score-sep { opacity: 0.5; font-size: 24px; }
 
+        /* === Goal log frames above team names === */
+        .bottom-team-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .bottom-team-col.home { align-items: flex-end; }
+        .bottom-team-col.away { align-items: flex-start; }
+        .goal-list { display: flex; flex-direction: column; gap: 4px; max-width: 320px; }
+        .goal-list.home { align-items: flex-end; }
+        .goal-list.away { align-items: flex-start; }
+        .goal-list:empty { display: none; }
+        .goal-item {
+          display: flex; align-items: center; gap: 8px;
+          padding: 4px 11px;
+          background: var(--plaque-bg-center);
+          border: 1px solid var(--accent-color-soft);
+          border-left: 3px solid var(--accent-color);
+          border-radius: var(--plaque-radius-xs);
+          color: #fff; font-family: var(--font-base); font-size: 15px; font-weight: 600;
+          line-height: 1.1; max-width: 320px; white-space: nowrap; overflow: hidden;
+        }
+        .goal-list.home .goal-item { flex-direction: row; }
+        .goal-list.away .goal-item { flex-direction: row-reverse; }
+        .goal-item .goal-min {
+          font-family: var(--font-display);
+          color: var(--accent-color);
+          font-size: 14px; font-weight: 700;
+          min-width: 28px; text-align: center;
+          padding: 1px 5px;
+          background: rgba(0,0,0,0.35);
+          border-radius: 3px;
+          flex-shrink: 0;
+        }
+        .goal-item .goal-min::after { content: "'"; }
+        .goal-item .goal-name {
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          letter-spacing: 0.5px;
+        }
+        .goal-item .goal-name .goal-num {
+          font-family: var(--font-display);
+          color: var(--accent-color);
+          margin-right: 5px; font-size: 13px; font-weight: 700;
+        }
+        @media (max-width: 720px) {
+          .goal-item { font-size: 13px; padding: 3px 9px; }
+          .goal-item .goal-min { font-size: 12px; min-width: 24px; }
+          .goal-item .goal-name .goal-num { font-size: 11px; }
+        }
+
         #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; }
         .stat-modular-item { background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 13px 39px; border-radius: var(--plaque-radius-sm); display: flex; align-items: center; gap: 39px; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; }
         .stat-mod-val { font-size: 36px; font-weight: 900; min-width: 57px; text-align: center; color: #ffffff; line-height: 1; }
@@ -259,10 +305,10 @@
     <div id="halftime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ht-home-logo" class="big-logo" src="" style="display:none;"><span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ht-home-score">0</span><span class="big-score-separator">:</span><span id="ht-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ht-away-logo" class="big-logo" src="" style="display:none;"><span id="ht-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">ПЕРЕРЫВ</div><div id="ht-tournament" class="big-tournament-text"></div></div>
     <div id="fulltime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ft-home-logo" class="big-logo" src="" style="display:none;"><span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ft-home-score">0</span><span class="big-score-separator">:</span><span id="ft-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ft-away-logo" class="big-logo" src="" style="display:none;"><span id="ft-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ ОКОНЧЕН</div><div id="ft-tournament" class="big-tournament-text"></div></div>
 
-    <div id="halftime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="htb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="htb-away-name" class="bottom-team-name">ГОСТИ</span><img id="htb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРЕРЫВ</span><div class="bottom-score-box"><span id="htb-home-score">0</span><span class="bottom-score-sep">:</span><span id="htb-away-score">0</span></div></div></div>
-    <div id="fulltime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span><img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">МАТЧ ОКОНЧЕН</span><div class="bottom-score-box"><span id="ftb-home-score">0</span><span class="bottom-score-sep">:</span><span id="ftb-away-score">0</span></div></div></div>
-    <div id="firsthalf-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="fhb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="fhb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="fhb-away-name" class="bottom-team-name">ГОСТИ</span><img id="fhb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРВЫЙ ТАЙМ</span><div class="bottom-score-box"><span id="fhb-home-score">0</span><span class="bottom-score-sep">:</span><span id="fhb-away-score">0</span></div></div></div>
-    <div id="secondhalf-bottom-overlay" class="bottom-overlay"><div class="bottom-team-group home"><img id="shb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="shb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="shb-away-name" class="bottom-team-name">ГОСТИ</span><img id="shb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">ВТОРОЙ ТАЙМ</span><div class="bottom-score-box"><span id="shb-home-score">0</span><span class="bottom-score-sep">:</span><span id="shb-away-score">0</span></div></div></div>
+    <div id="halftime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-col home"><div class="goal-list home" id="htb-home-goals"></div><div class="bottom-team-group home"><img id="htb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div></div><div class="bottom-center-spacer"></div><div class="bottom-team-col away"><div class="goal-list away" id="htb-away-goals"></div><div class="bottom-team-group away"><span id="htb-away-name" class="bottom-team-name">ГОСТИ</span><img id="htb-away-logo" class="bottom-logo" src="" style="display:none;"></div></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРЕРЫВ</span><div class="bottom-score-box"><span id="htb-home-score">0</span><span class="bottom-score-sep">:</span><span id="htb-away-score">0</span></div></div></div>
+    <div id="fulltime-bottom-overlay" class="bottom-overlay"><div class="bottom-team-col home"><div class="goal-list home" id="ftb-home-goals"></div><div class="bottom-team-group home"><img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div></div><div class="bottom-center-spacer"></div><div class="bottom-team-col away"><div class="goal-list away" id="ftb-away-goals"></div><div class="bottom-team-group away"><span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span><img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;"></div></div><div class="bottom-center-box"><span class="bottom-status-text">МАТЧ ОКОНЧЕН</span><div class="bottom-score-box"><span id="ftb-home-score">0</span><span class="bottom-score-sep">:</span><span id="ftb-away-score">0</span></div></div></div>
+    <div id="firsthalf-bottom-overlay" class="bottom-overlay"><div class="bottom-team-col home"><div class="goal-list home" id="fhb-home-goals"></div><div class="bottom-team-group home"><img id="fhb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="fhb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div></div><div class="bottom-center-spacer"></div><div class="bottom-team-col away"><div class="goal-list away" id="fhb-away-goals"></div><div class="bottom-team-group away"><span id="fhb-away-name" class="bottom-team-name">ГОСТИ</span><img id="fhb-away-logo" class="bottom-logo" src="" style="display:none;"></div></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРВЫЙ ТАЙМ</span><div class="bottom-score-box"><span id="fhb-home-score">0</span><span class="bottom-score-sep">:</span><span id="fhb-away-score">0</span></div></div></div>
+    <div id="secondhalf-bottom-overlay" class="bottom-overlay"><div class="bottom-team-col home"><div class="goal-list home" id="shb-home-goals"></div><div class="bottom-team-group home"><img id="shb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="shb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div></div><div class="bottom-center-spacer"></div><div class="bottom-team-col away"><div class="goal-list away" id="shb-away-goals"></div><div class="bottom-team-group away"><span id="shb-away-name" class="bottom-team-name">ГОСТИ</span><img id="shb-away-logo" class="bottom-logo" src="" style="display:none;"></div></div><div class="bottom-center-box"><span class="bottom-status-text">ВТОРОЙ ТАЙМ</span><div class="bottom-score-box"><span id="shb-home-score">0</span><span class="bottom-score-sep">:</span><span id="shb-away-score">0</span></div></div></div>
 
     <div id="stats-modular-container"></div>
     <div id="possession-container"><div id="poss-home-bar" class="poss-bar" style="background: #ff0000; width: 50%;">50%</div><div id="poss-away-bar" class="poss-bar" style="background: #00ffff; width: 50%;">50%</div></div>
@@ -414,7 +460,8 @@
                 fouls: { home: 0, away: 0, isVisible: false },
                 yellowCards: { home: 0, away: 0, isVisible: false },
                 redCards: { home: 0, away: 0, isVisible: false }
-              }
+              },
+              goals: []
             });
           }
         });
@@ -554,6 +601,9 @@
             applyLogo(p + '-away-logo', d.awayLogo);
           });
 
+          /* --- Лог голов в нижних плашках (1-й тайм, 2-й тайм, окончен) --- */
+          renderGoalsLog(d);
+
           /* --- Переключение режимов --- */
           const show = (id, on, disp) => { const e = el(id); if (e) e.style.display = on ? disp : 'none'; };
           show('notstarted-overlay', state === 'notstarted', 'flex');
@@ -681,6 +731,45 @@
           }
           poss.style.display = possShow ? 'flex' : 'none';
           modContainer.style.bottom = (possShow && modContainer.children.length) ? '60px' : '40px';
+        }
+
+        /* === Рендер лога голов в нижних плашках ===
+           d.goals = [
+             { id: 'goal-1', team: 'home', playerName: 'Иванов', playerNumber: '10', minute: 25 },
+             { id: 'goal-2', team: 'away', playerName: 'Петров', playerNumber: '7',  minute: 60 }
+           ]
+           Выводит над названием команды список фреймов «минута · автор». */
+        function renderGoalsLog(d) {
+          const goals = Array.isArray(d.goals) ? d.goals : [];
+          // Sort by minute ascending — earliest first.
+          const sorted = goals.slice().sort((a, b) => {
+            const ma = num(a && a.minute, 0); const mb = num(b && b.minute, 0);
+            return ma - mb;
+          });
+          ['htb', 'ftb', 'fhb', 'shb'].forEach(prefix => {
+            ['home', 'away'].forEach(side => {
+              const listEl = el(prefix + '-' + side + '-goals');
+              if (!listEl) return;
+              const teamGoals = sorted.filter(g => g && g.team === side);
+              if (teamGoals.length === 0) {
+                if (listEl.firstChild) listEl.innerHTML = '';
+                return;
+              }
+              // Rebuild only if list changed (cheap comparison by length + last item id)
+              const sig = teamGoals.map(g => (g.id || '') + ':' + (g.minute || 0) + ':' + (g.playerName || '') + ':' + (g.playerNumber || '')).join('|');
+              if (listEl.dataset.sig === sig) return; // no change → skip
+              listEl.dataset.sig = sig;
+              listEl.innerHTML = teamGoals.map(g => {
+                const numHtml = (g.playerNumber && String(g.playerNumber).trim())
+                  ? '<span class="goal-num">' + escapeHtml(g.playerNumber) + '</span>'
+                  : '';
+                return '<div class="goal-item">'
+                  + '<span class="goal-min">' + escapeHtml(g.minute) + '</span>'
+                  + '<span class="goal-name">' + numHtml + escapeHtml(g.playerName || '') + '</span>'
+                  + '</div>';
+              }).join('');
+            });
+          });
         }
 
         db.on('value', snapshot => { latestData = snapshot.val(); render(); });
