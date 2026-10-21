@@ -218,7 +218,13 @@
         }
 
         #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; }
-        .stat-modular-item { background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 13px 39px; border-radius: var(--plaque-radius-sm); display: flex; align-items: center; gap: 39px; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; }
+        .stat-modular-item { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 13px 39px; border-radius: var(--plaque-radius-sm); display: flex; align-items: center; gap: 39px; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; overflow: hidden; }
+        /* Team color markers — vertical stripes on left (home) and right (away),
+           mirroring the scoreboard's design-stripe pattern. */
+        .stat-mod-marker { position: absolute; top: 0; bottom: 0; width: 6px; display: none; }
+        .stat-mod-marker.home { left: 0; border-radius: var(--plaque-radius-sm) 0 0 var(--plaque-radius-sm); }
+        .stat-mod-marker.away { right: 0; border-radius: 0 var(--plaque-radius-sm) var(--plaque-radius-sm) 0; }
+        .stat-mod-marker.active { display: block; }
         .stat-mod-val { font-size: 36px; font-weight: 900; min-width: 57px; text-align: center; color: #ffffff; line-height: 1; }
         .stat-mod-label { font-size: 23px; font-weight: 500; color: var(--accent-color); text-transform: uppercase; line-height: 1; }
 
@@ -807,7 +813,7 @@
                 item = document.createElement('div');
                 item.className = 'stat-modular-item';
                 item.dataset.key = s.key;
-                item.innerHTML = `<span class="stat-mod-val">0</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">0</span>`;
+                item.innerHTML = `<div class="stat-mod-marker home" data-side="home"></div><span class="stat-mod-val">0</span><span class="stat-mod-label">${s.label}</span><span class="stat-mod-val">0</span><div class="stat-mod-marker away" data-side="away"></div>`;
                 const order = statTypes.findIndex(x => x.key === s.key);
                 let ref = null;
                 for (const ch of modContainer.children) {
@@ -821,6 +827,28 @@
               const hv = String(num(node.home, 0)), av = String(num(node.away, 0));
               if (vals[0].textContent !== hv) vals[0].textContent = hv;
               if (vals[1].textContent !== av) vals[1].textContent = av;
+              /* Update team color markers (vertical stripes on the sides). */
+              const markers = item.querySelectorAll('.stat-mod-marker');
+              const hc = hex(d.homeFormColor, '');
+              const ac = hex(d.awayFormColor, '');
+              if (markers[0]) {
+                if (hc && hc !== 'transparent') {
+                  markers[0].style.backgroundColor = hc;
+                  markers[0].classList.add('active');
+                } else {
+                  markers[0].classList.remove('active');
+                  markers[0].style.backgroundColor = '';
+                }
+              }
+              if (markers[1]) {
+                if (ac && ac !== 'transparent') {
+                  markers[1].style.backgroundColor = ac;
+                  markers[1].classList.add('active');
+                } else {
+                  markers[1].classList.remove('active');
+                  markers[1].style.backgroundColor = '';
+                }
+              }
             } else if (item) {
               item.remove();
               delete modItems[s.key];
