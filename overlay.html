@@ -48,6 +48,23 @@
             --success-accent: #7aff9a;
             --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        /* CHPK — dark navy blue brand (#203663), white text */
+        body[data-style="CHPK"] {
+            --plaque-bg: rgba(32, 54, 99, 0.92);
+            --plaque-bg-strong: rgba(28, 48, 88, 0.96);
+            --plaque-bg-center: rgba(20, 36, 70, 0.95);
+            --plaque-border: rgba(255, 255, 255, 0.18);
+            --plaque-border-soft: rgba(255, 255, 255, 0.1);
+            --accent-color: #ffdd57;
+            --accent-color-soft: rgba(255, 221, 87, 0.4);
+            --accent-color-glow: rgba(255, 221, 87, 0.15);
+            --accent-color-faint: rgba(255, 221, 87, 0.7);
+            --accent-color-bright: rgba(255, 221, 87, 0.8);
+            --accent-border-line: rgba(255, 221, 87, 0.3);
+            --danger-accent: #ff5148;
+            --success-accent: #7aff9a;
+            --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         /* YFL — lime green + purple gradient, sharp corners, Aeroport-like font */
         body[data-style="YFL"] {
             --plaque-bg: linear-gradient(135deg, #3a006e 0%, #6a1080 50%, #2b0070 100%);
@@ -345,6 +362,44 @@
             border-radius: 0 0 0 0;
         }
         /* K4TV + design-4 (Скругленный) — leave default rounded values from :root. */
+
+        /* === 3thL + design-1 (Классика) → острые углы на ВСЕХ плашках === */
+        body[data-style="3thL"][data-design="1"] {
+            --plaque-radius-lg: 0px;
+            --plaque-radius-md: 0px;
+            --plaque-radius-sm: 0px;
+            --plaque-radius-xs: 0px;
+        }
+        body[data-style="3thL"][data-design="1"] #scoreboard,
+        body[data-style="3thL"][data-design="1"] #scoreboard.design-1,
+        body[data-style="3thL"][data-design="1"] #scoreboard.design-4,
+        body[data-style="3thL"][data-design="1"] .design-1 {
+            border-radius: 0 !important;
+        }
+        body[data-style="3thL"][data-design="1"] .design-stripe.left,
+        body[data-style="3thL"][data-design="1"] .design-stripe.right {
+            border-radius: 0 0 0 0;
+        }
+        /* 3thL + design-4 (Скругленный) — leave default rounded values from :root. */
+
+        /* === CHPK + design-1 (Классика) → острые углы на ВСЕХ плашках === */
+        body[data-style="CHPK"][data-design="1"] {
+            --plaque-radius-lg: 0px;
+            --plaque-radius-md: 0px;
+            --plaque-radius-sm: 0px;
+            --plaque-radius-xs: 0px;
+        }
+        body[data-style="CHPK"][data-design="1"] #scoreboard,
+        body[data-style="CHPK"][data-design="1"] #scoreboard.design-1,
+        body[data-style="CHPK"][data-design="1"] #scoreboard.design-4,
+        body[data-style="CHPK"][data-design="1"] .design-1 {
+            border-radius: 0 !important;
+        }
+        body[data-style="CHPK"][data-design="1"] .design-stripe.left,
+        body[data-style="CHPK"][data-design="1"] .design-stripe.right {
+            border-radius: 0 0 0 0;
+        }
+        /* CHPK + design-4 (Скругленный) — leave default rounded values from :root. */
     </style>
 </head>
 <body>
@@ -505,7 +560,7 @@
               homeLogo: "", awayLogo: "",
               tournamentName: "",
               design: "1", position: "top-left",
-              style: "K4TV",
+              style: "K4TV",  /* K4TV | 3thL | YFL | CHPK */
               overlayState: "main",
               timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
               addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
@@ -534,7 +589,7 @@
           const stats = d.stats || {};
           const state = d.overlayState || 'main';
           /* Apply visual style preset to body (K4TV / 3thL / YFL). */
-          const styleName = (d.style === '3thL' || d.style === 'YFL') ? d.style : 'K4TV';
+          const styleName = (d.style === '3thL' || d.style === 'YFL' || d.style === 'CHPK') ? d.style : 'K4TV';
           if (document.body.dataset.style !== styleName) document.body.dataset.style = styleName;
           /* Apply current design (1/3/4) as data-design on body — used by CSS
              to switch plaque corner radius when style is K4TV. */
@@ -841,7 +896,7 @@
            ============================================================ */
 
         const EVENT_ICONS = {
-          goal: '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/><polygon points="16,7 20.5,10.3 18.8,15.5 13.2,15.5 11.5,10.3" fill="#1a1a1a"/><polygon points="6.5,13 10,10.5 12.8,13.5 11,17.5 7,16.8" fill="#1a1a1a"/><polygon points="25.5,13 22,10.5 19.2,13.5 21,17.5 25,16.8" fill="#1a1a1a"/><polygon points="9.5,23 11.5,18.5 15,21 12.5,25" fill="#1a1a1a"/><polygon points="22.5,23 20.5,18.5 17,21 19.5,25" fill="#1a1a1a"/><line x1="16" y1="7" x2="16" y2="2.5" stroke="#1a1a1a" stroke-width="1.2"/><line x1="6.5" y1="13" x2="2.5" y2="11.5" stroke="#1a1a1a" stroke-width="1.2"/><line x1="25.5" y1="13" x2="29.5" y2="11.5" stroke="#1a1a1a" stroke-width="1.2"/><line x1="9.5" y1="23" x2="7" y2="27" stroke="#1a1a1a" stroke-width="1.2"/><line x1="22.5" y1="23" x2="25" y2="27" stroke="#1a1a1a" stroke-width="1.2"/><line x1="16" y1="15.5" x2="16" y2="21" stroke="#1a1a1a" stroke-width="1"/></svg>',
+          goal: '<span style="font-size:54px;line-height:1;display:grid;place-items:center;width:100%;height:100%;">\u26BD</span>',
           yc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ffd21f" transform="rotate(7 12 12)"/></svg>',
           rc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ff4757" transform="rotate(7 12 12)"/></svg>',
         };
