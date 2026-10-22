@@ -110,9 +110,8 @@
         .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
         .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        @keyframes fadeInX { from { opacity: 0; } to { opacity: 1; } }
+        .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); }
+        /* Opening animations removed — overlays now appear instantly */
         .big-overlay-teams { display: flex; align-items: center; gap: 40px; width: 100%; }
         .big-team-card { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
         .big-team-card.home { align-items: flex-end; }
@@ -126,7 +125,7 @@
         .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; white-space: nowrap; }
 
         .bottom-overlay { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 20px 40px; border-radius: var(--plaque-radius-md); display: grid; grid-template-columns: 1fr 350px 1fr; align-items: center; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 40px rgba(0,0,0,0.8); width: fit-content; max-width: 95vw; }
-        @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        /* fadeInBottom animation removed — overlay now appears instantly */
         .bottom-team-group { display: flex; align-items: center; gap: 15px; z-index: 1; min-width: 0; }
         .bottom-team-group.home { justify-content: flex-end; padding-right: 15px; }
         .bottom-team-group.away { justify-content: flex-start; padding-left: 15px; }
@@ -152,7 +151,6 @@
           z-index: 50;
           width: fit-content;
           max-width: 95vw;
-          animation: fadeInBottom 0.5s ease-out;
         }
         .goal-plaques-row {
           display: grid;
@@ -218,7 +216,7 @@
         }
 
         #stats-modular-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; align-items: center; z-index: 50; }
-        .stat-modular-item { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 13px 39px; border-radius: var(--plaque-radius-sm); display: flex; align-items: center; gap: 39px; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: fadeInX 0.3s ease-out; overflow: hidden; }
+        .stat-modular-item { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 13px 39px; border-radius: var(--plaque-radius-sm); display: flex; align-items: center; gap: 39px; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 20px rgba(0,0,0,0.8); overflow: hidden; }
         /* Team color markers — vertical stripes on left (home) and right (away),
            mirroring the scoreboard's design-stripe pattern. */
         .stat-mod-marker { position: absolute; top: 0; bottom: 0; width: 6px; display: none; }
@@ -231,7 +229,7 @@
         #possession-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 60vw; height: 30px; display: none; border-radius: var(--plaque-radius-md); overflow: hidden; border: 1px solid var(--plaque-border); z-index: 50; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; }
 
-        #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 680px; }
+        #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); width: 680px; }
         .summary-header { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid var(--plaque-border); margin-bottom: 10px; }
         .summary-team-block { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .summary-team-block.home { justify-content: flex-start; }
@@ -244,7 +242,7 @@
         .summary-label { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; text-transform: uppercase; }
 
         /* === Блок составов (компактный, адаптивная ширина) === */
-        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 29px 40px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; gap: 13px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s ease-out; width: fit-content; max-width: 92vw; max-height: 92vh; overflow: hidden; }
+        #lineup-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 29px 40px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; gap: 13px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 80px rgba(0,0,0,0.9); width: fit-content; max-width: 92vw; max-height: 92vh; overflow: hidden; }
         .lineup-header { display: flex; align-items: center; gap: 18px; padding-bottom: 13px; border-bottom: 2px solid var(--plaque-border); }
         .lineup-header .stripe { width: 7px; height: 64px; flex-shrink: 0; }
         .lineup-header .logo { width: 74px; height: 74px; object-fit: contain; flex-shrink: 0; display: none; }
@@ -272,7 +270,7 @@
         @media (max-width: 720px) { #lineup-overlay { max-width: 96vw; padding: 22px 22px; } .lineup-body { grid-template-columns: 1fr; gap: 17px; } .lineup-header .team-name { font-size: 29px; } .lineup-player { font-size: 19px; } .lineup-player .num { font-size: 19px; min-width: 36px; } .lineup-official .name { font-size: 18px; } .lineup-official .role { font-size: 13px; } }
 
         /* === Блок судей (внизу экрана, в ряд) === */
-        #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 25px 41px; border-radius: var(--plaque-radius-md); display: none; flex-direction: column; gap: 16px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; max-width: 92vw; }
+        #referees-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 25px 41px; border-radius: var(--plaque-radius-md); display: none; flex-direction: column; gap: 16px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.85); max-width: 92vw; }
         .referees-title { font-size: 15px; font-weight: 700; color: var(--accent-color); letter-spacing: 5px; text-transform: uppercase; padding-bottom: 11px; border-bottom: 2px solid var(--accent-border-line); text-align: center; }
         .referees-list { display: flex; flex-direction: row; gap: 28px; justify-content: center; align-items: stretch; flex-wrap: wrap; }
         .referee-row { display: flex; align-items: center; gap: 13px; padding: 11px 18px; background: rgba(255,255,255,0.04); border-radius: var(--plaque-radius-sm); border-left: 4px solid var(--accent-color); min-width: 252px; }
@@ -285,7 +283,7 @@
         @media (max-width: 720px) { .referees-list { flex-direction: column; gap: 14px; } .referee-row { min-width: 100%; padding: 14px 16px; } .referee-name { font-size: 18px; } .referee-role { font-size: 10px; } .referee-icon { width: 26px; height: 26px; } }
 
         /* === Плашка «СПАСИБО ЗА СЕЗОН» === */
-        #thanks-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 40px 50px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: row; align-items: center; gap: 40px; color: white; border: 1px solid var(--accent-color-soft); box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 30px var(--accent-color-glow); animation: fadeIn 0.6s ease-out; z-index: 70; max-width: 92vw; max-height: 90vh; }
+        #thanks-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 40px 50px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: row; align-items: center; gap: 40px; color: white; border: 1px solid var(--accent-color-soft); box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 30px var(--accent-color-glow); z-index: 70; max-width: 92vw; max-height: 90vh; }
         .thanks-photo { flex-shrink: 0; width: 200px; height: 200px; border-radius: var(--plaque-radius-md); overflow: hidden; border: 3px solid var(--accent-color); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
         .thanks-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .thanks-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 28px; }
@@ -297,7 +295,7 @@
         @media (max-width: 720px) { #thanks-overlay { flex-direction: column; padding: 24px 22px; gap: 20px; } .thanks-photo { width: 140px; height: 140px; } .thanks-title { font-size: 36px; letter-spacing: 2px; text-align: center; } .credit-name { font-size: 18px; } .credit-role { font-size: 13px; } .thanks-credits { align-items: center; } .credit-row { align-items: center; } }
 
         /* === Плашки игровых событий (нижние углы) === */
-        .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 21px; background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 24px 33px; border-radius: var(--plaque-radius-lg); color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; z-index: 60; max-width: 46vw; }
+        .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 21px; background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 24px 33px; border-radius: var(--plaque-radius-lg); color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.85); z-index: 60; max-width: 46vw; }
         #event-home-overlay { left: 36px; }
         #event-away-overlay { right: 36px; }
         .event-overlay .ev-logo { width: 75px; height: 75px; object-fit: contain; flex-shrink: 0; display: block !important; visibility: hidden; opacity: 0; transition: opacity 0.2s; }
