@@ -406,6 +406,212 @@
             border-radius: 0 0 0 0;
         }
         /* CHPK + design-4 (Скругленный) — leave default rounded values from :root. */
+
+        /* === Formation overlay (схема команды на поле) === */
+        #formation-home-overlay, #formation-away-overlay {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: none; z-index: 80;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+        }
+        .formation-container {
+            display: flex; width: 100%; height: 100%; position: relative; overflow: hidden;
+        }
+        /* Field wrapper (left ~70%) */
+        .formation-field-wrapper {
+            flex: 0 0 70%; position: relative;
+            transform: translateX(-100%); opacity: 0;
+            transition: transform 0.8s ease-out, opacity 0.6s ease;
+        }
+        /* Subs panel (right ~30%) */
+        .formation-subs-panel {
+            flex: 0 0 30%;
+            background: var(--plaque-bg-strong);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transform: translateX(100%); opacity: 0;
+            transition: transform 0.8s ease-out, opacity 0.6s ease;
+            border-left: 2px solid var(--accent-color);
+            gap: 14px; padding: 20px 10px; overflow-y: auto;
+        }
+        .formation-loaded .formation-field-wrapper { transform: translateX(0); opacity: 1; }
+        .formation-loaded .formation-subs-panel { transform: translateX(0); opacity: 1; }
+
+        /* Field */
+        .formation-field {
+            position: relative; width: 100%; height: 100%; background: transparent;
+        }
+        .formation-field-marking {
+            position: absolute; top: 3%; left: 14%; width: 72%; height: 94%;
+            pointer-events: none; transform: perspective(800px) rotateX(5deg);
+            transform-origin: bottom center;
+        }
+        .formation-field-outline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: 2px solid var(--team-color, rgba(255,255,255,0.5));
+            box-sizing: border-box; pointer-events: none;
+        }
+        .formation-center-line {
+            position: absolute; left: 0; top: 50%; width: 100%; height: 2px;
+            background: var(--team-color, rgba(255,255,255,0.3));
+            transform: translateY(-50%);
+        }
+        .formation-center-circle {
+            position: absolute; left: 50%; top: 50%; width: 120px; height: 120px;
+            border: 2px solid var(--team-color, rgba(255,255,255,0.3));
+            border-radius: 50%; transform: translate(-50%, -50%);
+        }
+        .formation-center-dot {
+            position: absolute; left: 50%; top: 50%; width: 8px; height: 8px;
+            background: var(--team-color, rgba(255,255,255,0.4)); border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .formation-penalty-top {
+            position: absolute; top: 0; left: 25%; width: 50%; height: 20%;
+            border: 2px solid var(--team-color, rgba(255,255,255,0.3));
+            border-top: none; box-sizing: border-box; pointer-events: none;
+        }
+        .formation-penalty-bottom {
+            position: absolute; bottom: 0; left: 25%; width: 50%; height: 20%;
+            border: 2px solid var(--team-color, rgba(255,255,255,0.3));
+            border-bottom: none; box-sizing: border-box; pointer-events: none;
+        }
+        .formation-goal-top {
+            position: absolute; top: 0; left: 35%; width: 30%; height: 10%;
+            border: 2px solid var(--team-color, rgba(255,255,255,0.2));
+            border-top: none; box-sizing: border-box; pointer-events: none;
+        }
+        .formation-goal-bottom {
+            position: absolute; bottom: 0; left: 35%; width: 30%; height: 10%;
+            border: 2px solid var(--team-color, rgba(255,255,255,0.2));
+            border-bottom: none; box-sizing: border-box; pointer-events: none;
+        }
+
+        /* Player cards on field */
+        .formation-player-card {
+            position: absolute;
+            width: 106px; height: 136px;
+            margin-left: -53px; margin-top: -68px;
+            border-radius: 6px;
+            background: var(--plaque-bg-strong);
+            border: 2px solid var(--team-color, var(--accent-color));
+            cursor: pointer; z-index: 2; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.8); user-select: none;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .formation-player-card .fpc-photo {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            opacity: 0; transition: opacity 0.3s ease; z-index: 1;
+        }
+        .formation-player-card .fpc-number {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 52px; font-weight: bold;
+            color: var(--accent-color); text-shadow: 0 0 10px rgba(0,0,0,0.8); z-index: 2;
+        }
+        .formation-player-card .fpc-name {
+            position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;
+            font-size: 18px; font-weight: bold; color: #fff;
+            text-shadow: 0 0 8px black; z-index: 2;
+        }
+        .formation-player-card .fpc-details {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: #000; display: none; justify-content: center; align-items: center;
+            padding: 10px 0; z-index: 5; border-radius: 0 0 6px 6px;
+        }
+        .formation-player-card.active {
+            width: 300px; height: 394px;
+            margin-left: -150px; margin-top: -197px;
+            border-radius: 10px; z-index: 20;
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.9), 0 0 25px var(--accent-color-glow);
+        }
+        .formation-player-card.active .fpc-photo { opacity: 1; }
+        .formation-player-card.active .fpc-number,
+        .formation-player-card.active .fpc-name { display: none; }
+        .formation-player-card.active .fpc-details { display: flex; }
+        .formation-player-card.goalkeeper.active { margin-top: -315px; }
+        .fpc-detail-row { display: flex; align-items: center; gap: 10px; }
+        .fpc-detail-number { font-size: 28px; font-weight: bold; color: var(--accent-color); }
+        .fpc-detail-name { font-size: 22px; font-weight: bold; color: #fff; }
+
+        /* Team logo (big, centered between field and subs) */
+        .formation-team-logo {
+            position: absolute; left: 70%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 153px; height: 204px;
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            z-index: 60; opacity: 0;
+            transition: transform 0.8s ease-out, opacity 0.6s ease;
+            filter: drop-shadow(0 0 12px var(--accent-color));
+        }
+        .formation-loaded .formation-team-logo { opacity: 1; }
+
+        /* Subs panel */
+        .formation-subs-title {
+            font-size: 28px; font-weight: 900; color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0,0,0,0.9); margin-bottom: 5px; letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .formation-subs-list { display: flex; flex-direction: column; gap: 14px; width: 100%; align-items: center; }
+        .formation-sub-player {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(0, 0, 0, 0.75); border-radius: 30px; padding: 8px 15px;
+            backdrop-filter: blur(4px); border: 1px solid var(--accent-color);
+            transform: translateY(-100%); opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        .formation-loaded .formation-sub-player { transform: translateY(0); opacity: 1; }
+        .formation-sub-player:nth-child(1) { transition-delay: 0.1s; }
+        .formation-sub-player:nth-child(2) { transition-delay: 0.2s; }
+        .formation-sub-player:nth-child(3) { transition-delay: 0.3s; }
+        .formation-sub-player:nth-child(4) { transition-delay: 0.4s; }
+        .formation-sub-player:nth-child(5) { transition-delay: 0.5s; }
+        .formation-sub-player:nth-child(6) { transition-delay: 0.6s; }
+        .formation-sub-player:nth-child(7) { transition-delay: 0.7s; }
+        .formation-sub-number {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: bold;
+            color: var(--accent-color); border: 1px solid var(--accent-color);
+        }
+        .formation-sub-name { font-size: 18px; color: #fff; font-weight: 500; }
+        .formation-coach-section {
+            margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .formation-loaded .formation-coach-section { opacity: 1; transform: translateY(0); transition-delay: 0.8s; }
+        .formation-coach-title {
+            font-size: 22px; font-weight: 900; color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0,0,0,0.9); letter-spacing: 2px; text-transform: uppercase;
+        }
+        .formation-coach-player {
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.8); border-radius: 30px; padding: 8px 15px;
+            backdrop-filter: blur(4px); border: 1px solid var(--accent-color); min-width: 200px;
+        }
+        .formation-coach-name {
+            font-size: 18px; font-weight: 500; color: var(--accent-color); text-transform: uppercase;
+        }
+        .formation-channel-logo {
+            position: absolute; right: 25px; bottom: 25px;
+            font-size: 38px; font-weight: 400;
+            font-family: 'Bahnschrift SemiLight', 'Arial', sans-serif;
+            color: #fff; text-shadow: 0 0 10px var(--accent-color-glow);
+            z-index: 100; pointer-events: none;
+        }
+
+        @media (max-width: 720px) {
+            .formation-field-wrapper { flex: 0 0 65%; }
+            .formation-subs-panel { flex: 0 0 35%; }
+            .formation-player-card { width: 80px; height: 104px; margin-left: -40px; margin-top: -52px; }
+            .formation-player-card .fpc-number { font-size: 36px; }
+            .formation-player-card .fpc-name { font-size: 12px; }
+            .formation-player-card.active { width: 220px; height: 290px; margin-left: -110px; margin-top: -145px; }
+            .formation-sub-name { font-size: 14px; }
+            .formation-subs-title { font-size: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -514,6 +720,52 @@
         </div>
     </div>
 
+    <!-- Formation overlay: Home -->
+    <div id="formation-home-overlay">
+      <div class="formation-container" id="formation-home-container">
+        <div class="formation-field-wrapper">
+          <div class="formation-field" id="formation-home-field">
+            <div class="formation-field-marking">
+              <div class="formation-field-outline"></div>
+              <div class="formation-center-line"></div>
+              <div class="formation-center-circle"></div>
+              <div class="formation-center-dot"></div>
+              <div class="formation-penalty-top"></div>
+              <div class="formation-penalty-bottom"></div>
+              <div class="formation-goal-top"></div>
+              <div class="formation-goal-bottom"></div>
+            </div>
+          </div>
+        </div>
+        <div class="formation-team-logo" id="formation-home-team-logo"></div>
+        <div class="formation-subs-panel" id="formation-home-subs-panel"></div>
+        <div class="formation-channel-logo">К4ТВ</div>
+      </div>
+    </div>
+
+    <!-- Formation overlay: Away -->
+    <div id="formation-away-overlay">
+      <div class="formation-container" id="formation-away-container">
+        <div class="formation-field-wrapper">
+          <div class="formation-field" id="formation-away-field">
+            <div class="formation-field-marking">
+              <div class="formation-field-outline"></div>
+              <div class="formation-center-line"></div>
+              <div class="formation-center-circle"></div>
+              <div class="formation-center-dot"></div>
+              <div class="formation-penalty-top"></div>
+              <div class="formation-penalty-bottom"></div>
+              <div class="formation-goal-top"></div>
+              <div class="formation-goal-bottom"></div>
+            </div>
+          </div>
+        </div>
+        <div class="formation-team-logo" id="formation-away-team-logo"></div>
+        <div class="formation-subs-panel" id="formation-away-subs-panel"></div>
+        <div class="formation-channel-logo">К4ТВ</div>
+      </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script>
@@ -550,6 +802,158 @@
         const setText = (id, v) => { const e = el(id); if (e) e.textContent = v; };
         const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         const num = (v, def) => (typeof v === 'number' && isFinite(v)) ? v : def;
+
+        /* === Formation constants (defined early to avoid TDZ with render()) === */
+        const TRANSLIT_MAP = {
+          'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z',
+          'и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r',
+          'с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'ts','ч':'ch','ш':'sh','щ':'sch',
+          'ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
+        };
+        function translit(str) {
+          return String(str || '').toLowerCase().split('').map(ch => {
+            if (TRANSLIT_MAP[ch] !== undefined) return TRANSLIT_MAP[ch];
+            if (/[a-z0-9]/.test(ch)) return ch;
+            return '';
+          }).join('');
+        }
+        function buildPhotoUrl(player, baseUrl) {
+          if (player.photo && player.photo.startsWith('http')) return player.photo;
+          if (player.photo && player.photo.trim()) return baseUrl + player.photo;
+          const parts = (player.name || '').trim().split(/\s+/);
+          if (parts.length < 2) return null;
+          const lastName = translit(parts[0]);
+          const firstName = translit(parts[1]).charAt(0);
+          if (!lastName) return null;
+          return baseUrl + lastName + firstName + '.jpg';
+        }
+        const FORMATION_POSITIONS = {
+          '4-4-2': [
+            {pos:'GK',x:50,y:88},{pos:'LB',x:18,y:72},{pos:'LCB',x:37,y:75},{pos:'RCB',x:63,y:75},{pos:'RB',x:82,y:72},
+            {pos:'LM',x:18,y:50},{pos:'LCM',x:37,y:52},{pos:'RCM',x:63,y:52},{pos:'RM',x:82,y:50},
+            {pos:'LS',x:37,y:22},{pos:'RS',x:63,y:22}
+          ],
+          '4-3-3': [
+            {pos:'GK',x:50,y:88},{pos:'LB',x:18,y:72},{pos:'LCB',x:37,y:75},{pos:'RCB',x:63,y:75},{pos:'RB',x:82,y:72},
+            {pos:'LCM',x:30,y:50},{pos:'CM',x:50,y:52},{pos:'RCM',x:70,y:50},
+            {pos:'LW',x:22,y:20},{pos:'ST',x:50,y:15},{pos:'RW',x:78,y:20}
+          ],
+          '4-5-1': [
+            {pos:'GK',x:50,y:88},{pos:'LB',x:18,y:72},{pos:'LCB',x:37,y:75},{pos:'RCB',x:63,y:75},{pos:'RB',x:82,y:72},
+            {pos:'LM',x:15,y:48},{pos:'LCM',x:35,y:50},{pos:'CM',x:50,y:52},{pos:'RCM',x:65,y:50},{pos:'RM',x:85,y:48},
+            {pos:'ST',x:50,y:15}
+          ],
+          '3-5-2': [
+            {pos:'GK',x:50,y:88},{pos:'LCB',x:30,y:75},{pos:'CB',x:50,y:77},{pos:'RCB',x:70,y:75},
+            {pos:'LM',x:15,y:48},{pos:'LCM',x:35,y:50},{pos:'CM',x:50,y:52},{pos:'RCM',x:65,y:50},{pos:'RM',x:85,y:48},
+            {pos:'LS',x:37,y:22},{pos:'RS',x:63,y:22}
+          ],
+          '4-2-3-1': [
+            {pos:'GK',x:50,y:88},{pos:'LB',x:18,y:72},{pos:'LCB',x:37,y:75},{pos:'RCB',x:63,y:75},{pos:'RB',x:82,y:72},
+            {pos:'LDM',x:38,y:55},{pos:'RDM',x:62,y:55},
+            {pos:'LM',x:15,y:35},{pos:'CAM',x:50,y:33},{pos:'RM',x:85,y:35},
+            {pos:'ST',x:50,y:12}
+          ]
+        };
+        function getFormationPositions(formation) {
+          return FORMATION_POSITIONS[formation] || FORMATION_POSITIONS['4-4-2'];
+        }
+        function renderFormation(side, data) {
+          if (!data) return;
+          const prefix = side;
+          const fieldEl = el('formation-' + prefix + '-field');
+          const subsEl = el('formation-' + prefix + '-subs-panel');
+          const logoEl = el('formation-' + prefix + '-team-logo');
+          const container = el('formation-' + prefix + '-container');
+          if (!fieldEl) return;
+          const teamColor = (data.team && data.team.formColor) || '#ff5148';
+          container.style.setProperty('--team-color', teamColor);
+          fieldEl.querySelectorAll('.formation-player-card').forEach(c => c.remove());
+          if (data.team && data.team.logo) {
+            logoEl.style.backgroundImage = 'url(' + data.team.logo + ')';
+            logoEl.style.display = 'block';
+          } else {
+            logoEl.style.display = 'none';
+          }
+          const photoBaseUrl = data.photoBaseUrl || '';
+          const positions = getFormationPositions(data.formation);
+          const starters = data.starters || [];
+          starters.forEach((player, i) => {
+            const pos = positions[i] || { x: 50, y: 50 };
+            const card = document.createElement('div');
+            card.className = 'formation-player-card' + (player.position === 'GK' ? ' goalkeeper' : '');
+            card.style.left = pos.x + '%';
+            card.style.top = pos.y + '%';
+            card.dataset.revealOrder = String(i + 1);
+            const photoUrl = buildPhotoUrl(player, photoBaseUrl);
+            card.innerHTML = '<div class="fpc-photo"></div>'
+              + '<span class="fpc-number">' + escapeHtml(player.number || '') + '</span>'
+              + '<span class="fpc-name">' + escapeHtml((player.name || '').split(' ')[0].toUpperCase()) + '</span>'
+              + '<div class="fpc-details"><div class="fpc-detail-row">'
+              + '<span class="fpc-detail-number">' + escapeHtml(player.number || '') + '</span>'
+              + '<span class="fpc-detail-name">' + escapeHtml((player.name || '').toUpperCase()) + '</span>'
+              + '</div></div>';
+            const photoDiv = card.querySelector('.fpc-photo');
+            if (photoUrl) {
+              const img = new Image();
+              img.onload = function() { photoDiv.style.backgroundImage = 'url(' + photoUrl + ')'; };
+              img.onerror = function() { /* photo stays invisible, number shows */ };
+              img.src = photoUrl;
+            }
+            card.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const wasActive = card.classList.contains('active');
+              fieldEl.querySelectorAll('.formation-player-card.active').forEach(c => c.classList.remove('active'));
+              if (!wasActive) card.classList.add('active');
+            });
+            fieldEl.appendChild(card);
+          });
+          fieldEl.addEventListener('click', function() {
+            fieldEl.querySelectorAll('.formation-player-card.active').forEach(c => c.classList.remove('active'));
+          });
+          const subs = data.substitutes || [];
+          const officials = data.officials || [];
+          let subsHtml = '';
+          if (data.team && data.team.name) {
+            subsHtml += '<div class="formation-subs-title">' + escapeHtml(data.team.name) + '</div>';
+          } else {
+            subsHtml += '<div class="formation-subs-title">ЗАПАСНЫЕ</div>';
+          }
+          subsHtml += '<div class="formation-subs-list">';
+          subs.forEach(p => {
+            subsHtml += '<div class="formation-sub-player">'
+              + '<div class="formation-sub-number">' + escapeHtml(p.number || '') + '</div>'
+              + '<div class="formation-sub-name">' + escapeHtml(p.name || '') + '</div>'
+              + '</div>';
+          });
+          subsHtml += '</div>';
+          if (officials.length > 0) {
+            subsHtml += '<div class="formation-coach-section">';
+            officials.forEach(o => {
+              subsHtml += '<div class="formation-coach-title">' + escapeHtml(o.role || '') + '</div>';
+              subsHtml += '<div class="formation-coach-player"><div class="formation-coach-name">' + escapeHtml(o.name || '') + '</div></div>';
+            });
+            subsHtml += '</div>';
+          }
+          subsEl.innerHTML = subsHtml;
+          container.classList.remove('formation-loaded');
+          void container.offsetWidth;
+          container.classList.add('formation-loaded');
+          startAutoReveal(fieldEl, 1800);
+        }
+        function startAutoReveal(fieldEl, displayDuration) {
+          const cards = Array.from(fieldEl.querySelectorAll('.formation-player-card'));
+          if (cards.length === 0) return;
+          const sorted = cards.sort((a, b) => {
+            return (parseInt(a.dataset.revealOrder) || 99) - (parseInt(b.dataset.revealOrder) || 99);
+          });
+          let delay = 0;
+          sorted.forEach((card) => {
+            setTimeout(() => { card.classList.add('active'); }, delay + 200);
+            setTimeout(() => { card.classList.remove('active'); }, delay + 200 + displayDuration);
+            delay += displayDuration;
+          });
+        }
         const hex = (c, def) => (typeof c === 'string' && c.startsWith('#')) ? c : def;
 
         function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
@@ -581,7 +985,9 @@
                 yellowCards: { home: 0, away: 0, isVisible: false },
                 redCards: { home: 0, away: 0, isVisible: false }
               },
-              goals: []
+              goals: [],
+              formationHome: null,
+              formationAway: null
             });
           }
         });
@@ -741,6 +1147,16 @@
           show('lineup-overlay', state === 'lineup-home' || state === 'lineup-away', 'flex');
           show('referees-overlay', state === 'referees', 'flex');
           show('thanks-overlay', state === 'thanks', 'flex');
+          show('formation-home-overlay', state === 'formation-home', 'block');
+          show('formation-away-overlay', state === 'formation-away', 'block');
+
+          /* === Рендер схемы команды === */
+          if (state === 'formation-home' && d.formationHome) {
+            renderFormation('home', d.formationHome);
+          }
+          if (state === 'formation-away' && d.formationAway) {
+            renderFormation('away', d.formationAway);
+          }
 
           const isMain = state === 'main';
           show('scoreboard-container', isMain, 'block');
