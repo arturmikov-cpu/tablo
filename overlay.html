@@ -424,20 +424,20 @@
             border-radius:6px;
             background: linear-gradient(145deg,#0d0d0d,#5c4308);
             border:2px solid #b8860b;
-            transition: all 0.35s cubic-bezier(0.4,0.0,0.2,1);
+            transition: all 0.385s cubic-bezier(0.4,0.0,0.2,1);
             z-index:2; overflow:hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.8);
             user-select:none;
             opacity:0; transform: scale(0.4);
         }
         .formation-player-card.revealed { opacity:1; transform: scale(1); }
-        .formation-player-card.goalkeeper.active { margin-top:-315px; }
+        .formation-player-card.goalkeeper.active { margin-top:-189px; }
 
-        /* Player cards — open state */
+        /* Player cards — open state (reduced by 40%) */
         .formation-player-card.active {
-            width:300px; height:394px;
-            margin-left:-150px; margin-top:-197px;
-            border-radius:10px; z-index:20;
+            width:180px; height:236px;
+            margin-left:-90px; margin-top:-118px;
+            border-radius:6px; z-index:20;
             border-color:#FFD700;
             box-shadow: 0 8px 25px rgba(0,0,0,0.9), 0 0 25px rgba(255,215,0,0.5);
             background: linear-gradient(145deg,#000000,#b8860b);
@@ -463,12 +463,12 @@
         .formation-player-details {
             position:absolute; bottom:0; left:0; right:0;
             background:#000; display:none; justify-content:center; align-items:center;
-            padding:10px 0; z-index:5; border-radius:0 0 10px 10px;
+            padding:6px 4px; z-index:5; border-radius:0 0 6px 6px;
         }
         .formation-player-card.active .formation-player-details { display:flex; }
-        .formation-detail-row { display:flex; align-items:center; gap:10px; }
-        .formation-detail-number { font-size:28px; font-weight:bold; color:#FFD700; }
-        .formation-detail-name { font-size:22px; font-weight:bold; color:#fff; }
+        .formation-detail-row { display:flex; flex-direction:column; align-items:center; gap:2px; }
+        .formation-detail-number { font-size:22px; font-weight:bold; color:#FFD700; line-height:1; }
+        .formation-detail-name { font-size:12px; font-weight:bold; color:#fff; text-align:center; line-height:1.1; }
 
         /* Subs list — all chips equal width (widest) */
         .formation-subs-list { display:flex; flex-direction:column; gap:14px; width:max-content; max-width:100%; margin:0 auto; }
@@ -1119,20 +1119,31 @@
             setTimeout(function() { card.classList.add('revealed'); }, i * revealStagger);
           });
 
-          // 2) After appearance completes, open cards by lines:
-          //    Line 0 (GK + defense) → Line 1 (midfield) → Line 2 (forward)
+          // 2) After appearance completes, open cards by lines with 7s pauses:
+          //    Line 0 (GK + defense) opens immediately after appearance
+          //    7s pause → Line 1 (midfield) opens
+          //    7s pause → Line 2 (forward) opens
+          //    Cards stay open after the last line.
           var appearanceComplete = cards.length * revealStagger + 500;
-          var lineDelay = 700; // ms between lines
+          var pauseBetweenLines = 7000; // 7 seconds
           var lines = [[], [], []];
           cards.forEach(function(card) {
             var line = parseInt(card.getAttribute('data-line')) || 0;
             lines[line].push(card);
           });
+          // Compute cumulative start time for each line (only counting non-empty lines)
+          var lineTimings = [];
+          var cumulative = appearanceComplete;
+          lines.forEach(function(lineCards) {
+            if (lineCards.length === 0) { lineTimings.push(null); return; }
+            lineTimings.push(cumulative);
+            cumulative += pauseBetweenLines;
+          });
           lines.forEach(function(lineCards, lineIdx) {
             if (lineCards.length === 0) return;
             setTimeout(function() {
               lineCards.forEach(function(card) { card.classList.add('active'); });
-            }, appearanceComplete + lineIdx * lineDelay);
+            }, lineTimings[lineIdx]);
           });
         }
 
