@@ -92,6 +92,9 @@
 
         #scoreboard-container { transition: opacity 0.3s; }
         #scoreboard { position: relative; display: flex; align-items: center; padding: 12px 35px; border-radius: var(--plaque-radius-xs); gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background-color: #1a1a1a; }
+        /* Счёт ближе к таймеру на ~2-3% (10px) */
+        #scoreboard #homeScore { transform: translateX(10px); }
+        #scoreboard #awayScore { transform: translateX(-10px); }
         .team-block { display: flex; align-items: center; gap: 12px; }
         .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; color: #ffffff; white-space: nowrap; }
         .form-marker { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); display: none; }
@@ -176,7 +179,7 @@
           min-width: 0;
         }
         .goal-plaque.home { align-items: flex-start; justify-self: start; max-width: 100%; }
-        .goal-plaque.away { align-items: flex-end; justify-self: end; max-width: 100%; }
+        .goal-plaque.away { align-items: flex-start; justify-self: start; max-width: 100%; }
         .goal-plaque:empty { display: none; }
         .goal-spacer { /* empty middle column, mirrors the center box width */ }
 
@@ -189,7 +192,7 @@
           line-height: 1.1; max-width: 100%; white-space: nowrap; overflow: hidden;
         }
         .goal-plaque.home .goal-item { flex-direction: row; justify-content: flex-start; }
-        .goal-plaque.away .goal-item { flex-direction: row; justify-content: flex-end; }
+        .goal-plaque.away .goal-item { flex-direction: row; justify-content: flex-start; }
         .goal-item + .goal-item { border-top: 1px solid var(--plaque-border-soft); }
         .goal-item .goal-min {
           font-family: var(--font-display);
@@ -477,8 +480,8 @@
         }
         .formation-player-card.active .formation-player-details { display:flex; }
         .formation-detail-row { display:flex; flex-direction:row; align-items:center; gap:6px; width:100%; padding:0 4px; box-sizing:border-box; }
-        .formation-detail-number { font-size:18px; font-weight:bold; color:#FFD700; line-height:1; flex-shrink:0; }
-        .formation-detail-name { font-size:11px; font-weight:bold; color:#fff; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+        .formation-detail-number { font-size:19px; font-weight:bold; color:#FFD700; line-height:1; flex-shrink:0; }
+        .formation-detail-name { font-size:12px; font-weight:bold; color:#fff; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 
         /* Subs list — all chips equal width (widest) */
         .formation-subs-list { display:flex; flex-direction:column; gap:14px; width:max-content; max-width:100%; margin:0 auto; }
