@@ -178,8 +178,9 @@
           gap: 4px;
           min-width: 0;
         }
-        .goal-plaque.home { align-items: flex-start; justify-self: start; max-width: 100%; }
-        .goal-plaque.away { align-items: flex-start; justify-self: start; max-width: 100%; }
+        /* Явное указание колонок предотвращает auto-placement когда одна plaque скрыта (display:none) */
+        .goal-plaque.home { grid-column: 1; align-items: flex-end; justify-self: end; max-width: 100%; }
+        .goal-plaque.away { grid-column: 3; align-items: flex-start; justify-self: start; max-width: 100%; }
         .goal-plaque:empty { display: none; }
         .goal-spacer { /* empty middle column, mirrors the center box width */ }
 
@@ -191,7 +192,8 @@
           color: #fff; font-family: var(--font-base); font-size: 16px; font-weight: 600;
           line-height: 1.1; max-width: 100%; white-space: nowrap; overflow: hidden;
         }
-        .goal-plaque.home .goal-item { flex-direction: row; justify-content: flex-start; }
+        /* Зеркальное выравнивание контента: home — вправо (над названием хозяев), away — влево (над названием гостей) */
+        .goal-plaque.home .goal-item { flex-direction: row; justify-content: flex-end; }
         .goal-plaque.away .goal-item { flex-direction: row; justify-content: flex-start; }
         .goal-item + .goal-item { border-top: 1px solid var(--plaque-border-soft); }
         .goal-item .goal-min {
