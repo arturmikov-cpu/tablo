@@ -125,16 +125,16 @@
         .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: var(--accent-color); text-transform: uppercase; text-shadow: 0 0 10px var(--accent-color-glow); white-space: nowrap; }
         .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; white-space: nowrap; }
 
-        .bottom-overlay { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 22px 44px; border-radius: var(--plaque-radius-md); display: grid; grid-template-columns: 1fr 350px 1fr; align-items: center; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 40px rgba(0,0,0,0.8); width: fit-content; max-width: 95vw; }
-        .bottom-team-group { display: flex; align-items: center; gap: 17px; z-index: 1; min-width: 0; }
-        .bottom-team-group.home { justify-content: flex-end; padding-right: 17px; }
-        .bottom-team-group.away { justify-content: flex-start; padding-left: 17px; }
-        .bottom-logo { width: 55px; height: 55px; object-fit: contain; flex-shrink: 0; }
-        .bottom-team-name { font-size: 29px; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-        .bottom-center-box { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-center); padding: 13px 38px; border-radius: var(--plaque-radius-sm); display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1px solid var(--plaque-border); box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 2; max-width: 340px; width: max-content; }
-        .bottom-status-text { font-size: 24px; font-weight: 900; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; }
-        .bottom-score-box { background: transparent; padding: 0; border-radius: 0; font-size: 40px; font-weight: 900; display: flex; align-items: center; gap: 17px; }
-        .bottom-score-sep { opacity: 0.5; font-size: 26px; }
+        .bottom-overlay { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 24px 48px; border-radius: var(--plaque-radius-md); display: grid; grid-template-columns: 1fr 350px 1fr; align-items: center; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 40px rgba(0,0,0,0.8); width: fit-content; max-width: 95vw; }
+        .bottom-team-group { display: flex; align-items: center; gap: 19px; z-index: 1; min-width: 0; }
+        .bottom-team-group.home { justify-content: flex-end; padding-right: 19px; }
+        .bottom-team-group.away { justify-content: flex-start; padding-left: 19px; }
+        .bottom-logo { width: 61px; height: 61px; object-fit: contain; flex-shrink: 0; }
+        .bottom-team-name { font-size: 32px; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .bottom-center-box { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-center); padding: 14px 42px; border-radius: var(--plaque-radius-sm); display: flex; flex-direction: column; align-items: center; gap: 7px; border: 1px solid var(--plaque-border); box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 2; max-width: 340px; width: max-content; }
+        .bottom-status-text { font-size: 26px; font-weight: 900; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; }
+        .bottom-score-box { background: transparent; padding: 0; border-radius: 0; font-size: 44px; font-weight: 900; display: flex; align-items: center; gap: 19px; }
+        .bottom-score-sep { opacity: 0.5; font-size: 29px; }
 
         /* === Bottom overlay wrapper: stacks goal plaques + main overlay vertically ===
            Position-absolute props (bottom/left/transform) moved here from .bottom-overlay.
@@ -175,8 +175,8 @@
           gap: 4px;
           min-width: 0;
         }
-        .goal-plaque.home { align-items: flex-end; justify-self: center; max-width: 100%; }
-        .goal-plaque.away { align-items: flex-start; justify-self: center; max-width: 100%; }
+        .goal-plaque.home { align-items: flex-start; justify-self: start; max-width: 100%; }
+        .goal-plaque.away { align-items: flex-end; justify-self: end; max-width: 100%; }
         .goal-plaque:empty { display: none; }
         .goal-spacer { /* empty middle column, mirrors the center box width */ }
 
@@ -188,7 +188,7 @@
           color: #fff; font-family: var(--font-base); font-size: 16px; font-weight: 600;
           line-height: 1.1; max-width: 100%; white-space: nowrap; overflow: hidden;
         }
-        .goal-plaque.home .goal-item { flex-direction: row; justify-content: flex-end; }
+        .goal-plaque.home .goal-item { flex-direction: row; justify-content: flex-start; }
         .goal-plaque.away .goal-item { flex-direction: row; justify-content: flex-end; }
         .goal-item + .goal-item { border-top: 1px solid var(--plaque-border-soft); }
         .goal-item .goal-min {
@@ -284,7 +284,7 @@
         .referee-name { font-size: 21px; font-weight: 700; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         @media (max-width: 720px) { .referees-list { flex-direction: column; gap: 14px; } .referee-row { min-width: 100%; padding: 14px 16px; } .referee-name { font-size: 18px; } .referee-role { font-size: 10px; } .referee-icon { width: 26px; height: 26px; } }
 
-        /* === Плашка «СПАСИБО ЗА СЕЗОН» === */
+        /* === Плашка «СПАСИБО ЗА ПРОСМОТРЫ» + Плашки «Комментатор» / «Видеооператор» === */
         #thanks-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 40px 50px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: row; align-items: center; gap: 40px; color: white; border: 1px solid var(--accent-color-soft); box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 30px var(--accent-color-glow); animation: fadeIn 0.6s ease-out; z-index: 70; max-width: 92vw; max-height: 90vh; }
         .thanks-photo { flex-shrink: 0; width: 200px; height: 200px; border-radius: var(--plaque-radius-md); overflow: hidden; border: 3px solid var(--accent-color); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
         .thanks-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -295,6 +295,15 @@
         .credit-name { font: 700 26px var(--font-base); color: #ffffff; text-transform: uppercase; letter-spacing: 2px; }
         .credit-role { font: 500 16px var(--font-base); color: var(--accent-color-bright); text-transform: lowercase; letter-spacing: 1px; }
         @media (max-width: 720px) { #thanks-overlay { flex-direction: column; padding: 24px 22px; gap: 20px; } .thanks-photo { width: 140px; height: 140px; } .thanks-title { font-size: 36px; letter-spacing: 2px; text-align: center; } .credit-name { font-size: 18px; } .credit-role { font-size: 13px; } .thanks-credits { align-items: center; } .credit-row { align-items: center; } }
+
+        /* === Плашки «Комментатор» / «Видеооператор» (низ слева, 7 секунд) === */
+        .person-plaque { position: absolute; bottom: 36px; left: 36px; display: none; align-items: center; gap: 24px; background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 24px 32px; border-radius: var(--plaque-radius-lg); color: white; border: 1px solid var(--accent-color-soft); box-shadow: 0 0 60px rgba(0,0,0,0.85), 0 0 20px var(--accent-color-glow); animation: fadeInX 0.5s ease-out; z-index: 65; max-width: 60vw; }
+        .person-plaque .person-photo { flex-shrink: 0; width: 130px; height: 130px; border-radius: var(--plaque-radius-md); overflow: hidden; border: 3px solid var(--accent-color); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+        .person-plaque .person-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .person-plaque .person-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .person-plaque .person-role { font: 500 18px var(--font-base); color: var(--accent-color-bright); text-transform: lowercase; letter-spacing: 2px; }
+        .person-plaque .person-name { font: 700 36px var(--font-display); color: #fff; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; white-space: nowrap; }
+        @media (max-width: 720px) { .person-plaque { padding: 16px 18px; gap: 14px; } .person-plaque .person-photo { width: 90px; height: 90px; } .person-plaque .person-name { font-size: 24px; } .person-plaque .person-role { font-size: 14px; } }
 
         /* === Плашки игровых событий (нижние углы) === */
         .event-overlay { position: absolute; bottom: 36px; display: none; align-items: center; gap: 21px; background: var(--plaque-bg-strong); backdrop-filter: blur(20px); padding: 24px 33px; border-radius: var(--plaque-radius-lg); color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.85); animation: fadeInX 0.4s ease-out; z-index: 60; max-width: 46vw; }
@@ -568,11 +577,33 @@
         <img id="thanks-photo-img" src="https://drive.google.com/thumbnail?id=1gROdulNjIdu5RLgjR2AIVJuU_znllGPj&sz=w1000" alt="" onerror="this.onerror=null;this.src='https://drive.google.com/uc?export=view&id=1gROdulNjIdu5RLgjR2AIVJuU_znllGPj';">
       </div>
       <div class="thanks-content">
-        <div class="thanks-title">СПАСИБО ЗА СЕЗОН</div>
+        <div class="thanks-title">СПАСИБО ЗА ПРОСМОТРЫ</div>
         <div class="thanks-credits">
           <div class="credit-row"><span class="credit-name">АРТУР МИКОВ</span><span class="credit-role">комментатор</span></div>
           <div class="credit-row"><span class="credit-name">ДМИТРИЙ ЩИПИЦИН</span><span class="credit-role">видеооператор</span></div>
         </div>
+      </div>
+    </div>
+
+    <!-- Плашка «Комментатор» (низ слева, 7 секунд) -->
+    <div id="commentator-plaque" class="person-plaque">
+      <div class="person-photo">
+        <img id="commentator-photo-img" src="https://drive.google.com/thumbnail?id=1gROdulNjIdu5RLgjR2AIVJuU_znllGPj&sz=w1000" alt="" onerror="this.onerror=null;this.src='https://drive.google.com/uc?export=view&id=1gROdulNjIdu5RLgjR2AIVJuU_znllGPj';">
+      </div>
+      <div class="person-info">
+        <span class="person-role">Комментатор</span>
+        <span class="person-name">АРТУР МИКОВ</span>
+      </div>
+    </div>
+
+    <!-- Плашка «Видеооператор» (низ слева, 7 секунд) -->
+    <div id="videographer-plaque" class="person-plaque">
+      <div class="person-photo">
+        <img id="videographer-photo-img" src="https://drive.google.com/thumbnail?id=1gROdulNjIdu5RLgjR2AIVJuU_znllGPj&sz=w1000" alt="" onerror="this.onerror=null;this.src='https://drive.google.com/uc?export=view&id=1gROdulNjIdu5RLgjR2AIVJuU_znllGPj';">
+      </div>
+      <div class="person-info">
+        <span class="person-role">Видеооператор</span>
+        <span class="person-name">ДМИТРИЙ ЩИПИЦИН</span>
       </div>
     </div>
 
@@ -610,6 +641,10 @@
 
         let prevHomeScore = -1, prevAwayScore = -1;
         let latestData = null;
+
+        // Автоскрытие плашек «Комментатор» / «Видеооператор»: 7 секунд
+        let personPlaqueState = null;
+        let personPlaqueTimer = null;
 
         // Автоскрытие метрик: 10 секунд с момента первого показа
         const AUTO_HIDE_MS = 10000;
@@ -829,8 +864,28 @@
           show('lineup-overlay', state === 'lineup-home' || state === 'lineup-away', 'flex');
           show('referees-overlay', state === 'referees', 'flex');
           show('thanks-overlay', state === 'thanks', 'flex');
+          show('commentator-plaque', state === 'commentator', 'flex');
+          show('videographer-plaque', state === 'videographer', 'flex');
           show('formation-home-overlay', state === 'formation-home', 'block');
           show('formation-away-overlay', state === 'formation-away', 'block');
+
+          /* === Автоскрытие плашек «Комментатор» / «Видеооператор» через 7 секунд === */
+          if (state === 'commentator' || state === 'videographer') {
+            if (personPlaqueState !== state) {
+              personPlaqueState = state;
+              clearTimeout(personPlaqueTimer);
+              personPlaqueTimer = setTimeout(function() {
+                db.update({ overlayState: 'main' });
+                personPlaqueState = null;
+              }, 7000);
+            }
+          } else if (state !== 'commentator' && state !== 'videographer') {
+            // Сброс при уходе из режима
+            if (personPlaqueState !== null) {
+              clearTimeout(personPlaqueTimer);
+              personPlaqueState = null;
+            }
+          }
 
           if (state === 'formation-home' && d.formationHome) renderFormationOverlay('home', d.formationHome);
           if (state === 'formation-away' && d.formationAway) renderFormationOverlay('away', d.formationAway);
