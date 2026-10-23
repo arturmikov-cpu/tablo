@@ -802,16 +802,8 @@
             overflow: hidden;
         }
 
-        /* Фаза 4: цифры счёта появляются (1300-1700мс) — fade in */
-        @keyframes yfl-enter-digit {
-            0%   { opacity: 0; transform: scale(0.5); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--digit,
-        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--digit {
-            animation: yfl-enter-digit 400ms ease-out 1300ms forwards;
-            opacity: 0;
-        }
+        /* Фаза 4 убрана — заменена в v1.6 на rotateY-переход
+           логотип команды → цифра счёта (см. ниже). */
 
         /* ============================================================
            v1.2 — Слот-машина (правка заказчика №5)
@@ -915,36 +907,31 @@
         }
 
         /* ============================================================
-           v1.5 — Логотипы команд в ЮФЛ табло + анимация появления
-           Логотип команды (homeLogo/awayLogo из Firebase) выводится
-           внутри блока названия команды. Если логотип не задан —
-           показываем только текст (3 буквы).
-           Анимация: fade-in + scale на фазе 4 (после раскрытия фрейма).
+           v1.6 — Анимация появления: логотипы команд → цифры счёта
+           Во время entrance-анимации (ОСНОВНОЙ ТАЙМЕР) в блоках счёта
+           показываются логотипы команд (вместо цифр), затем они
+           сменяются на цифры счёта в стиле барабана (rotateY).
+           Логотип команды берётся из Firebase homeLogo/awayLogo.
+           Если логотип не задан — показываем логотип ЮФЛ как fallback.
            ============================================================ */
-        .yfl-tablo__team-logo {
-            max-height: 65%;
-            max-width: 40%;
-            object-fit: contain;
-            flex-shrink: 0;
-            display: none; /* показывается только если задан URL */
+        /* Во время entrance: слой letter (логотип команды) виден в фазе 3,
+           затем в фазе 4 сменяется на digit (цифра счёта) через rotateY. */
+        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--letter,
+        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--letter {
+            opacity: 1; /* виден в фазе 3 (раскрытие фрейма) */
         }
-        .yfl-tablo__home-name,
-        .yfl-tablo__away-name {
-            gap: 4px;
-            padding: 0 2px;
+        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--digit,
+        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--digit {
+            opacity: 0; /* скрыт в фазе 3, появится в фазе 4 */
         }
-        .yfl-tablo__team-name-text {
-            overflow: hidden;
-            text-overflow: clip;
-            white-space: nowrap;
+        /* Фаза 4 (1300мс): логотип команды → rotateY out, цифра → rotateY in */
+        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--letter,
+        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--letter {
+            animation: yfl-letter-out 600ms ease-in 1300ms forwards;
         }
-        @keyframes yfl-enter-team-logo {
-            0%   { opacity: 0; transform: scale(0); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .yfl-tablo--entering .yfl-tablo__team-logo {
-            opacity: 0;
-            animation: yfl-enter-team-logo 400ms ease-out 1100ms forwards;
+        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--digit,
+        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--digit {
+            animation: yfl-digit-in 600ms ease-in 1300ms forwards;
         }
 
     </style>
@@ -971,8 +958,8 @@
         <div class="yfl-tablo" data-state="idle">
             <!-- Строка 1: таймер + названия команд -->
             <div class="yfl-tablo__timer" data-block="timer">00:00</div>
-            <div class="yfl-tablo__home-name" data-team="home" data-block="home-name"><img class="yfl-tablo__team-logo yfl-tablo__team-logo--home" alt=""><span class="yfl-tablo__team-name-text">УФА</span></div>
-            <div class="yfl-tablo__away-name" data-team="away" data-block="away-name"><img class="yfl-tablo__team-logo yfl-tablo__team-logo--away" alt=""><span class="yfl-tablo__team-name-text">АМК</span></div>
+            <div class="yfl-tablo__home-name" data-team="home" data-block="home-name">УФА</div>
+            <div class="yfl-tablo__away-name" data-team="away" data-block="away-name">АМК</div>
             <!-- Строка 2: логотип ЮФЛ + счёт (правка v1.1: реальный логотип ЮФЛ) -->
             <div class="yfl-tablo__logo" data-block="logo">
                 <img src="https://arturmikov-cpu.github.io/tablo/yfl-logo.png" alt="ЮФЛ" class="yfl-tablo__logo-img">
@@ -1820,40 +1807,15 @@
                 if (t) t.dataset.state = state.toLowerCase();
             }
 
-            // --- Синхронизация названий команд + логотипов (ТЗ §7, SET_TEAMS) ---
+            // --- Синхронизация названий команд (ТЗ §7, SET_TEAMS) ---
             function syncTeams(d) {
                 var home = clipTeamName(d.homeTeam, 'ХОЗ');
                 var away = clipTeamName(d.awayTeam, 'ГОС');
-                var homeLogo = d.homeLogo || '';
-                var awayLogo = d.awayLogo || '';
-                // Ключ включает логотипы — чтобы реагировать на смену логотипа
-                var key = home + '|' + away + '|' + homeLogo + '|' + awayLogo;
+                var key = home + '|' + away;
                 if (key === lastTeamsKey) return;
                 lastTeamsKey = key;
-                // Текст названия — в span
-                var homeText = document.querySelector('.yfl-tablo__home-name .yfl-tablo__team-name-text');
-                var awayText = document.querySelector('.yfl-tablo__away-name .yfl-tablo__team-name-text');
-                if (homeText) homeText.textContent = home;
-                if (awayText) awayText.textContent = away;
-                // Логотип команды — в img (если задан URL)
-                var homeLogoImg = document.querySelector('.yfl-tablo__team-logo--home');
-                var awayLogoImg = document.querySelector('.yfl-tablo__team-logo--away');
-                if (homeLogoImg) {
-                    if (homeLogo) {
-                        if (homeLogoImg.getAttribute('src') !== homeLogo) homeLogoImg.setAttribute('src', homeLogo);
-                        homeLogoImg.style.display = 'block';
-                    } else {
-                        homeLogoImg.style.display = 'none';
-                    }
-                }
-                if (awayLogoImg) {
-                    if (awayLogo) {
-                        if (awayLogoImg.getAttribute('src') !== awayLogo) awayLogoImg.setAttribute('src', awayLogo);
-                        awayLogoImg.style.display = 'block';
-                    } else {
-                        awayLogoImg.style.display = 'none';
-                    }
-                }
+                setText('.yfl-tablo__home-name', home);
+                setText('.yfl-tablo__away-name', away);
                 // ТЗ §14: IDLE → READY при SET_TEAMS
                 if (state === 'IDLE') {
                     state = 'READY';
@@ -1963,21 +1925,44 @@
                 }, 7000);
             }
 
-            /* === Правка v1.2 №4: анимация появления табло ===
-               При первом появлении (design → yfl) добавляем класс
-               .yfl-tablo--entering на 1700 мс. CSS-анимации по фазам:
-               1) таймер  2) логотип вниз  3) фрейм команд вправо  4) цифры. */
+            /* === Правка v1.6: анимация появления табло ===
+               При нажатии ОСНОВНОЙ ТАЙМЕР добавляем класс
+               .yfl-tablo--entering на 1900 мс. CSS-анимации по фазам:
+               1) таймер (0-400мс)  2) логотип ЮФЛ вниз (400-800мс)
+               3) фрейм команд+счёт вправо (800-1300мс) — в блоках счёта
+                  показываются ЛОГОТИПЫ КОМАНД (вместо цифр)
+               4) логотипы команд → rotateY out, цифры счёта → rotateY in (1300-1900мс)
+               Логотип команды берётся из Firebase homeLogo/awayLogo.
+               Если не задан — fallback на логотип ЮФЛ. */
             var enteringTimer = null;
+            var latestHomeLogo = '';
+            var latestAwayLogo = '';
+            var YFL_LOGO_URL = 'https://arturmikov-cpu.github.io/tablo/yfl-logo.png';
             function playEntranceAnimation() {
                 var t = tablo();
                 if (!t) return;
+                // Устанавливаем src слоя letter на логотип команды (или ЮФЛ fallback)
+                var homeLetter = t.querySelector('.yfl-tablo__home-score .yfl-tablo__score-layer--letter');
+                var awayLetter = t.querySelector('.yfl-tablo__away-score .yfl-tablo__score-layer--letter');
+                if (homeLetter) {
+                    var homeSrc = latestHomeLogo || YFL_LOGO_URL;
+                    if (homeLetter.getAttribute('src') !== homeSrc) homeLetter.setAttribute('src', homeSrc);
+                }
+                if (awayLetter) {
+                    var awaySrc = latestAwayLogo || YFL_LOGO_URL;
+                    if (awayLetter.getAttribute('src') !== awaySrc) awayLetter.setAttribute('src', awaySrc);
+                }
                 t.classList.remove('yfl-tablo--entering');
                 void t.offsetWidth; // reflow to restart CSS animations
                 t.classList.add('yfl-tablo--entering');
                 clearTimeout(enteringTimer);
                 enteringTimer = setTimeout(function() {
                     t.classList.remove('yfl-tablo--entering');
-                }, 1800);
+                    // После анимации восстанавливаем letter слой на логотип ЮФЛ
+                    // (для будущих анимаций старта/слот-машины)
+                    if (homeLetter) homeLetter.setAttribute('src', YFL_LOGO_URL);
+                    if (awayLetter) awayLetter.setAttribute('src', YFL_LOGO_URL);
+                }, 1900);
             }
 
             /* === Правка v1.2 №5: слот-машина каждые 10 минут ===
@@ -2084,6 +2069,10 @@
 
                 // 1) Синхронизация названий команд (всегда — на случай смены)
                 syncTeams(d);
+
+                // v1.6: сохраняем логотипы команд для entrance-анимации
+                latestHomeLogo = d.homeLogo || '';
+                latestAwayLogo = d.awayLogo || '';
 
                 // 2) Логика таймера (START_TIMER / STOP_TIMER / RESET_TIMER)
                 var timer = d.timer || {};
