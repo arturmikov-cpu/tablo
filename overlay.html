@@ -407,6 +407,86 @@
         }
         /* CHPK + design-4 (Скругленный) — leave default rounded values from :root. */
 
+        /* ============================================================
+           FORMATION OVERLAY — Black & Gold card style
+           ============================================================ */
+        .formation-overlay-wrap { display:flex; width:100%; height:100%; position:relative; overflow:hidden; }
+        .formation-field { flex:0 0 70%; position:relative; background: radial-gradient(ellipse at 30% 25%,rgba(45,80,45,0.2) 0%,transparent 60%),linear-gradient(180deg,rgba(26,34,48,0.6) 0%,rgba(13,17,25,0.6) 100%); }
+        .formation-subs-panel { flex:0 0 30%; background: linear-gradient(145deg,#0a0a0a 0%,#3d2b00 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 10px; overflow-y:auto; border-left:2px solid #b8860b; }
+
+        /* Team logo — on the dividing line between field (70%) and subs (30%) */
+        .formation-team-logo { position:absolute; left:70%; top:50%; transform:translate(-50%,-50%); width:153px; height:204px; background-size:contain; background-repeat:no-repeat; background-position:center; z-index:60; opacity:0.6; filter:drop-shadow(0 0 12px #FFD700); }
+
+        /* Player cards — closed state (black-gold gradient) */
+        .formation-player-card {
+            position:absolute; width:106px; height:136px;
+            margin-left:-53px; margin-top:-68px;
+            border-radius:6px;
+            background: linear-gradient(145deg,#0d0d0d,#5c4308);
+            border:2px solid #b8860b;
+            transition: all 0.35s cubic-bezier(0.4,0.0,0.2,1);
+            z-index:2; overflow:hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            user-select:none;
+            opacity:0; transform: scale(0.4);
+        }
+        .formation-player-card.revealed { opacity:1; transform: scale(1); }
+        .formation-player-card.goalkeeper.active { margin-top:-315px; }
+
+        /* Player cards — open state */
+        .formation-player-card.active {
+            width:300px; height:394px;
+            margin-left:-150px; margin-top:-197px;
+            border-radius:10px; z-index:20;
+            border-color:#FFD700;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.9), 0 0 25px rgba(255,215,0,0.5);
+            background: linear-gradient(145deg,#000000,#b8860b);
+        }
+        .formation-player-photo {
+            position:absolute; top:0; left:0; width:100%; height:100%;
+            background-size:cover; background-position:center; background-repeat:no-repeat;
+            opacity:0; transition: opacity 0.3s ease; z-index:1;
+        }
+        .formation-player-card.active .formation-player-photo { opacity:1; }
+        .formation-player-number {
+            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+            font-size:52px; font-weight:bold; color:#FFD700;
+            text-shadow:0 0 10px rgba(0,0,0,0.8); z-index:2;
+        }
+        .formation-player-card.active .formation-player-number { display:none; }
+        .formation-player-name {
+            position:absolute; bottom:8px; left:0; right:0;
+            text-align:center; font-size:18px; font-weight:bold; color:#fff;
+            text-shadow:0 0 8px black; z-index:2;
+        }
+        .formation-player-card.active .formation-player-name { display:none; }
+        .formation-player-details {
+            position:absolute; bottom:0; left:0; right:0;
+            background:#000; display:none; justify-content:center; align-items:center;
+            padding:10px 0; z-index:5; border-radius:0 0 10px 10px;
+        }
+        .formation-player-card.active .formation-player-details { display:flex; }
+        .formation-detail-row { display:flex; align-items:center; gap:10px; }
+        .formation-detail-number { font-size:28px; font-weight:bold; color:#FFD700; }
+        .formation-detail-name { font-size:22px; font-weight:bold; color:#fff; }
+
+        /* Subs list — all chips equal width (widest) */
+        .formation-subs-list { display:flex; flex-direction:column; gap:14px; width:max-content; max-width:100%; margin:0 auto; }
+        .formation-sub-player {
+            display:flex; align-items:center; gap:12px;
+            background: rgba(0,0,0,0.75); border-radius:30px; padding:8px 15px;
+            backdrop-filter: blur(4px); border:1px solid #FFD700;
+            width:100%; box-sizing:border-box;
+        }
+        .formation-sub-number {
+            width:36px; height:36px; border-radius:50%;
+            background: rgba(255,215,0,0.2);
+            display:flex; align-items:center; justify-content:center;
+            font-size:18px; font-weight:bold; color:#FFD700;
+            border:1px solid #FFD700; flex-shrink:0;
+        }
+        .formation-sub-name { font-size:18px; color:#fff; font-weight:500; white-space:nowrap; }
+
     </style>
 </head>
 <body>
@@ -942,16 +1022,16 @@
           formationRenderKey[side] = sig;
 
           const teamColor = (data.team && data.team.formColor) || '#ff5148';
-          const accentColor = '#ffdd57';
+          const goldColor = '#FFD700';
           const photoBaseUrl = data.photoBaseUrl || '';
           const starters = data.starters || [];
           const subs = data.substitutes || [];
           const officials = data.officials || [];
-          
-          let html = '<div style="display:flex;width:100%;height:100%;position:relative;overflow:hidden">';
-          
-          // Field area (70%) — more transparent
-          html += '<div style="flex:0 0 70%;position:relative;background:radial-gradient(ellipse at 30% 25%,rgba(45,80,45,0.2) 0%,transparent 60%),linear-gradient(180deg,rgba(26,34,48,0.6) 0%,rgba(13,17,25,0.6) 100%)">';
+
+          let html = '<div class="formation-overlay-wrap">';
+
+          // === Field area (70%) ===
+          html += '<div class="formation-field">';
           // Field markings
           html += '<div style="position:absolute;top:3%;left:10%;width:80%;height:94%;pointer-events:none;transform:perspective(800px) rotateX(5deg);transform-origin:bottom center">';
           html += '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border:2px solid ' + teamColor + ';opacity:0.4;box-sizing:border-box"></div>';
@@ -960,61 +1040,100 @@
           html += '<div style="position:absolute;top:0;left:25%;width:50%;height:20%;border:2px solid ' + teamColor + ';opacity:0.25;border-top:none;box-sizing:border-box"></div>';
           html += '<div style="position:absolute;bottom:0;left:25%;width:50%;height:20%;border:2px solid ' + teamColor + ';opacity:0.25;border-bottom:none;box-sizing:border-box"></div>';
           html += '</div>';
-          
-          // Player cards — NOT transparent
+
+          // === Player cards — black & gold style, with line grouping for animation ===
           starters.forEach(function(p, i) {
             const x = p.x || 50;
             const y = p.y || 50;
             const photoUrl = p.photo || (photoBaseUrl ? photoBaseUrl : '');
-            const cardBg = photoUrl ? 'background-image:url(' + photoUrl + ');background-size:cover;background-position:center' : 'background:rgba(10,10,10,0.65)';
-            html += '<div style="position:absolute;left:' + x + '%;top:' + y + '%;width:100px;height:130px;margin-left:-50px;margin-top:-65px;border-radius:6px;' + cardBg + ';border:2px solid ' + accentColor + ';display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;box-shadow:0 4px 12px rgba(0,0,0,0.6);overflow:hidden;z-index:2">';
-            if (!photoUrl) {
-              html += '<span style="font-size:32px;font-weight:900;color:' + accentColor + ';text-shadow:0 0 8px rgba(0,0,0,0.8);margin-bottom:auto;margin-top:20px">' + escapeHtml(p.number || '') + '</span>';
-            }
-            html += '<span style="font-size:14px;font-weight:bold;color:#fff;text-shadow:0 0 6px black;text-align:center;width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml((p.name || '').split(' ')[0]) + '</span>';
+            const isGK = !!(p.isGoalkeeper || p.position === 'GK' || /^вр/i.test(p.name || ''));
+            // Line group: 0 = GK + defense (y>=60), 1 = midfield (35<=y<60), 2 = forward (y<35)
+            const lineGroup = (y >= 60) ? 0 : (y >= 35 ? 1 : 2);
+            const cardClass = 'formation-player-card' + (isGK ? ' goalkeeper' : '');
+            const num = escapeHtml(p.number || '');
+            const firstName = escapeHtml((p.name || '').split(' ')[0] || '');
+            const fullName = escapeHtml(p.name || '');
+            html += '<div class="' + cardClass + '" data-line="' + lineGroup + '" data-photo="' + escapeHtml(photoUrl) + '" style="left:' + x + '%;top:' + y + '%;">';
+            html += '<div class="formation-player-photo"></div>';
+            html += '<span class="formation-player-number">' + num + '</span>';
+            html += '<span class="formation-player-name">' + firstName + '</span>';
+            html += '<div class="formation-player-details"><div class="formation-detail-row"><span class="formation-detail-number">' + num + '</span><span class="formation-detail-name">' + fullName + '</span></div></div>';
             html += '</div>';
           });
-          
-          // Team logo — на разделительной линии между полем (70%) и панелью запасных (30%)
+
+          // Channel logo (inside field, bottom-right)
+          html += '<div style="position:absolute;right:15px;bottom:15px;font-size:32px;font-weight:400;font-family:Bahnschrift SemiLight,Arial,sans-serif;color:#fff;text-shadow:0 0 8px ' + goldColor + ';z-index:100">К4ТВ</div>';
+          html += '</div>'; // end field
+
+          // === Team logo — on the dividing line (child of wrap, so left:70% = full overlay width) ===
           if (data.team && data.team.logo) {
-            html += '<div style="position:absolute;left:70%;top:50%;transform:translate(-50%,-50%);width:140px;height:180px;background:url(' + data.team.logo + ') center/contain no-repeat;z-index:60;opacity:0.6;filter:drop-shadow(0 0 10px ' + accentColor + ')"></div>';
+            html += '<div class="formation-team-logo" style="background-image:url(' + data.team.logo + ')"></div>';
           }
-          
-          // Channel logo
-          html += '<div style="position:absolute;right:15px;bottom:15px;font-size:32px;font-weight:400;font-family:Bahnschrift SemiLight,Arial,sans-serif;color:#fff;text-shadow:0 0 8px ' + accentColor + ';z-index:100">К4ТВ</div>';
-          html += '</div>';
-          
-          // Subs panel (30%) — more transparent
-          html += '<div style="flex:0 0 30%;background:rgba(8,8,12,0.55);backdrop-filter:blur(15px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px 10px;overflow-y:auto;border-left:2px solid ' + accentColor + '">';
-          
+
+          // === Subs panel (30%) ===
+          html += '<div class="formation-subs-panel">';
+
           // Team name
           if (data.team && data.team.name) {
-            html += '<div style="font-size:22px;font-weight:900;color:' + accentColor + ';letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">' + escapeHtml(data.team.name) + '</div>';
+            html += '<div style="font-size:22px;font-weight:900;color:' + goldColor + ';letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">' + escapeHtml(data.team.name) + '</div>';
           }
-          
-          // Subs list — grid с max-content: все карточки одинаковой ширины (по самому широкому имени)
-          html += '<div style="display:grid;grid-template-columns:max-content;gap:10px;justify-content:center;width:100%">';
+
+          // Subs list — all chips equal width (widest)
+          html += '<div class="formation-subs-list">';
           subs.forEach(function(p) {
-            html += '<div style="display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.5);border-radius:20px;padding:6px 14px;border:1px solid ' + accentColor + ';width:100%;box-sizing:border-box">';
-            html += '<span style="width:30px;height:30px;border-radius:50%;background:rgba(255,221,87,0.15);color:' + accentColor + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">' + escapeHtml(p.number || '') + '</span>';
-            html += '<span style="font-size:16px;color:#fff;white-space:nowrap">' + escapeHtml(p.name || '') + '</span>';
+            html += '<div class="formation-sub-player">';
+            html += '<span class="formation-sub-number">' + escapeHtml(p.number || '') + '</span>';
+            html += '<span class="formation-sub-name">' + escapeHtml(p.name || '') + '</span>';
             html += '</div>';
           });
           html += '</div>';
-          
+
           // Officials
           if (officials.length > 0) {
             html += '<div style="margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:8px">';
             officials.forEach(function(o) {
-              html += '<div style="font-size:11px;font-weight:700;color:rgba(255,221,87,0.7);letter-spacing:1px;text-transform:uppercase">' + escapeHtml(o.role || '') + '</div>';
-              html += '<div style="font-size:16px;color:' + accentColor + ';font-weight:600;text-transform:uppercase">' + escapeHtml(o.name || '') + '</div>';
+              html += '<div style="font-size:11px;font-weight:700;color:rgba(255,215,0,0.7);letter-spacing:1px;text-transform:uppercase">' + escapeHtml(o.role || '') + '</div>';
+              html += '<div style="font-size:16px;color:' + goldColor + ';font-weight:600;text-transform:uppercase">' + escapeHtml(o.name || '') + '</div>';
             });
             html += '</div>';
           }
-          
-          html += '</div></div>';
-          
+
+          html += '</div></div>'; // end subs panel, end wrap
+
           overlay.innerHTML = html;
+
+          // === ANIMATION: appearance → open by lines ===
+          // Set photos on each card
+          var cards = overlay.querySelectorAll('.formation-player-card');
+          cards.forEach(function(card) {
+            var photo = card.getAttribute('data-photo');
+            if (photo) {
+              var photoDiv = card.querySelector('.formation-player-photo');
+              if (photoDiv) photoDiv.style.backgroundImage = 'url("' + photo + '")';
+            }
+          });
+
+          // 1) Appearance: stagger reveal (scale + fade in)
+          var revealStagger = 70; // ms between cards
+          cards.forEach(function(card, i) {
+            setTimeout(function() { card.classList.add('revealed'); }, i * revealStagger);
+          });
+
+          // 2) After appearance completes, open cards by lines:
+          //    Line 0 (GK + defense) → Line 1 (midfield) → Line 2 (forward)
+          var appearanceComplete = cards.length * revealStagger + 500;
+          var lineDelay = 700; // ms between lines
+          var lines = [[], [], []];
+          cards.forEach(function(card) {
+            var line = parseInt(card.getAttribute('data-line')) || 0;
+            lines[line].push(card);
+          });
+          lines.forEach(function(lineCards, lineIdx) {
+            if (lineCards.length === 0) return;
+            setTimeout(function() {
+              lineCards.forEach(function(card) { card.classList.add('active'); });
+            }, appearanceComplete + lineIdx * lineDelay);
+          });
         }
 
         db.on('value', snapshot => { latestData = snapshot.val(); render(); });
