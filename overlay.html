@@ -126,7 +126,6 @@
         .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; white-space: nowrap; }
 
         .bottom-overlay { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 20px 40px; border-radius: var(--plaque-radius-md); display: grid; grid-template-columns: 1fr 350px 1fr; align-items: center; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 40px rgba(0,0,0,0.8); width: fit-content; max-width: 95vw; }
-        @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         .bottom-team-group { display: flex; align-items: center; gap: 15px; z-index: 1; min-width: 0; }
         .bottom-team-group.home { justify-content: flex-end; padding-right: 15px; }
         .bottom-team-group.away { justify-content: flex-start; padding-left: 15px; }
@@ -154,6 +153,7 @@
           max-width: 95vw;
           animation: fadeInBottom 0.5s ease-out;
         }
+        @keyframes fadeInBottom { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         .goal-plaques-row {
           display: grid;
           grid-template-columns: 1fr 350px 1fr;
@@ -406,6 +406,7 @@
             border-radius: 0 0 0 0;
         }
         /* CHPK + design-4 (Скругленный) — leave default rounded values from :root. */
+
     </style>
 </head>
 <body>
@@ -514,6 +515,11 @@
         </div>
     </div>
 
+    <!-- Formation overlays -->
+    <div id="formation-home-overlay" style="position:absolute;top:0;left:0;width:100vw;height:100vh;display:none;z-index:80;background:rgba(0,0,0,0.45);backdrop-filter:blur(10px)"></div>
+    <div id="formation-away-overlay" style="position:absolute;top:0;left:0;width:100vw;height:100vh;display:none;z-index:80;background:rgba(0,0,0,0.45);backdrop-filter:blur(10px)"></div>
+
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script>
@@ -550,6 +556,7 @@
         const setText = (id, v) => { const e = el(id); if (e) e.textContent = v; };
         const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         const num = (v, def) => (typeof v === 'number' && isFinite(v)) ? v : def;
+
         const hex = (c, def) => (typeof c === 'string' && c.startsWith('#')) ? c : def;
 
         function formatTime(ms) { const totalSec = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(totalSec / 60); const s = totalSec % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
@@ -741,6 +748,11 @@
           show('lineup-overlay', state === 'lineup-home' || state === 'lineup-away', 'flex');
           show('referees-overlay', state === 'referees', 'flex');
           show('thanks-overlay', state === 'thanks', 'flex');
+          show('formation-home-overlay', state === 'formation-home', 'block');
+          show('formation-away-overlay', state === 'formation-away', 'block');
+
+          if (state === 'formation-home' && d.formationHome) renderFormationOverlay('home', d.formationHome);
+          if (state === 'formation-away' && d.formationAway) renderFormationOverlay('away', d.formationAway);
 
           const isMain = state === 'main';
           show('scoreboard-container', isMain, 'block');
@@ -915,6 +927,96 @@
           });
         }
 
+        /* === Formation overlay renderer === */
+        // Track last-rendered formation to avoid re-rendering every 250ms tick
+        let formationRenderKey = { home: '', away: '' };
+
+        function renderFormationOverlay(side, data) {
+          if (!data) return;
+          const overlay = el(side === 'home' ? 'formation-home-overlay' : 'formation-away-overlay');
+          if (!overlay) return;
+
+          // Build a signature to detect if data changed since last render
+          const sig = JSON.stringify(data);
+          if (formationRenderKey[side] === sig) return; // No change — skip re-render
+          formationRenderKey[side] = sig;
+
+          const teamColor = (data.team && data.team.formColor) || '#ff5148';
+          const accentColor = '#ffdd57';
+          const photoBaseUrl = data.photoBaseUrl || '';
+          const starters = data.starters || [];
+          const subs = data.substitutes || [];
+          const officials = data.officials || [];
+          
+          let html = '<div style="display:flex;width:100%;height:100%;position:relative;overflow:hidden">';
+          
+          // Field area (70%) — more transparent
+          html += '<div style="flex:0 0 70%;position:relative;background:radial-gradient(ellipse at 30% 25%,rgba(45,80,45,0.2) 0%,transparent 60%),linear-gradient(180deg,rgba(26,34,48,0.6) 0%,rgba(13,17,25,0.6) 100%)">';
+          // Field markings
+          html += '<div style="position:absolute;top:3%;left:10%;width:80%;height:94%;pointer-events:none;transform:perspective(800px) rotateX(5deg);transform-origin:bottom center">';
+          html += '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border:2px solid ' + teamColor + ';opacity:0.4;box-sizing:border-box"></div>';
+          html += '<div style="position:absolute;left:0;top:50%;width:100%;height:2px;background:' + teamColor + ';opacity:0.25;transform:translateY(-50%)"></div>';
+          html += '<div style="position:absolute;left:50%;top:50%;width:100px;height:100px;border:2px solid ' + teamColor + ';opacity:0.25;border-radius:50%;transform:translate(-50%,-50%)"></div>';
+          html += '<div style="position:absolute;top:0;left:25%;width:50%;height:20%;border:2px solid ' + teamColor + ';opacity:0.25;border-top:none;box-sizing:border-box"></div>';
+          html += '<div style="position:absolute;bottom:0;left:25%;width:50%;height:20%;border:2px solid ' + teamColor + ';opacity:0.25;border-bottom:none;box-sizing:border-box"></div>';
+          html += '</div>';
+          
+          // Player cards — NOT transparent
+          starters.forEach(function(p, i) {
+            const x = p.x || 50;
+            const y = p.y || 50;
+            const photoUrl = p.photo || (photoBaseUrl ? photoBaseUrl : '');
+            const cardBg = photoUrl ? 'background-image:url(' + photoUrl + ');background-size:cover;background-position:center' : 'background:rgba(10,10,10,0.65)';
+            html += '<div style="position:absolute;left:' + x + '%;top:' + y + '%;width:100px;height:130px;margin-left:-50px;margin-top:-65px;border-radius:6px;' + cardBg + ';border:2px solid ' + accentColor + ';display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;box-shadow:0 4px 12px rgba(0,0,0,0.6);overflow:hidden;z-index:2">';
+            if (!photoUrl) {
+              html += '<span style="font-size:32px;font-weight:900;color:' + accentColor + ';text-shadow:0 0 8px rgba(0,0,0,0.8);margin-bottom:auto;margin-top:20px">' + escapeHtml(p.number || '') + '</span>';
+            }
+            html += '<span style="font-size:14px;font-weight:bold;color:#fff;text-shadow:0 0 6px black;text-align:center;width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml((p.name || '').split(' ')[0]) + '</span>';
+            html += '</div>';
+          });
+          
+          // Team logo — в центре поля (поле 0-70%, центр на 35%)
+          if (data.team && data.team.logo) {
+            html += '<div style="position:absolute;left:35%;top:50%;transform:translate(-50%,-50%);width:140px;height:180px;background:url(' + data.team.logo + ') center/contain no-repeat;z-index:60;opacity:0.6;filter:drop-shadow(0 0 10px ' + accentColor + ')"></div>';
+          }
+          
+          // Channel logo
+          html += '<div style="position:absolute;right:15px;bottom:15px;font-size:32px;font-weight:400;font-family:Bahnschrift SemiLight,Arial,sans-serif;color:#fff;text-shadow:0 0 8px ' + accentColor + ';z-index:100">К4ТВ</div>';
+          html += '</div>';
+          
+          // Subs panel (30%) — more transparent
+          html += '<div style="flex:0 0 30%;background:rgba(8,8,12,0.55);backdrop-filter:blur(15px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px 10px;overflow-y:auto;border-left:2px solid ' + accentColor + '">';
+          
+          // Team name
+          if (data.team && data.team.name) {
+            html += '<div style="font-size:22px;font-weight:900;color:' + accentColor + ';letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">' + escapeHtml(data.team.name) + '</div>';
+          }
+          
+          // Subs list
+          html += '<div style="display:flex;flex-direction:column;gap:10px;width:100%;align-items:center">';
+          subs.forEach(function(p) {
+            html += '<div style="display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.5);border-radius:20px;padding:6px 14px;border:1px solid ' + accentColor + '">';
+            html += '<span style="width:30px;height:30px;border-radius:50%;background:rgba(255,221,87,0.15);color:' + accentColor + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">' + escapeHtml(p.number || '') + '</span>';
+            html += '<span style="font-size:16px;color:#fff">' + escapeHtml(p.name || '') + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+          
+          // Officials
+          if (officials.length > 0) {
+            html += '<div style="margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:8px">';
+            officials.forEach(function(o) {
+              html += '<div style="font-size:11px;font-weight:700;color:rgba(255,221,87,0.7);letter-spacing:1px;text-transform:uppercase">' + escapeHtml(o.role || '') + '</div>';
+              html += '<div style="font-size:16px;color:' + accentColor + ';font-weight:600;text-transform:uppercase">' + escapeHtml(o.name || '') + '</div>';
+            });
+            html += '</div>';
+          }
+          
+          html += '</div></div>';
+          
+          overlay.innerHTML = html;
+        }
+
         db.on('value', snapshot => { latestData = snapshot.val(); render(); });
         // Тик: обновление таймеров и срабатывание автоскрытия без изменения БД
         setInterval(() => { render(); renderEvents(); }, 250);
@@ -969,7 +1071,9 @@
             if (!html) html = '<div class="ev-player">—</div>';
             bodyEl.innerHTML = html;
           } else {
-            const numHtml = ev.playerNumber ? '<span class="ev-num">' + escapeHtml(ev.playerNumber) + '</span>' : '';
+            // Для голов не выводим игровой номер — только имя автора
+            const showNum = ev.type !== 'goal' && ev.playerNumber;
+            const numHtml = showNum ? '<span class="ev-num">' + escapeHtml(ev.playerNumber) + '</span>' : '';
             bodyEl.innerHTML = '<div class="ev-player">' + numHtml + escapeHtml(ev.playerName || '') + '</div>';
           }
         }
