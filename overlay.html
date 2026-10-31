@@ -92,9 +92,11 @@
 
         #scoreboard-container { transition: opacity 0.3s; }
         #scoreboard { position: relative; display: flex; align-items: center; padding: 12px 35px; border-radius: var(--plaque-radius-xs); gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background-color: #1a1a1a; }
-        /* Счёт ближе к таймеру на ~2-3% (10px) */
-        #scoreboard #homeScore { transform: translateX(10px); }
-        #scoreboard #awayScore { transform: translateX(-10px); }
+        /* Счёт ближе к таймеру на ~2-3% (10px). --score-tx is reused in the
+           scorePop keyframes so the translateX is preserved during the
+           score-change animation (no position shift mid-animation). */
+        #scoreboard #homeScore { --score-tx: 10px; transform: translateX(var(--score-tx)); }
+        #scoreboard #awayScore { --score-tx: -10px; transform: translateX(var(--score-tx)); }
         .team-block { display: flex; align-items: center; gap: 12px; }
         .team-name { font-size: 28px; font-weight: bold; text-transform: uppercase; transition: color 0.3s; color: #ffffff; white-space: nowrap; }
         .form-marker { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); display: none; }
@@ -107,7 +109,7 @@
         .timer-container { display: flex; flex-direction: column; align-items: center; }
         .timer-block { font-size: 32px; font-weight: bold; padding: 0 15px; border-left: 2px solid var(--plaque-border); border-right: 2px solid var(--plaque-border); transition: color 0.3s; color: #ffffff; }
         .added-time-block { font-size: 16px; font-weight: bold; color: #ffdd57; margin-top: 4px; display: none; }
-        @keyframes scorePop { 0% { transform: scale(1); } 50% { transform: scale(1.4); filter: brightness(1.5); } 100% { transform: scale(1); } }
+        @keyframes scorePop { 0% { transform: translateX(var(--score-tx)) scale(1); } 50% { transform: translateX(var(--score-tx)) scale(1.4); filter: brightness(1.5); } 100% { transform: translateX(var(--score-tx)) scale(1); } }
         .score-animate { animation: scorePop 0.4s ease-out; }
         .design-1 { border-radius: var(--plaque-radius-xs); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
@@ -241,10 +243,10 @@
         #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 680px; }
         .summary-header { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid var(--plaque-border); margin-bottom: 10px; }
         .summary-team-block { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .summary-team-block.home { justify-content: flex-start; }
-        .summary-team-block.away { justify-content: flex-end; }
+        .summary-team-block.home { justify-content: center; }
+        .summary-team-block.away { justify-content: center; }
         .summary-team-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
-        .summary-team-name { font-size: 24px; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; min-width: 0; }
+        .summary-team-name { font-size: calc(24px * 1.03); font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; min-width: 0; }
         .summary-score { font-size: 36px; font-weight: 900; color: var(--accent-color); text-align: center; }
         .summary-row { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .summary-val { font-size: 22px; font-weight: 900; text-align: center; color: #ffffff; }
@@ -740,7 +742,6 @@
 
         const statTypes = [
           { key: 'possession', label: 'Владение' },
-          { key: 'score', label: 'Счёт' },
           { key: 'shots', label: 'Удары' },
           { key: 'corners', label: 'Угловые' },
           { key: 'offsides', label: 'Оффсайды' },
@@ -893,10 +894,6 @@
               const hv = el('sum-possession-home'), av = el('sum-possession-away');
               if (hv) { hv.textContent = num(stats.possession && stats.possession.home, 50) + '%'; hv.style.color = '#ffffff'; }
               if (av) { av.textContent = num(stats.possession && stats.possession.away, 50) + '%'; av.style.color = '#ffffff'; }
-            } else if (s.key === 'score') {
-              setText('sum-score-home', homeScore);
-              setText('sum-score-away', awayScore);
-              row.style.display = (stats.score && stats.score.isVisible === false) ? 'none' : 'grid';
             } else {
               const node = stats[s.key] || {};
               setText('sum-' + s.key + '-home', num(node.home, 0));
