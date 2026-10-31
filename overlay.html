@@ -428,7 +428,7 @@
            ============================================================ */
         .formation-overlay-wrap { display:flex; width:100%; height:100%; position:relative; overflow:hidden; }
         .formation-field { flex:0 0 70%; position:relative; background: radial-gradient(ellipse at 30% 25%,rgba(45,80,45,0.17) 0%,transparent 60%),linear-gradient(180deg,rgba(26,34,48,0.51) 0%,rgba(13,17,25,0.51) 100%); }
-        .formation-subs-panel { flex:0 0 30%; background: linear-gradient(145deg,rgba(10,10,10,0.85) 0%,rgba(61,43,0,0.85) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 10px; overflow-y:auto; border-left:2px solid #b8860b; }
+        .formation-subs-panel { flex:0 0 30%; background: linear-gradient(145deg, rgba(0,0,0,0.85) 0%, var(--team-color, #b8860b) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 10px; overflow-y:auto; border-left:2px solid var(--team-color, #b8860b); }
 
         /* Team logo — on the dividing line between field (70%) and subs (30%).
            Opaque (opacity:1) per spec — no longer translucent. */
@@ -491,16 +491,17 @@
         .formation-detail-number { font-size:19px; font-weight:bold; color:#FFD700; line-height:1; flex-shrink:0; }
         .formation-detail-name { font-size:12px; font-weight:bold; color:#fff; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 
-        /* Subs list — all chips equal width (widest) */
+        /* Subs list — all chips equal width (widest).
+           Border-radius matches the player cards on the field (6px) per spec. */
         .formation-subs-list { display:flex; flex-direction:column; gap:14px; width:max-content; max-width:100%; margin:0 auto; }
         .formation-sub-player {
             display:flex; align-items:center; gap:12px;
-            background: rgba(0,0,0,0.75); border-radius:30px; padding:8px 15px;
+            background: rgba(0,0,0,0.75); border-radius:6px; padding:8px 15px;
             backdrop-filter: blur(4px); border:1px solid #FFD700;
             width:100%; box-sizing:border-box;
         }
         .formation-sub-number {
-            width:36px; height:36px; border-radius:50%;
+            width:36px; height:36px; border-radius:6px;
             background: rgba(255,215,0,0.2);
             display:flex; align-items:center; justify-content:center;
             font-size:18px; font-weight:bold; color:#FFD700;
@@ -516,6 +517,21 @@
         .event-overlay, #formation-home-overlay, #formation-away-overlay,
         #scoreboard-container, #stats-modular-container, #possession-container {
             transition: opacity 0.7s ease-out;
+        }
+
+        /* === Main timer reveal-from-center animation ===
+           Plays when #scoreboard-container goes display:none → block.
+           Restricted to Классика (design-1) and Скругленный (design-4).
+           `backwards` fill applies the 'from' state immediately to avoid
+           a 1-frame flash at full opacity before the animation starts. */
+        @keyframes scoreboardReveal {
+            from { opacity: 0; transform: scale(0.5); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        #scoreboard-container { transform-origin: center center; }
+        body[data-design="1"] #scoreboard-container.scoreboard-reveal,
+        body[data-design="4"] #scoreboard-container.scoreboard-reveal {
+            animation: scoreboardReveal 0.5s ease-out backwards;
         }
 
         /* Channel watermark — fixed at screen bottom-right.
@@ -679,6 +695,10 @@
         // Автоскрытие плашек «Комментатор» / «Видеооператор»: 7 секунд
         let personPlaqueState = null;
         let personPlaqueTimer = null;
+
+        // Автопереключение «1-й тайм (н)» / «2-й тайм (н)» → основной тайmer: 7 секунд
+        let bottomPlaqueState = null;
+        let bottomPlaqueTimer = null;
 
         /* === Fade-out animation state for placards ===
            Tracks per-element fade state + pending hide timers so that
@@ -996,6 +1016,25 @@
             }
           }
 
+          /* === Автопереключение «1-й тайм (н)» / «2-й тайм (н)» → основной тайmer через 7 секунд ===
+             Нижняя плашка показывается 7 с, затем выключается и автоматически
+             включается режим «Основной таймер» (overlayState='main'). */
+          if (state === 'firsthalf-bottom' || state === 'secondhalf-bottom') {
+            if (bottomPlaqueState !== state) {
+              bottomPlaqueState = state;
+              clearTimeout(bottomPlaqueTimer);
+              bottomPlaqueTimer = setTimeout(function() {
+                db.update({ overlayState: 'main' });
+                bottomPlaqueState = null;
+              }, 7000);
+            }
+          } else if (state !== 'firsthalf-bottom' && state !== 'secondhalf-bottom') {
+            if (bottomPlaqueState !== null) {
+              clearTimeout(bottomPlaqueTimer);
+              bottomPlaqueState = null;
+            }
+          }
+
           /* === Formation mode cleanup ===
              When leaving a formation mode (or switching sides), clear all
              pending animation / auto-hide timers for the previous side and
@@ -1013,7 +1052,47 @@
           if (state === 'formation-away' && d.formationAway) renderFormationOverlay('away', d.formationAway);
 
           const isMain = state === 'main';
-          show('scoreboard-container', isMain, 'block');
+          /* Scoreboard — handled separately from generic show(): on show,
+             clears inline opacity (so the CSS @keyframes scoreboardReveal
+             controls opacity) and adds .scoreboard-reveal to trigger the
+             reveal-from-center animation (design-1 / design-4 only). On hide,
+             removes the class and fades out via the standard 0.7s transition. */
+          (function() {
+            var sb = el('scoreboard-container'); if (!sb) return;
+            var sid = 'scoreboard-container';
+            if (isMain) {
+              if (fadeTimers[sid]) { clearTimeout(fadeTimers[sid]); delete fadeTimers[sid]; }
+              if (sb.style.display !== 'block') {
+                sb.style.transition = 'none';
+                sb.style.opacity = '';        // clear inline opacity → animation controls it
+                sb.style.display = 'block';
+                void sb.offsetWidth;          // commit display + opacity reset
+                sb.style.transition = '';     // restore CSS transition rule
+                // Re-trigger the reveal animation (remove → reflow → add)
+                sb.classList.remove('scoreboard-reveal');
+                void sb.offsetWidth;
+                sb.classList.add('scoreboard-reveal');
+              }
+              fadeState[sid] = 'visible';
+            } else {
+              if (fadeState[sid] === 'visible' && sb.style.display !== 'none' && sb.style.display !== '') {
+                fadeState[sid] = 'fading-out';
+                sb.classList.remove('scoreboard-reveal');
+                sb.style.opacity = '0';
+                if (fadeTimers[sid]) clearTimeout(fadeTimers[sid]);
+                fadeTimers[sid] = setTimeout(function() {
+                  sb.style.display = 'none';
+                  delete fadeTimers[sid];
+                  fadeState[sid] = 'hidden';
+                }, FADE_OUT_MS);
+              } else if (fadeState[sid] === 'fading-out') {
+                /* already fading — leave the pending timer alone */
+              } else {
+                sb.style.display = 'none';
+                fadeState[sid] = 'hidden';
+              }
+            }
+          })();
 
           /* === Рендер состава === */
           if (state === 'lineup-home' || state === 'lineup-away') {
@@ -1208,6 +1287,12 @@
           const goldColor = '#FFD700';
           const photoBaseUrl = data.photoBaseUrl || '';
           const starters = data.starters || [];
+
+          /* Propagate --team-color / --team-glow to the overlay div so all
+             descendants (field cards, subs panel, officials) inherit the
+             team form color for their gradients / borders. */
+          overlay.style.setProperty('--team-color', teamColor);
+          overlay.style.setProperty('--team-glow', teamColorGlow);
           const subs = data.substitutes || [];
           const officials = data.officials || [];
 
@@ -1333,12 +1418,13 @@
           });
 
           // 3) Auto-hide: 10 s after the forward line (last non-empty line) opens,
-          //    set overlayState → 'main'. The overlay then fades out (0.7 s)
-          //    and the pult button for «Схема хозяев / гостей» becomes inactive.
+          //    set overlayState → 'hidden'. The overlay fades out (0.7 s), no
+          //    display mode becomes active (the main timer does NOT auto-show,
+          //    and the pult button for «Схема хозяев / гостей» turns off).
           if (lastLineOpenTime !== null) {
             var autoHideDelay = lastLineOpenTime + autoHideAfterLastLine;
             formationTimers[side].push(setTimeout(function() {
-              db.update({ overlayState: 'main' });
+              db.update({ overlayState: 'hidden' });
             }, autoHideDelay));
           }
         }
