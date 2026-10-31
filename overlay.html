@@ -129,6 +129,8 @@
         .big-score-separator { font-size: 40px; opacity: 0.5; }
         .big-status-text { font-size: 48px; font-weight: 900; letter-spacing: 5px; color: var(--accent-color); text-transform: uppercase; text-shadow: 0 0 10px var(--accent-color-glow); white-space: nowrap; }
         .big-tournament-text { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: center; display: none; white-space: nowrap; }
+        .big-venue-text { font-size: 18px; font-weight: 400; color: rgba(255,255,255,0.55); text-align: center; display: none; white-space: nowrap; }
+        .big-match-time { font-size: 64px; font-weight: 900; display: none; align-items: center; justify-content: center; gap: 20px; flex-shrink: 0; color: #ffffff; }
 
         .bottom-overlay { position: relative; background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 24px 48px; border-radius: var(--plaque-radius-md); display: grid; grid-template-columns: 1fr 350px 1fr; align-items: center; color: white; border: 1px solid var(--plaque-border-soft); box-shadow: 0 0 40px rgba(0,0,0,0.8); width: fit-content; max-width: 95vw; }
         .bottom-team-group { display: flex; align-items: center; gap: 19px; z-index: 1; min-width: 0; }
@@ -278,11 +280,11 @@
         .poss-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 14px; }
 
         #stats-summary-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 40px 60px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; gap: 20px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; width: 680px; }
-        .summary-header { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 2px solid var(--plaque-border); margin-bottom: 10px; }
-        .summary-team-block { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .summary-team-block.home { justify-content: center; }
-        .summary-team-block.away { justify-content: center; }
-        .summary-team-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
+        .summary-header { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding-bottom: calc(20px * 0.90); border-bottom: 2px solid var(--plaque-border); margin-bottom: calc(10px * 0.90); }
+        .summary-team-block { display: flex; align-items: center; justify-content: center; min-width: 0; position: relative; }
+        .summary-team-logo { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; object-fit: contain; }
+        .summary-team-block.home .summary-team-logo { left: 0; }
+        .summary-team-block.away .summary-team-logo { right: 0; }
         .summary-team-name { font-size: calc(24px * 1.03); font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; min-width: 0; }
         .summary-score { font-size: 36px; font-weight: 900; color: var(--accent-color); text-align: center; }
         .summary-row { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -467,18 +469,19 @@
            ============================================================ */
         .formation-overlay-wrap { display:flex; width:100%; height:100%; position:relative; overflow:hidden; }
         .formation-field { flex:0 0 70%; position:relative; background: radial-gradient(ellipse at 30% 25%,rgba(45,80,45,0.17) 0%,transparent 60%),linear-gradient(180deg,rgba(26,34,48,0.51) 0%,rgba(13,17,25,0.51) 100%); }
-        .formation-subs-panel { flex:0 0 30%; background: linear-gradient(145deg, var(--team-color, #b8860b) 0%, rgba(0,0,0,0.85) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 10px; overflow-y:auto; border-left:2px solid var(--team-color, #b8860b); }
+        .formation-subs-panel { flex:0 0 30%; background: linear-gradient(145deg, var(--team-color-90, #b8860b) 0%, rgba(0,0,0,0.75) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 10px; overflow-y:auto; border-left:2px solid var(--team-color, #b8860b); }
 
         /* Team logo — on the dividing line between field (70%) and subs (30%).
-           Opaque (opacity:1) per spec — no longer translucent. */
-        .formation-team-logo { position:absolute; left:70%; top:50%; transform:translate(-50%,-50%); width:153px; height:204px; background-size:contain; background-repeat:no-repeat; background-position:center; z-index:60; opacity:1; filter:drop-shadow(0 0 12px #FFD700); }
+           Opaque (opacity:1) per spec — no longer translucent. +10% size. */
+        .formation-team-logo { position:absolute; left:70%; top:50%; transform:translate(-50%,-50%); width:calc(153px * 1.10); height:calc(204px * 1.10); background-size:contain; background-repeat:no-repeat; background-position:center; z-index:60; opacity:1; filter:drop-shadow(0 0 12px #FFD700); }
 
         /* Player cards — closed state.
            Gradient: team form color (top) → black (bottom), goes downward.
-           --team-color is set inline per card. Falls back to gold if unset. */
+           --team-color is set inline per card. Falls back to gold if unset.
+           Size: 106×136 base × 1.06 (two rounds of +3%). */
         .formation-player-card {
-            position:absolute; width:calc(106px * 1.03); height:calc(136px * 1.03);
-            margin-left:calc(-53px * 1.03); margin-top:calc(-68px * 1.03);
+            position:absolute; width:calc(106px * 1.06); height:calc(136px * 1.06);
+            margin-left:calc(-53px * 1.06); margin-top:calc(-68px * 1.06);
             border-radius:6px;
             background: linear-gradient(145deg, var(--team-color, #5c4308) 0%, rgba(0,0,0,0.92) 100%);
             border:2px solid var(--team-color, #b8860b);
@@ -546,7 +549,13 @@
             font-size:18px; font-weight:bold; color:#FFD700;
             border:1px solid #FFD700; flex-shrink:0;
         }
-        .formation-sub-name { font-size:18px; color:#fff; font-weight:500; white-space:nowrap; }
+        .formation-sub-name { font-size:calc(18px * 1.10); color:#fff; font-weight:500; white-space:nowrap; }
+
+        /* Section headers on subs panel — gold */
+        .formation-subs-header { font-size:14px; font-weight:900; color:#FFD700; letter-spacing:2px; text-transform:uppercase; margin-top:6px; }
+        /* Officials — white text, +20% font size */
+        .formation-official-role { font-size:calc(11px * 1.20); font-weight:700; color:#fff; letter-spacing:1px; text-transform:uppercase; }
+        .formation-official-name { font-size:calc(16px * 1.20); color:#fff; font-weight:600; text-transform:uppercase; }
 
         /* === Fade-out transition for all placards / overlays ===
            When a placard is hidden (state change or СКРЫТЬ ВСЁ),
@@ -599,9 +608,9 @@
         </div>
     </div>
 
-    <div id="notstarted-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ns-home-logo" class="big-logo" src="" style="display:none;"><span id="ns-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ns-home-score">0</span><span class="big-score-separator">:</span><span id="ns-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ns-away-logo" class="big-logo" src="" style="display:none;"><span id="ns-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div><div id="ns-tournament" class="big-tournament-text"></div></div>
-    <div id="halftime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ht-home-logo" class="big-logo" src="" style="display:none;"><span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ht-home-score">0</span><span class="big-score-separator">:</span><span id="ht-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ht-away-logo" class="big-logo" src="" style="display:none;"><span id="ht-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">ПЕРЕРЫВ</div><div id="ht-tournament" class="big-tournament-text"></div></div>
-    <div id="fulltime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ft-home-logo" class="big-logo" src="" style="display:none;"><span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ft-home-score">0</span><span class="big-score-separator">:</span><span id="ft-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ft-away-logo" class="big-logo" src="" style="display:none;"><span id="ft-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ ОКОНЧЕН</div><div id="ft-tournament" class="big-tournament-text"></div></div>
+    <div id="notstarted-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ns-home-logo" class="big-logo" src="" style="display:none;"><span id="ns-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block" id="ns-score-block"><span id="ns-home-score">0</span><span class="big-score-separator">:</span><span id="ns-away-score">0</span></div><div class="big-match-time" id="ns-match-time"></div><div class="big-team-card away"><div class="big-team-inner"><img id="ns-away-logo" class="big-logo" src="" style="display:none;"><span id="ns-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ НЕ НАЧАЛСЯ</div><div id="ns-tournament" class="big-tournament-text"></div><div id="ns-venue" class="big-venue-text"></div></div>
+    <div id="halftime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ht-home-logo" class="big-logo" src="" style="display:none;"><span id="ht-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ht-home-score">0</span><span class="big-score-separator">:</span><span id="ht-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ht-away-logo" class="big-logo" src="" style="display:none;"><span id="ht-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">ПЕРЕРЫВ</div><div id="ht-tournament" class="big-tournament-text"></div><div id="ht-venue" class="big-venue-text"></div></div>
+    <div id="fulltime-overlay" class="big-overlay"><div class="big-overlay-teams"><div class="big-team-card home"><div class="big-team-inner"><img id="ft-home-logo" class="big-logo" src="" style="display:none;"><span id="ft-home-name" class="big-team-name">ХОЗЯЕВА</span></div></div><div class="big-score-block"><span id="ft-home-score">0</span><span class="big-score-separator">:</span><span id="ft-away-score">0</span></div><div class="big-team-card away"><div class="big-team-inner"><img id="ft-away-logo" class="big-logo" src="" style="display:none;"><span id="ft-away-name" class="big-team-name">ГОСТИ</span></div></div></div><div class="big-status-text">МАТЧ ОКОНЧЕН</div><div id="ft-tournament" class="big-tournament-text"></div><div id="ft-venue" class="big-venue-text"></div></div>
 
     <div id="halftime-bottom-overlay" class="bottom-overlay-wrapper"><div class="goal-plaques-row"><div class="goal-plaque home" id="htb-home-goals"></div><div class="goal-spacer"></div><div class="goal-plaque away" id="htb-away-goals"></div></div><div class="bottom-overlay"><div class="bottom-team-group home"><img id="htb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="htb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="htb-away-name" class="bottom-team-name">ГОСТИ</span><img id="htb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">ПЕРЕРЫВ</span><div class="bottom-score-box"><span id="htb-home-score">0</span><span class="bottom-score-sep">:</span><span id="htb-away-score">0</span></div></div></div></div>
     <div id="fulltime-bottom-overlay" class="bottom-overlay-wrapper"><div class="goal-plaques-row"><div class="goal-plaque home" id="ftb-home-goals"></div><div class="goal-spacer"></div><div class="goal-plaque away" id="ftb-away-goals"></div></div><div class="bottom-overlay"><div class="bottom-team-group home"><img id="ftb-home-logo" class="bottom-logo" src="" style="display:none;"><span id="ftb-home-name" class="bottom-team-name">ХОЗЯЕВА</span></div><div class="bottom-center-spacer"></div><div class="bottom-team-group away"><span id="ftb-away-name" class="bottom-team-name">ГОСТИ</span><img id="ftb-away-logo" class="bottom-logo" src="" style="display:none;"></div><div class="bottom-center-box"><span class="bottom-status-text">МАТЧ ОКОНЧЕН</span><div class="bottom-score-box"><span id="ftb-home-score">0</span><span class="bottom-score-sep">:</span><span id="ftb-away-score">0</span></div></div></div></div>
@@ -957,7 +966,27 @@
             const t = el(p + '-tournament');
             if (d.tournamentName) { t.textContent = d.tournamentName; t.style.display = 'block'; }
             else { t.style.display = 'none'; }
+            /* Venue (стадион) — shown on all three central placards if available */
+            const v = el(p + '-venue');
+            if (v) {
+              if (d.matchVenue) { v.textContent = d.matchVenue; v.style.display = 'block'; }
+              else { v.style.display = 'none'; }
+            }
           });
+
+          /* «МАТЧ НЕ НАЧАЛСЯ»: show match start time instead of score if available */
+          const nsScoreBlock = el('ns-score-block');
+          const nsTimeEl = el('ns-match-time');
+          if (nsScoreBlock && nsTimeEl) {
+            if (d.matchTime) {
+              nsTimeEl.textContent = d.matchTime;
+              nsTimeEl.style.display = 'flex';
+              nsScoreBlock.style.display = 'none';
+            } else {
+              nsTimeEl.style.display = 'none';
+              nsScoreBlock.style.display = 'flex';
+            }
+          }
 
           /* --- Маленькие плашки (низ): адаптивный размер --- */
           const maxLen = Math.max(homeName.length, awayName.length);
@@ -1364,9 +1393,12 @@
 
           /* Propagate --team-color / --team-glow to the overlay div so all
              descendants (field cards, subs panel, officials) inherit the
-             team form color for their gradients / borders. */
+             team form color for their gradients / borders. --team-color-90
+             is the team color at 90% alpha for the (10% more transparent)
+             subs panel background. */
           overlay.style.setProperty('--team-color', teamColor);
           overlay.style.setProperty('--team-glow', teamColorGlow);
+          overlay.style.setProperty('--team-color-90', hexToRgba(teamColor, 0.9));
           const subs = data.substitutes || [];
           const officials = data.officials || [];
 
@@ -1420,6 +1452,9 @@
           }
 
           // Subs list — all chips equal width (widest)
+          if (subs.length > 0) {
+            html += '<div class="formation-subs-header">ЗАПАСНЫЕ</div>';
+          }
           html += '<div class="formation-subs-list">';
           subs.forEach(function(p) {
             html += '<div class="formation-sub-player">';
@@ -1431,10 +1466,11 @@
 
           // Officials
           if (officials.length > 0) {
-            html += '<div style="margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:8px">';
+            html += '<div class="formation-subs-header">ПРЕДСТАВИТЕЛИ</div>';
+            html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px">';
             officials.forEach(function(o) {
-              html += '<div style="font-size:11px;font-weight:700;color:rgba(255,215,0,0.7);letter-spacing:1px;text-transform:uppercase">' + escapeHtml(o.role || '') + '</div>';
-              html += '<div style="font-size:16px;color:' + goldColor + ';font-weight:600;text-transform:uppercase">' + escapeHtml(o.name || '') + '</div>';
+              html += '<div class="formation-official-role">' + escapeHtml(o.role || '') + '</div>';
+              html += '<div class="formation-official-name">' + escapeHtml(o.name || '') + '</div>';
             });
             html += '</div>';
           }
