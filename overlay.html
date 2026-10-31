@@ -430,16 +430,19 @@
         .formation-field { flex:0 0 70%; position:relative; background: radial-gradient(ellipse at 30% 25%,rgba(45,80,45,0.17) 0%,transparent 60%),linear-gradient(180deg,rgba(26,34,48,0.51) 0%,rgba(13,17,25,0.51) 100%); }
         .formation-subs-panel { flex:0 0 30%; background: linear-gradient(145deg,rgba(10,10,10,0.85) 0%,rgba(61,43,0,0.85) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 10px; overflow-y:auto; border-left:2px solid #b8860b; }
 
-        /* Team logo — on the dividing line between field (70%) and subs (30%) */
-        .formation-team-logo { position:absolute; left:70%; top:50%; transform:translate(-50%,-50%); width:153px; height:204px; background-size:contain; background-repeat:no-repeat; background-position:center; z-index:60; opacity:0.6; filter:drop-shadow(0 0 12px #FFD700); }
+        /* Team logo — on the dividing line between field (70%) and subs (30%).
+           Opaque (opacity:1) per spec — no longer translucent. */
+        .formation-team-logo { position:absolute; left:70%; top:50%; transform:translate(-50%,-50%); width:153px; height:204px; background-size:contain; background-repeat:no-repeat; background-position:center; z-index:60; opacity:1; filter:drop-shadow(0 0 12px #FFD700); }
 
-        /* Player cards — closed state (black-gold gradient) */
+        /* Player cards — closed state.
+           Gradient uses the team form color (via --team-color CSS var,
+           set inline per card). Falls back to gold if unset. */
         .formation-player-card {
             position:absolute; width:106px; height:136px;
             margin-left:-53px; margin-top:-68px;
             border-radius:6px;
-            background: linear-gradient(145deg,#0d0d0d,#5c4308);
-            border:2px solid #b8860b;
+            background: linear-gradient(145deg, rgba(0,0,0,0.92) 0%, var(--team-color, #5c4308) 100%);
+            border:2px solid var(--team-color, #b8860b);
             transition: all 0.385s cubic-bezier(0.4,0.0,0.2,1);
             z-index:2; overflow:hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.8);
@@ -449,14 +452,15 @@
         .formation-player-card.revealed { opacity:1; transform: scale(1); }
         .formation-player-card.goalkeeper.active { margin-top:-170px; }
 
-        /* Player cards — open state (reduced by additional 10% = 54% total) */
+        /* Player cards — open state. Gradient black → team form color;
+           border + glow follow team color too. */
         .formation-player-card.active {
             width:162px; height:212px;
             margin-left:-81px; margin-top:-106px;
             border-radius:6px; z-index:20;
-            border-color:#FFD700;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.9), 0 0 25px rgba(255,215,0,0.5);
-            background: linear-gradient(145deg,#000000,#b8860b);
+            border-color: var(--team-color, #FFD700);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.9), 0 0 25px var(--team-glow, rgba(255,215,0,0.5));
+            background: linear-gradient(145deg, #000000 0%, var(--team-color, #b8860b) 100%);
         }
         .formation-player-photo {
             position:absolute; top:0; left:0; width:100%; height:100%;
@@ -504,441 +508,32 @@
         }
         .formation-sub-name { font-size:18px; color:#fff; font-weight:500; white-space:nowrap; }
 
-        /* ============================================================
-           ЮФЛ ТАБЛО — новый дизайн 2×3 (ТЗ ЮФЛ-ТАБЛО v1.0)
-           Активируется при design === 'yfl'. Логика работы только этого
-           табло — см. блок <script> YFLTabloStateMachine ниже.
-           ============================================================ */
-
-        /* --- Цветовые константы (ТЗ §8 + правки v1.1) ---
-           Правки от заказчика:
-           • таймер: белый фон + чёрный шрифт (было #000/#FFF)
-           • логотип: чёрный фон (было #1A2F1A)
-           • анимация гола: белый фон (было #FFD600 жёлтый) */
-        :root {
-            /* Фоны блоков */
-            --yfl-timer-bg: #FFFFFF;
-            --yfl-home-bg:  #4B0082;
-            --yfl-away-bg:  #FFFFFF; /* правка v1.3: чистый белый (был молочный #F0F0F0) */
-            --yfl-logo-bg:  #000000;
-            --yfl-goal-bg:  #FFFFFF;
-            /* Текст */
-            --yfl-timer-fg: #000000;
-            --yfl-home-fg:  #FFFFFF;
-            --yfl-away-fg:  #4B0082;
-            --yfl-logo-fg:  #76FF03;
-            --yfl-goal-fg:  #4B0082; /* правка v1.3: фиолетовый текст ГОЛ (был чёрный) */
-            /* Эффекты */
-            --yfl-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-            --yfl-radius: 5px;
-            --yfl-padding: 5px;
-            /* Позиция табло (ТЗ §6) */
-            --yfl-position-top: 3.5%;
-            --yfl-position-left: 4.5%;
-            /* Размеры (1080p, масштабируются через vmin) */
-            --yfl-width: 230px;
-            --yfl-height: 75px;
+        /* === Fade-out transition for all placards / overlays ===
+           When a placard is hidden (state change or СКРЫТЬ ВСЁ),
+           it fades opacity → 0 over 0.7s before display:none. */
+        .big-overlay, .bottom-overlay-wrapper, #stats-summary-overlay,
+        #lineup-overlay, #referees-overlay, #thanks-overlay, .person-plaque,
+        .event-overlay, #formation-home-overlay, #formation-away-overlay,
+        #scoreboard-container, #stats-modular-container, #possession-container {
+            transition: opacity 0.7s ease-out;
         }
 
-        /* @font-face для Aeroport (ТЗ §9). Файлы могут отсутствовать —
-           fallback-цепочка Roboto → Arial → Helvetica Neue → sans-serif. */
-        @font-face {
-            font-family: 'Aeroport';
-            src: url('/assets/fonts/aeroport/Aeroport-Bold.woff2') format('woff2'),
-                 url('/assets/fonts/aeroport/Aeroport-Bold.woff') format('woff');
-            font-weight: 700; font-style: normal; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Aeroport';
-            src: url('/assets/fonts/aeroport/Aeroport-SemiBold.woff2') format('woff2'),
-                 url('/assets/fonts/aeroport/Aeroport-SemiBold.woff') format('woff');
-            font-weight: 600; font-style: normal; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Aeroport';
-            src: url('/assets/fonts/aeroport/Aeroport-Black.woff2') format('woff2'),
-                 url('/assets/fonts/aeroport/Aeroport-Black.woff') format('woff');
-            font-weight: 900; font-style: normal; font-display: swap;
-        }
-
-        /* --- Корневой контейнер YFL табло --- */
-        .yfl-tablo {
-            position: absolute;
-            top: var(--yfl-position-top);
-            left: var(--yfl-position-left);
-            width: var(--yfl-width);
-            height: var(--yfl-height);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 45% 55%;
-            gap: 0;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-            border-radius: var(--yfl-radius);
-            overflow: hidden;
-            opacity: 1;
-            font-family: 'Aeroport', 'Roboto', 'Arial', 'Helvetica Neue', sans-serif;
-            transition: opacity 300ms ease-in-out;
-            z-index: 1000;
-            /* hidden by default — shown only when design === 'yfl' */
-            display: none;
-        }
-        body[data-design='yfl'] .yfl-tablo { display: grid; }
-        body[data-design='yfl'] #scoreboard-container { display: none !important; }
-
-        /* --- Внутренние блоки — без скругления (ТЗ §10) --- */
-        .yfl-tablo__timer,
-        .yfl-tablo__home-name,
-        .yfl-tablo__away-name,
-        .yfl-tablo__logo,
-        .yfl-tablo__home-score,
-        .yfl-tablo__away-score {
-            border-radius: 0;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; line-height: 1.05;
-            user-select: none;
-        }
-
-        /* --- Блок 1: Таймер (строка 1, колонка 1) --- */
-        .yfl-tablo__timer {
-            grid-column: 1; grid-row: 1;
-            background-color: var(--yfl-timer-bg);
-            color: var(--yfl-timer-fg);
-            font-weight: 700; font-size: 1.6rem;
-            letter-spacing: -0.5px;
-        }
-        /* --- Блок 3: Название хозяев (строка 1, колонка 2) --- */
-        .yfl-tablo__home-name {
-            grid-column: 2; grid-row: 1;
-            background-color: var(--yfl-home-bg);
-            color: var(--yfl-home-fg);
-            font-weight: 600; font-size: 1.4rem;
-            letter-spacing: 1px;
-            text-overflow: clip; white-space: nowrap;
-        }
-        /* --- Блок 4: Название гостей (строка 1, колонка 3) --- */
-        .yfl-tablo__away-name {
-            grid-column: 3; grid-row: 1;
-            background-color: var(--yfl-away-bg);
-            color: var(--yfl-away-fg);
-            font-weight: 600; font-size: 1.4rem;
-            letter-spacing: 1px;
-            text-overflow: clip; white-space: nowrap;
-        }
-        /* --- Блок 2: Логотип ЮФЛ (строка 2, колонка 1) ---
-           Правка v1.1: используем изображение логотипа ЮФЛ (зелёная Y на
-           прозрачном фоне) на чёрном блоке. Источник логотипа — официальный
-           канал ЮФЛ; PNG с удалённым белым фоном лежит в /yfl-logo.png. */
-        .yfl-tablo__logo {
-            grid-column: 1; grid-row: 2;
-            background-color: var(--yfl-logo-bg);
-            color: var(--yfl-logo-fg);
-            font-weight: 900; font-size: 2.4rem;
-            position: relative;
-            padding: 4px;
-        }
-        .yfl-tablo__logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-        /* --- Блок 5: Счёт хозяев (строка 2, колонка 2) ---
-           Правка v1.1: размер шрифта счёта увеличен на 40% (2.0rem → 2.8rem). */
-        .yfl-tablo__home-score {
-            grid-column: 2; grid-row: 2;
-            background-color: var(--yfl-home-bg);
-            color: var(--yfl-home-fg);
-            font-weight: 700; font-size: 2.8rem;
-            position: relative;
-        }
-        /* --- Блок 6: Счёт гостей (строка 2, колонка 3) --- */
-        .yfl-tablo__away-score {
-            grid-column: 3; grid-row: 2;
-            background-color: var(--yfl-away-bg);
-            color: var(--yfl-away-fg);
-            font-weight: 700; font-size: 2.8rem;
-            position: relative;
-        }
-
-        /* --- Слои внутри блока счёта: логотип ЮФЛ и цифра (ТЗ §11, примечание) ---
-           Правка v1.1: вместо текстовой "Y" используем изображение логотипа
-           ЮФЛ (зелёная Y на прозрачном фоне). Изображение занимает ~70% блока. */
-        .yfl-tablo__score-layer {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            backface-visibility: hidden;
-            transform-origin: center center;
-        }
-        .yfl-tablo__score-layer--letter {
-            opacity: 0; /* видна только в фазе STARTING */
-        }
-        .yfl-tablo__score-layer--logo {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
-            pointer-events: none;
-        }
-        .yfl-tablo__score-layer--digit {
-            opacity: 1;
-            font-size: 2.8rem; /* соответствует размеру счёта (правка v1.1) */
-        }
-
-        /* --- Анимация старта таймера: Y → 0 (ТЗ §11) --- */
-        @keyframes yfl-start-logo {
-            0%   { transform: rotateY(0deg);   opacity: 1; }
-            50%  { transform: rotateY(180deg); opacity: 0; }
-            100% { transform: rotateY(360deg); opacity: 1; }
-        }
-        .yfl-tablo--starting .yfl-tablo__score-layer--letter {
-            animation: yfl-start-logo 1200ms ease-in-out forwards;
-            transform-style: preserve-3d;
-        }
-        /* В режиме STARTING буква Y видна, цифра скрыта на первой половине */
-        .yfl-tablo--starting .yfl-tablo__score-layer--letter { opacity: 1; }
-        .yfl-tablo--starting .yfl-tablo__score-layer--digit  { opacity: 0; }
-        /* Переключение слоёв на середине анимации (через 600 мс) */
-        .yfl-tablo--starting .yfl-tablo__score-layer--letter { animation: yfl-letter-out 600ms ease-in forwards; }
-        .yfl-tablo--starting .yfl-tablo__score-layer--digit  { animation: yfl-digit-in 600ms ease-in 0ms both; animation-delay: 600ms; }
-        @keyframes yfl-letter-out {
-            0%   { transform: rotateY(0deg);   opacity: 1; }
-            100% { transform: rotateY(180deg); opacity: 0; }
-        }
-        @keyframes yfl-digit-in {
-            0%   { transform: rotateY(180deg); opacity: 0; }
-            100% { transform: rotateY(360deg); opacity: 1; }
-        }
-
-        /* --- Анимация ГОЛ: 7 секунд (ТЗ §12) --- */
-        @keyframes yfl-goal-pulse {
-            0%, 100% { transform: scale(1.0); }
-            50%      { transform: scale(1.05); }
-        }
-        @keyframes yfl-goal-fade-in {
-            0%   { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        @keyframes yfl-goal-fade-out {
-            0%   { opacity: 1; }
-            100% { opacity: 0; }
-        }
-        /* Контейнер «ГОЛ!» поверх блоков 3-6 (названия + счёт) */
-        .yfl-tablo__goal-overlay {
-            position: absolute;
-            top: 0; left: 33.33%;
-            width: 66.67%; height: 100%;
-            background-color: var(--yfl-goal-bg);
-            color: var(--yfl-goal-fg);
-            font-weight: 900; font-size: 2.5rem;
-            letter-spacing: 2px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; z-index: 10;
-            transform-origin: center center;
-        }
-        /* Активная фаза: fade-in + pulse */
-        .yfl-tablo--goal-active .yfl-tablo__goal-overlay {
-            animation:
-                yfl-goal-fade-in 300ms ease-in forwards,
-                yfl-goal-pulse 1400ms ease-in-out 300ms infinite;
-        }
-        /* Фаза завершения (последние 300 мс из 7000 мс) */
-        .yfl-tablo--goal-ending .yfl-tablo__goal-overlay {
-            animation: yfl-goal-fade-out 300ms ease-out forwards;
-        }
-
-        /* ============================================================
-           v1.2 — Анимация появления табло (правка заказчика №4)
-           Сначала появляется таймер, вниз раскрывается контейнер с
-           логотипом ЮФЛ, вправо раскрывается фрейм с командами и фоном
-           счёта, на котором появляются цифры счёта.
-           ============================================================ */
-
-        /* По умолчанию все блоки скрыты (opacity 0), будут проявляться
-           по фазам через keyframes. Контейнер .yfl-tablo получает класс
-           .yfl-tablo--entering при первом появлении (когда design
-           переключается на 'yfl'). */
-        .yfl-tablo--entering .yfl-tablo__timer,
-        .yfl-tablo--entering .yfl-tablo__logo,
-        .yfl-tablo--entering .yfl-tablo__home-name,
-        .yfl-tablo--entering .yfl-tablo__away-name,
-        .yfl-tablo--entering .yfl-tablo__home-score,
-        .yfl-tablo--entering .yfl-tablo__away-score {
-            opacity: 0;
-        }
-
-        /* Фаза 1: таймер появляется (0-400мс) — fade + slide down */
-        @keyframes yfl-enter-timer {
-            0%   { opacity: 0; transform: translateY(-10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .yfl-tablo--entering .yfl-tablo__timer {
-            animation: yfl-enter-timer 400ms ease-out forwards;
-        }
-
-        /* Фаза 2: логотип раскрывается вниз (400-800мс) — scaleY from top */
-        @keyframes yfl-enter-logo {
-            0%   { opacity: 0; transform: scaleY(0); transform-origin: top center; }
-            100% { opacity: 1; transform: scaleY(1); transform-origin: top center; }
-        }
-        .yfl-tablo--entering .yfl-tablo__logo {
-            animation: yfl-enter-logo 400ms ease-out 400ms forwards;
-            overflow: hidden;
-        }
-
-        /* Фаза 3: фрейм команд + счёта раскрывается вправо (800-1300мс) —
-           scaleX from left. Применяется к 4 блокам: home-name, away-name,
-           home-score, away-score (колонки 2-3, обе строки). */
-        @keyframes yfl-enter-frame {
-            0%   { opacity: 0; transform: scaleX(0); transform-origin: left center; }
-            100% { opacity: 1; transform: scaleX(1); transform-origin: left center; }
-        }
-        .yfl-tablo--entering .yfl-tablo__home-name,
-        .yfl-tablo--entering .yfl-tablo__away-name {
-            animation: yfl-enter-frame 500ms ease-out 800ms forwards;
-            overflow: hidden;
-        }
-        .yfl-tablo--entering .yfl-tablo__home-score,
-        .yfl-tablo--entering .yfl-tablo__away-score {
-            animation: yfl-enter-frame 500ms ease-out 800ms forwards;
-            overflow: hidden;
-        }
-
-        /* Фаза 4 убрана — заменена в v1.6 на rotateY-переход
-           логотип команды → цифра счёта (см. ниже). */
-
-        /* ============================================================
-           v1.2 — Слот-машина (правка заказчика №5)
-           Каждые 10 минут таймера счёт команды сменяется на логотип
-           команды на 1 секунду в стиле барабана казино с ручкой.
-           Реализация: вертикальная «лента» [счёт, лого, счёт, лого, счёт]
-           прокручивается вверх, останавливается на лого на 1с, потом
-           прокручивается обратно на счёт.
-           ============================================================ */
-
-        /* Лента слот-машины внутри блока счёта. Содержит чередующиеся
-           элементы: цифра → логотип команды → цифра → логотип → цифра.
-           Каждый item позиционируется на 100% ниже предыдущего. Блок
-           счёта имеет overflow:hidden, поэтому виден только один item.
-           Лента translateY(-100%) показывает item 1, translateY(-200%)
-           показывает item 2, и т.д. */
-        .yfl-tablo__slot-reel {
-            position: absolute; top: 0; left: 0; right: 0;
-            height: 100%;
-            will-change: transform;
-            z-index: 5;
-        }
-        .yfl-tablo__slot-item {
-            position: absolute; left: 0; right: 0;
-            height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 2.8rem;
-            backface-visibility: hidden;
-            overflow: hidden;
-        }
-        .yfl-tablo__slot-item:nth-child(1) { top: 0%; }
-        .yfl-tablo__slot-item:nth-child(2) { top: 100%; }
-        .yfl-tablo__slot-item:nth-child(3) { top: 200%; }
-        .yfl-tablo__slot-item--logo img {
-            max-width: 70%; max-height: 70%; object-fit: contain;
-        }
-        .yfl-tablo__slot-item--logo {
-            font-size: 1rem; /* лого — не цифра, размер не важен */
-        }
-        .yfl-tablo__slot-item--logo-empty {
-            /* запасной текст, если логотип команды не задан */
-            font-size: 1.2rem; opacity: 0.5; letter-spacing: 1px;
-        }
-
-        /* Keyframes слот-машины: 2 секунды всего
-           0%   — позиция 0 (счёт)
-           15%  — позиция -100% (лого) — быстрый спин
-           85%  — позиция -100% (лого) — удержание ~1.4 секунды
-           100% — позиция -200% (счёт снова) — быстрый спин обратно */
-        @keyframes yfl-slot-spin {
-            0%   { transform: translateY(0%); }
-            15%  { transform: translateY(-100%); }
-            85%  { transform: translateY(-100%); }
-            100% { transform: translateY(-200%); }
-        }
-        .yfl-tablo--slot-active .yfl-tablo__slot-reel {
-            animation: yfl-slot-spin 2000ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-        }
-        /* Во время слот-машины обычные слои (digit/letter) скрываются */
-        .yfl-tablo--slot-active .yfl-tablo__score-layer--digit,
-        .yfl-tablo--slot-active .yfl-tablo__score-layer--letter {
-            opacity: 0 !important;
-            animation: none !important;
-        }
-
-        /* ============================================================
-           v1.4 — Анимация раскрытия базового табло от центра (таймера)
-           Применяется к дизайнам 1 (Классика), 3 (Неон), 4 (Скругленный).
-           При нажатии ОСНОВНОЙ ТАЙМЕР в пульте классы .sb-unfold-left/right
-           добавляются к боковым блокам; они раскрываются от таймера outward.
-           ============================================================ */
-        @keyframes sb-unfold-left {
-            0%   { transform: scaleX(0); transform-origin: right center; opacity: 0; }
-            100% { transform: scaleX(1); transform-origin: right center; opacity: 1; }
-        }
-        @keyframes sb-unfold-right {
-            0%   { transform: scaleX(0); transform-origin: left center; opacity: 0; }
-            100% { transform: scaleX(1); transform-origin: left center; opacity: 1; }
-        }
-        .sb-unfold-left {
-            opacity: 0;
-            transform: scaleX(0);
-            transform-origin: right center;
-            animation: sb-unfold-left 500ms ease-out forwards;
-        }
-        .sb-unfold-right {
-            opacity: 0;
-            transform: scaleX(0);
-            transform-origin: left center;
-            animation: sb-unfold-right 500ms ease-out forwards;
-        }
-        /* Таймер при раскрытии — лёгкий fade-in (появляется первым) */
-        @keyframes sb-timer-fade-in {
-            0%   { opacity: 0; transform: scale(0.85); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .sb-timer-entering {
-            opacity: 0;
-            transform: scale(0.85);
-            animation: sb-timer-fade-in 300ms ease-out forwards;
-        }
-
-        /* ============================================================
-           v1.6 — Анимация появления: логотипы команд → цифры счёта
-           Во время entrance-анимации (ОСНОВНОЙ ТАЙМЕР) в блоках счёта
-           показываются логотипы команд (вместо цифр), затем они
-           сменяются на цифры счёта в стиле барабана (rotateY).
-           Логотип команды берётся из Firebase homeLogo/awayLogo.
-           Если логотип не задан — показываем логотип ЮФЛ как fallback.
-           ============================================================ */
-        /* Во время entrance: слой letter (логотип команды) виден в фазе 3,
-           затем в фазе 4 сменяется на digit (цифра счёта) через rotateY. */
-        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--letter,
-        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--letter {
-            opacity: 1; /* виден в фазе 3 (раскрытие фрейма) */
-        }
-        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--digit,
-        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--digit {
-            opacity: 0; /* скрыт в фазе 3, появится в фазе 4 */
-        }
-        /* Фаза 4 (1300мс): логотип команды → rotateY out, цифра → rotateY in */
-        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--letter,
-        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--letter {
-            animation: yfl-letter-out 600ms ease-in 1300ms forwards;
-        }
-        .yfl-tablo--entering .yfl-tablo__home-score .yfl-tablo__score-layer--digit,
-        .yfl-tablo--entering .yfl-tablo__away-score .yfl-tablo__score-layer--digit {
-            animation: yfl-digit-in 600ms ease-in 1300ms forwards;
+        /* Channel watermark — fixed at screen bottom-right.
+           Toggled visible only during formation modes (see render()) to
+           avoid overlap with other bottom-right placards. */
+        #k4tv-watermark {
+            position: fixed; right: 20px; bottom: 20px;
+            font-size: 32px; font-weight: 400;
+            font-family: 'Bahnschrift SemiLight', Arial, sans-serif;
+            color: #fff; text-shadow: 0 0 8px #FFD700;
+            z-index: 9999; pointer-events: none; user-select: none;
         }
 
     </style>
 </head>
 <body>
     <div id="wrapper" class="pos-top-left">
-        <div id="scoreboard-container" style="display:none;">
+        <div id="scoreboard-container">
             <div id="scoreboard" class="design-1">
                 <div id="stripeHome" class="design-stripe left"></div>
                 <div class="team-block"><div id="homeMarker" class="form-marker"></div><span id="homeName" class="team-name">ХОЗЯЕВА</span><span id="homeScore" class="score">0</span></div>
@@ -946,44 +541,6 @@
                 <div class="team-block"><span id="awayScore" class="score">0</span><span id="awayName" class="team-name">ГОСТИ</span><div id="awayMarker" class="form-marker"></div></div>
                 <div id="stripeAway" class="design-stripe right"></div>
             </div>
-        </div>
-
-        <!-- ========================================================
-             ЮФЛ ТАБЛО — новый дизайн 2×3 (ТЗ ЮФЛ-ТАБЛО v1.0 §13.1)
-             Показывается только при design === 'yfl' (см. CSS-правило
-             body[data-design='yfl'] .yfl-tablo). Все 5 блоков всегда
-             присутствуют в DOM; видимость регулируется через CSS.
-             Логика работы — в блоке YFLTabloStateMachine ниже.
-             ======================================================== -->
-        <div class="yfl-tablo" data-state="idle">
-            <!-- Строка 1: таймер + названия команд -->
-            <div class="yfl-tablo__timer" data-block="timer">00:00</div>
-            <div class="yfl-tablo__home-name" data-team="home" data-block="home-name">УФА</div>
-            <div class="yfl-tablo__away-name" data-team="away" data-block="away-name">АМК</div>
-            <!-- Строка 2: логотип ЮФЛ + счёт (правка v1.1: реальный логотип ЮФЛ) -->
-            <div class="yfl-tablo__logo" data-block="logo">
-                <img src="https://arturmikov-cpu.github.io/tablo/yfl-logo.png" alt="ЮФЛ" class="yfl-tablo__logo-img">
-            </div>
-            <div class="yfl-tablo__home-score" data-team="home" data-block="home-score" data-value="0">
-                <img src="https://arturmikov-cpu.github.io/tablo/yfl-logo.png" alt="" class="yfl-tablo__score-layer yfl-tablo__score-layer--letter yfl-tablo__score-layer--logo" aria-hidden="true">
-                <span class="yfl-tablo__score-layer yfl-tablo__score-layer--digit">0</span>
-                            <div class="yfl-tablo__slot-reel" data-side="home" style="display:none;">
-                    <div class="yfl-tablo__slot-item yfl-tablo__slot-item--digit">0</div>
-                    <div class="yfl-tablo__slot-item yfl-tablo__slot-item--logo"><img class="yfl-tablo__slot-team-logo" alt="" style="display:none;"><span class="yfl-tablo__slot-item--logo-empty" style="display:none;">ЮФЛ</span></div>
-                    <div class="yfl-tablo__slot-item yfl-tablo__slot-item--digit">0</div>
-                </div>
-            </div>
-            <div class="yfl-tablo__away-score" data-team="away" data-block="away-score" data-value="0">
-                <img src="https://arturmikov-cpu.github.io/tablo/yfl-logo.png" alt="" class="yfl-tablo__score-layer yfl-tablo__score-layer--letter yfl-tablo__score-layer--logo" aria-hidden="true">
-                <span class="yfl-tablo__score-layer yfl-tablo__score-layer--digit">0</span>
-                            <div class="yfl-tablo__slot-reel" data-side="away" style="display:none;">
-                    <div class="yfl-tablo__slot-item yfl-tablo__slot-item--digit">0</div>
-                    <div class="yfl-tablo__slot-item yfl-tablo__slot-item--logo"><img class="yfl-tablo__slot-team-logo" alt="" style="display:none;"><span class="yfl-tablo__slot-item--logo-empty" style="display:none;">ЮФЛ</span></div>
-                    <div class="yfl-tablo__slot-item yfl-tablo__slot-item--digit">0</div>
-                </div>
-            </div>
-            <!-- Оверлей для надписи «ГОЛ!» (ТЗ §12) -->
-            <div class="yfl-tablo__goal-overlay">ГОЛ!</div>
         </div>
     </div>
 
@@ -1106,6 +663,8 @@
     <div id="formation-home-overlay" style="position:absolute;top:0;left:0;width:100vw;height:100vh;display:none;z-index:80;background:rgba(0,0,0,0.45);backdrop-filter:blur(10px)"></div>
     <div id="formation-away-overlay" style="position:absolute;top:0;left:0;width:100vw;height:100vh;display:none;z-index:80;background:rgba(0,0,0,0.45);backdrop-filter:blur(10px)"></div>
 
+    <!-- Channel watermark — fixed at screen bottom-right (shown during formation modes) -->
+    <div id="k4tv-watermark" style="display:none">К4ТВ</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -1120,6 +679,38 @@
         // Автоскрытие плашек «Комментатор» / «Видеооператор»: 7 секунд
         let personPlaqueState = null;
         let personPlaqueTimer = null;
+
+        /* === Fade-out animation state for placards ===
+           Tracks per-element fade state + pending hide timers so that
+           hiding any placard fades opacity → 0 over 0.7s before display:none. */
+        const FADE_OUT_MS = 700;
+        const fadeTimers = {};   // id -> setTimeout handle
+        const fadeState  = {};   // id -> 'visible' | 'fading-out' | 'hidden'
+
+        /* === Formation overlay state ===
+           formationTimers[side] = array of setTimeout handles for the
+           appearance / line-opening / auto-hide sequence. Cleared on
+           re-render or when leaving formation mode. */
+        const formationTimers = { home: [], away: [] };
+        let prevFormationSide = null;   // tracks the side shown last tick
+
+        // Convert #RRGGBB / #RGB → rgba(r,g,b,a). Fallback to gold rgba.
+        function hexToRgba(hex, alpha) {
+          if (typeof hex !== 'string') return 'rgba(255,215,0,' + alpha + ')';
+          let h = hex.replace('#', '').trim();
+          if (h.length === 3) h = h.split('').map(c => c + c).join('');
+          if (h.length !== 6 || /[^0-9a-fA-F]/.test(h)) return 'rgba(255,215,0,' + alpha + ')';
+          const r = parseInt(h.substr(0, 2), 16);
+          const g = parseInt(h.substr(2, 2), 16);
+          const b = parseInt(h.substr(4, 2), 16);
+          return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+        }
+
+        // Clear every pending timer for a formation side (animation + auto-hide).
+        function clearFormationTimers(side) {
+          (formationTimers[side] || []).forEach(function(t) { clearTimeout(t); });
+          formationTimers[side] = [];
+        }
 
         // Автоскрытие метрик: 10 секунд с момента первого показа
         const AUTO_HIDE_MS = 10000;
@@ -1166,8 +757,6 @@
               design: "1", position: "top-left",
               style: "K4TV",  /* K4TV | 3thL | YFL | CHPK */
               overlayState: "main",
-              scoreboardShowCounter: 0,  /* правка v1.4: инкрементируется при нажатии ОСНОВНОЙ ТАЙМЕР */
-              yflTriggerGoal: 0,  /* счётчик ручного теста ГОЛ (ТЗ §14, TRIGGER_GOAL) */
               timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
               addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
               colors: { bg: "#1a1a1a", timerFont: "#ffffff", teamFont: "#ffffff" },
@@ -1197,10 +786,9 @@
           /* Apply visual style preset to body (K4TV / 3thL / YFL). */
           const styleName = (d.style === '3thL' || d.style === 'YFL' || d.style === 'CHPK') ? d.style : 'K4TV';
           if (document.body.dataset.style !== styleName) document.body.dataset.style = styleName;
-          /* Apply current design (1/3/4/yfl) as data-design on body — used by CSS
-             to switch plaque corner radius when style is K4TV, AND to toggle the
-             new ЮФЛ 2×3 tablo (data-design='yfl' shows .yfl-tablo, hides #scoreboard). */
-          const designAttr = (d.design === '3' || d.design === '4' || d.design === 'yfl') ? d.design : '1';
+          /* Apply current design (1/3/4) as data-design on body — used by CSS
+             to switch plaque corner radius when style is K4TV. */
+          const designAttr = (d.design === '3' || d.design === '4') ? d.design : '1';
           if (document.body.dataset.design !== designAttr) document.body.dataset.design = designAttr;
 
           const homeName = d.homeTeam || 'ХОЗЯЕВА';
@@ -1330,7 +918,45 @@
           renderGoalsLog(d);
 
           /* --- Переключение режимов --- */
-          const show = (id, on, disp) => { const e = el(id); if (e) e.style.display = on ? disp : 'none'; };
+          /* Fade-aware show/hide: when hiding, fades opacity → 0 over
+             FADE_OUT_MS (0.7s) before flipping display:none. Re-showing
+             mid-fade or after a completed fade cancels the timer and
+             restores opacity instantly — the CSS entrance animation
+             (fadeIn / fadeInX / fadeInBottom) handles the fade-in. */
+          const show = (id, on, disp) => {
+            const e = el(id); if (!e) return;
+            if (on) {
+              if (fadeTimers[id]) { clearTimeout(fadeTimers[id]); delete fadeTimers[id]; }
+              e.style.display = disp;
+              /* If opacity was reduced (mid-fade-out or after a completed
+                 fade), snap it back to 1 without a transition so it doesn't
+                 fight the CSS entrance animation. */
+              var cur = e.style.opacity;
+              if (cur !== '' && cur !== '1') {
+                e.style.transition = 'none';
+                e.style.opacity = '1';
+                void e.offsetWidth;        // force reflow to commit
+                e.style.transition = '';   // restore CSS transition rule
+              }
+              fadeState[id] = 'visible';
+            } else {
+              if (fadeState[id] === 'visible' && e.style.display !== 'none' && e.style.display !== '') {
+                fadeState[id] = 'fading-out';
+                e.style.opacity = '0';
+                if (fadeTimers[id]) clearTimeout(fadeTimers[id]);
+                fadeTimers[id] = setTimeout(function() {
+                  e.style.display = 'none';
+                  delete fadeTimers[id];
+                  fadeState[id] = 'hidden';
+                }, FADE_OUT_MS);
+              } else if (fadeState[id] === 'fading-out') {
+                /* already fading — leave the pending timer alone */
+              } else {
+                e.style.display = 'none';
+                fadeState[id] = 'hidden';
+              }
+            }
+          };
           show('notstarted-overlay', state === 'notstarted', 'flex');
           show('halftime-overlay', state === 'halftime', 'flex');
           show('fulltime-overlay', state === 'fulltime', 'flex');
@@ -1346,6 +972,11 @@
           show('videographer-plaque', state === 'videographer', 'flex');
           show('formation-home-overlay', state === 'formation-home', 'block');
           show('formation-away-overlay', state === 'formation-away', 'block');
+
+          /* k4tv watermark — visible only during formation modes (avoids
+             overlap with #event-away-overlay and other bottom-right placards). */
+          var k4tvWm = el('k4tv-watermark');
+          if (k4tvWm) k4tvWm.style.display = (state === 'formation-home' || state === 'formation-away') ? 'block' : 'none';
 
           /* === Автоскрытие плашек «Комментатор» / «Видеооператор» через 7 секунд === */
           if (state === 'commentator' || state === 'videographer') {
@@ -1365,14 +996,24 @@
             }
           }
 
+          /* === Formation mode cleanup ===
+             When leaving a formation mode (or switching sides), clear all
+             pending animation / auto-hide timers for the previous side and
+             reset its render key so the next entry re-renders + replays the
+             full sequence (appearance → 4s → line opens → 10s → auto-hide). */
+          const formationSideNow = (state === 'formation-home') ? 'home'
+                                : (state === 'formation-away') ? 'away' : null;
+          if (prevFormationSide !== null && formationSideNow !== prevFormationSide) {
+            clearFormationTimers(prevFormationSide);
+            formationRenderKey[prevFormationSide] = '';
+          }
+          prevFormationSide = formationSideNow;
+
           if (state === 'formation-home' && d.formationHome) renderFormationOverlay('home', d.formationHome);
           if (state === 'formation-away' && d.formationAway) renderFormationOverlay('away', d.formationAway);
 
           const isMain = state === 'main';
-          /* Правка v1.4: табло показывается только если оператор нажал
-             ОСНОВНОЙ ТАЙМЕР (window.scoreboardVisible() === true).
-             При перезагрузке страницы scoreboardVisible=false → табло скрыто. */
-          show('scoreboard-container', isMain && (window.scoreboardVisible ? window.scoreboardVisible() : false), 'block');
+          show('scoreboard-container', isMain, 'block');
 
           /* === Рендер состава === */
           if (state === 'lineup-home' || state === 'lineup-away') {
@@ -1557,8 +1198,13 @@
           const sig = JSON.stringify(data);
           if (formationRenderKey[side] === sig) return; // No change — skip re-render
           formationRenderKey[side] = sig;
+          // Clear any timers from a previous render of this side so orphan
+          // callbacks (adding .revealed/.active to replaced DOM nodes, or a
+          // stale auto-hide) don't fire.
+          clearFormationTimers(side);
 
           const teamColor = (data.team && data.team.formColor) || '#ff5148';
+          const teamColorGlow = hexToRgba(teamColor, 0.5);  // for active box-shadow
           const goldColor = '#FFD700';
           const photoBaseUrl = data.photoBaseUrl || '';
           const starters = data.starters || [];
@@ -1578,7 +1224,7 @@
           html += '<div style="position:absolute;bottom:0;left:25%;width:50%;height:20%;border:2px solid ' + teamColor + ';opacity:0.25;border-bottom:none;box-sizing:border-box"></div>';
           html += '</div>';
 
-          // === Player cards — black & gold style, with line grouping for animation ===
+          // === Player cards — team-form-color gradient, with line grouping for animation ===
           starters.forEach(function(p, i) {
             const x = p.x || 50;
             const y = p.y || 50;
@@ -1590,7 +1236,8 @@
             const num = escapeHtml(p.number || '');
             const firstName = escapeHtml((p.name || '').split(' ')[0] || '');
             const fullName = escapeHtml(p.name || '');
-            html += '<div class="' + cardClass + '" data-line="' + lineGroup + '" data-photo="' + escapeHtml(photoUrl) + '" style="left:' + x + '%;top:' + y + '%;">';
+            // --team-color / --team-glow drive the card gradient + active glow.
+            html += '<div class="' + cardClass + '" data-line="' + lineGroup + '" data-photo="' + escapeHtml(photoUrl) + '" style="left:' + x + '%;top:' + y + '%;--team-color:' + teamColor + ';--team-glow:' + teamColorGlow + ';">';
             html += '<div class="formation-player-photo"></div>';
             html += '<span class="formation-player-number">' + num + '</span>';
             html += '<span class="formation-player-name">' + firstName + '</span>';
@@ -1598,9 +1245,7 @@
             html += '</div>';
           });
 
-          // Channel logo (inside field, bottom-right)
-          html += '<div style="position:absolute;right:15px;bottom:15px;font-size:32px;font-weight:400;font-family:Bahnschrift SemiLight,Arial,sans-serif;color:#fff;text-shadow:0 0 8px ' + goldColor + ';z-index:100">К4ТВ</div>';
-          html += '</div>'; // end field
+          html += '</div>'; // end field (k4tv mark removed — global watermark at screen bottom-right)
 
           // === Team logo — on the dividing line (child of wrap, so left:70% = full overlay width) ===
           if (data.team && data.team.logo) {
@@ -1639,7 +1284,7 @@
 
           overlay.innerHTML = html;
 
-          // === ANIMATION: appearance → open by lines ===
+          // === ANIMATION: appearance → 4 s pause → open by lines → 10 s → auto-hide ===
           // Set photos on each card
           var cards = overlay.querySelectorAll('.formation-player-card');
           cards.forEach(function(card) {
@@ -1653,16 +1298,18 @@
           // 1) Appearance: stagger reveal (scale + fade in)
           var revealStagger = 70; // ms between cards
           cards.forEach(function(card, i) {
-            setTimeout(function() { card.classList.add('revealed'); }, i * revealStagger);
+            formationTimers[side].push(setTimeout(function() {
+              card.classList.add('revealed');
+            }, i * revealStagger));
           });
 
-          // 2) After appearance completes, open cards by lines with 7s pauses:
-          //    Line 0 (GK + defense) opens immediately after appearance
-          //    7s pause → Line 1 (midfield) opens
-          //    7s pause → Line 2 (forward) opens
-          //    Cards stay open after the last line.
+          // 2) After appearance completes, wait 4 s, then open cards by lines
+          //    with 7 s pauses: Line 0 (GK + defense) → 7 s → Line 1 (midfield)
+          //    → 7 s → Line 2 (forward). Cards stay open after the last line.
           var appearanceComplete = cards.length * revealStagger + 500;
-          var pauseBetweenLines = 7000; // 7 seconds
+          var pauseBeforeOpening = 4000;  // 4 s after appearance before first line opens
+          var pauseBetweenLines = 7000;   // 7 s between lines
+          var autoHideAfterLastLine = 10000; // 10 s after last line opens → hide
           var lines = [[], [], []];
           cards.forEach(function(card) {
             var line = parseInt(card.getAttribute('data-line')) || 0;
@@ -1670,18 +1317,30 @@
           });
           // Compute cumulative start time for each line (only counting non-empty lines)
           var lineTimings = [];
-          var cumulative = appearanceComplete;
+          var lastLineOpenTime = null;
+          var cumulative = appearanceComplete + pauseBeforeOpening;
           lines.forEach(function(lineCards) {
             if (lineCards.length === 0) { lineTimings.push(null); return; }
             lineTimings.push(cumulative);
+            lastLineOpenTime = cumulative;
             cumulative += pauseBetweenLines;
           });
           lines.forEach(function(lineCards, lineIdx) {
             if (lineCards.length === 0) return;
-            setTimeout(function() {
+            formationTimers[side].push(setTimeout(function() {
               lineCards.forEach(function(card) { card.classList.add('active'); });
-            }, lineTimings[lineIdx]);
+            }, lineTimings[lineIdx]));
           });
+
+          // 3) Auto-hide: 10 s after the forward line (last non-empty line) opens,
+          //    set overlayState → 'main'. The overlay then fades out (0.7 s)
+          //    and the pult button for «Схема хозяев / гостей» becomes inactive.
+          if (lastLineOpenTime !== null) {
+            var autoHideDelay = lastLineOpenTime + autoHideAfterLastLine;
+            formationTimers[side].push(setTimeout(function() {
+              db.update({ overlayState: 'main' });
+            }, autoHideDelay));
+          }
         }
 
         db.on('value', snapshot => { latestData = snapshot.val(); render(); });
@@ -1750,584 +1409,6 @@
           renderEventOverlay('home');
           renderEventOverlay('away');
         }
-
-        /* ============================================================
-           ЮФЛ ТАБЛО — конечный автомат (ТЗ ЮФЛ-ТАБЛО v1.0 §11–14)
-           Логика работы ТОЛЬКО этого табло. Активна только при
-           design === 'yfl'. Во всех остальных случаях state-машина
-           простаивает и не вмешивается в работу #scoreboard.
-
-           Состояния (ТЗ §14, таблица 14.2):
-             IDLE → READY (SET_TEAMS) → STARTING (START_TIMER, 1200мс)
-                  → LIVE (timer ticks 1с) → GOAL_CELEBRATION (7с, продлеваемо)
-                  → STOPPED (STOP_TIMER) → IDLE (RESET_TIMER)
-
-           Триггеры (маппинг TZ-команд на существующие поля Firebase):
-             START_TIMER  → timer.isRunning: false → true
-             STOP_TIMER   → timer.isRunning:  true → false
-             RESET_TIMER  → timer.elapsed === 0 && !timer.isRunning && score === 0
-             SET_SCORE    → homeScore/awayScore увеличился → GOAL анимация
-             TRIGGER_GOAL → yflTriggerGoal (вручную из пульта, для теста)
-             SET_TEAMS    → homeTeam/awayName обновлены → обрезка до 3 символов
-           ============================================================ */
-        (function YFLTabloStateMachine() {
-            // --- Внутреннее состояние ---
-            var state = 'IDLE';
-            var yflHomeScore = 0, yflAwayScore = 0;
-            var yflTimerSeconds = 0;
-            var yflTimerInterval = null;
-            var yflGoalTimer = null;
-            var yflStartTimer = null;
-            var yflEndingTimer = null;
-            var prevIsRunning = false;
-            var prevHomeScore = -1, prevAwayScore = -1;
-            var prevTriggerGoal = 0;
-            var lastTeamsKey = '';
-            var lastDesign = null;
-
-            // --- Утилиты ---
-            function tablo() { return document.querySelector('.yfl-tablo'); }
-            function setText(selector, text) {
-                var node = document.querySelector(selector);
-                if (node) node.textContent = text;
-            }
-            function formatMMSS(totalSec) {
-                var s = Math.max(0, Math.floor(totalSec));
-                var m = Math.floor(s / 60);
-                var ss = s % 60;
-                return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
-            }
-            function clipTeamName(name, fallback) {
-                // ТЗ §7: обрезка до 3 символов кириллицы + верхний регистр
-                var s = String(name || fallback || '').slice(0, 3).toUpperCase();
-                return s;
-            }
-            function updateStateAttribute() {
-                var t = tablo();
-                if (t) t.dataset.state = state.toLowerCase();
-            }
-
-            // --- Синхронизация названий команд (ТЗ §7, SET_TEAMS) ---
-            function syncTeams(d) {
-                var home = clipTeamName(d.homeTeam, 'ХОЗ');
-                var away = clipTeamName(d.awayTeam, 'ГОС');
-                var key = home + '|' + away;
-                if (key === lastTeamsKey) return;
-                lastTeamsKey = key;
-                setText('.yfl-tablo__home-name', home);
-                setText('.yfl-tablo__away-name', away);
-                // ТЗ §14: IDLE → READY при SET_TEAMS
-                if (state === 'IDLE') {
-                    state = 'READY';
-                    updateStateAttribute();
-                }
-            }
-
-            // --- Синхронизация счёта (без анимации) ---
-            function setScoreDigits(home, away) {
-                var homeDigit = document.querySelector('.yfl-tablo__home-score .yfl-tablo__score-layer--digit');
-                var awayDigit = document.querySelector('.yfl-tablo__away-score .yfl-tablo__score-layer--digit');
-                if (homeDigit) homeDigit.textContent = home;
-                if (awayDigit) awayDigit.textContent = away;
-                var hs = document.querySelector('.yfl-tablo__home-score');
-                var as = document.querySelector('.yfl-tablo__away-score');
-                if (hs) hs.dataset.value = home;
-                if (as) as.dataset.value = away;
-            }
-
-            // --- Анимация старта: логотип Y → счёт 0 (ТЗ §11, 1200 мс) ---
-            function startTimerAnim() {
-                var t = tablo();
-                if (!t) return;
-                // Снимаем возможные хвосты предыдущей анимации
-                t.classList.remove('yfl-tablo--starting');
-                // Принудительный reflow для перезапуска CSS-анимации
-                void t.offsetWidth;
-                t.classList.add('yfl-tablo--starting');
-                state = 'STARTING';
-                updateStateAttribute();
-                // Обнулённый счёт на момент старта
-                yflHomeScore = 0; yflAwayScore = 0;
-                setScoreDigits(0, 0);
-                yflTimerSeconds = 0;
-                setText('.yfl-tablo__timer', '00:00');
-
-                clearTimeout(yflStartTimer);
-                yflStartTimer = setTimeout(function() {
-                    t.classList.remove('yfl-tablo--starting');
-                    state = 'LIVE';
-                    updateStateAttribute();
-                    // Запуск тикания таймера (1 раз в секунду, ТЗ §13.3)
-                    clearInterval(yflTimerInterval);
-                    yflTimerInterval = setInterval(tickTimer, 1000);
-                }, 1200);
-            }
-
-            function tickTimer() {
-                yflTimerSeconds++;
-                setText('.yfl-tablo__timer', formatMMSS(yflTimerSeconds));
-            }
-
-            function stopTimer() {
-                clearInterval(yflTimerInterval);
-                yflTimerInterval = null;
-                state = 'STOPPED';
-                updateStateAttribute();
-            }
-
-            function resetTimer() {
-                clearInterval(yflTimerInterval);
-                yflTimerInterval = null;
-                clearTimeout(yflStartTimer);
-                clearTimeout(yflGoalTimer);
-                clearTimeout(yflEndingTimer);
-                yflTimerSeconds = 0;
-                yflHomeScore = 0; yflAwayScore = 0;
-                setScoreDigits(0, 0);
-                setText('.yfl-tablo__timer', '00:00');
-                var t = tablo();
-                if (t) {
-                    t.classList.remove('yfl-tablo--starting', 'yfl-tablo--goal-active', 'yfl-tablo--goal-ending');
-                }
-                state = 'IDLE';
-                updateStateAttribute();
-            }
-
-            // --- Анимация ГОЛ: 7 секунд (ТЗ §12) ---
-            function triggerGoal(newHome, newAway) {
-                var t = tablo();
-                if (!t) return;
-                // Правка v1.2 №3: анимация ГОЛ не появляется при счёте 0:0
-                // (если обе команды имеют 0 голов — гола нет, анимацию не показываем)
-                if (num(newHome, 0) === 0 && num(newAway, 0) === 0) {
-                    return;
-                }
-                // ТЗ §12 edge case: если GOAL уже активен — продлеваем таймер
-                if (state === 'GOAL_CELEBRATION') {
-                    clearTimeout(yflGoalTimer);
-                    clearTimeout(yflEndingTimer);
-                    t.classList.remove('yfl-tablo--goal-ending');
-                } else {
-                    t.classList.add('yfl-tablo--goal-active');
-                    state = 'GOAL_CELEBRATION';
-                    updateStateAttribute();
-                }
-                // Через 6700 мс — начало fade-out (последние 300 мс)
-                yflEndingTimer = setTimeout(function() {
-                    t.classList.add('yfl-tablo--goal-ending');
-                }, 6700);
-                // Через 7000 мс — возврат в LIVE + обновление счёта
-                yflGoalTimer = setTimeout(function() {
-                    t.classList.remove('yfl-tablo--goal-active', 'yfl-tablo--goal-ending');
-                    setScoreDigits(newHome, newAway);
-                    state = 'LIVE';
-                    updateStateAttribute();
-                }, 7000);
-            }
-
-            /* === Правка v1.6: анимация появления табло ===
-               При нажатии ОСНОВНОЙ ТАЙМЕР добавляем класс
-               .yfl-tablo--entering на 1900 мс. CSS-анимации по фазам:
-               1) таймер (0-400мс)  2) логотип ЮФЛ вниз (400-800мс)
-               3) фрейм команд+счёт вправо (800-1300мс) — в блоках счёта
-                  показываются ЛОГОТИПЫ КОМАНД (вместо цифр)
-               4) логотипы команд → rotateY out, цифры счёта → rotateY in (1300-1900мс)
-               Логотип команды берётся из Firebase homeLogo/awayLogo.
-               Если не задан — fallback на логотип ЮФЛ. */
-            var enteringTimer = null;
-            var latestHomeLogo = '';
-            var latestAwayLogo = '';
-            var YFL_LOGO_URL = 'https://arturmikov-cpu.github.io/tablo/yfl-logo.png';
-            function playEntranceAnimation() {
-                var t = tablo();
-                if (!t) return;
-                // Устанавливаем src слоя letter на логотип команды (или ЮФЛ fallback)
-                var homeLetter = t.querySelector('.yfl-tablo__home-score .yfl-tablo__score-layer--letter');
-                var awayLetter = t.querySelector('.yfl-tablo__away-score .yfl-tablo__score-layer--letter');
-                if (homeLetter) {
-                    var homeSrc = latestHomeLogo || YFL_LOGO_URL;
-                    if (homeLetter.getAttribute('src') !== homeSrc) homeLetter.setAttribute('src', homeSrc);
-                }
-                if (awayLetter) {
-                    var awaySrc = latestAwayLogo || YFL_LOGO_URL;
-                    if (awayLetter.getAttribute('src') !== awaySrc) awayLetter.setAttribute('src', awaySrc);
-                }
-                t.classList.remove('yfl-tablo--entering');
-                void t.offsetWidth; // reflow to restart CSS animations
-                t.classList.add('yfl-tablo--entering');
-                clearTimeout(enteringTimer);
-                enteringTimer = setTimeout(function() {
-                    t.classList.remove('yfl-tablo--entering');
-                    // После анимации восстанавливаем letter слой на логотип ЮФЛ
-                    // (для будущих анимаций старта/слот-машины)
-                    if (homeLetter) homeLetter.setAttribute('src', YFL_LOGO_URL);
-                    if (awayLetter) awayLetter.setAttribute('src', YFL_LOGO_URL);
-                }, 1900);
-            }
-
-            /* === Правка v1.2 №5: слот-машина каждые 10 минут ===
-               Каждые 10 минут таймера (на отметках 10:00, 20:00, 30:00...)
-               запускаем слот-анимацию: счёт → логотип команды → счёт.
-               Барабан прокручивается, лого виден ~1.4с, затем возврат. */
-            var lastSlotMinute = -1;
-            var slotTimer = null;
-            function playSlotSpin(d) {
-                var t = tablo();
-                if (!t) return;
-                // Не запускаем во время GOAL или STARTING
-                if (state === 'GOAL_CELEBRATION' || state === 'STARTING') return;
-
-                var homeLogo = d.homeLogo || '';
-                var awayLogo = d.awayLogo || '';
-
-                // Обновляем items в обеих лентах: цифра(0) → лого(1) → цифра(2)
-                ['home', 'away'].forEach(function(side) {
-                    var reel = t.querySelector('.yfl-tablo__slot-reel[data-side="' + side + '"]');
-                    if (!reel) return;
-                    var items = reel.querySelectorAll('.yfl-tablo__slot-item');
-                    var score = (side === 'home') ? yflHomeScore : yflAwayScore;
-                    // Items 0 and 2 = score digit, item 1 = team logo
-                    if (items[0]) items[0].textContent = score;
-                    if (items[2]) items[2].textContent = score;
-                    if (items[1]) {
-                        var logoImg = items[1].querySelector('.yfl-tablo__slot-team-logo');
-                        var emptySpan = items[1].querySelector('.yfl-tablo__slot-item--logo-empty');
-                        var logoUrl = (side === 'home') ? homeLogo : awayLogo;
-                        if (logoImg && emptySpan) {
-                            if (logoUrl) {
-                                logoImg.src = logoUrl;
-                                logoImg.style.display = 'block';
-                                emptySpan.style.display = 'none';
-                            } else {
-                                // Нет логотипа команды — показываем текст "ЮФЛ"
-                                logoImg.style.display = 'none';
-                                emptySpan.style.display = 'block';
-                                emptySpan.textContent = (side === 'home') ? 'ЮФЛ' : 'ЮФЛ';
-                            }
-                        }
-                    }
-                });
-
-                // Показываем ленты и запускаем анимацию
-                var reels = t.querySelectorAll('.yfl-tablo__slot-reel');
-                reels.forEach(function(r) { r.style.display = 'block'; });
-                t.classList.add('yfl-tablo--slot-active');
-                clearTimeout(slotTimer);
-                slotTimer = setTimeout(function() {
-                    t.classList.remove('yfl-tablo--slot-active');
-                    reels.forEach(function(r) { r.style.display = 'none'; });
-                }, 2100);
-            }
-
-            // --- Главный синхронизатор: вызывается при каждом db.on('value') ---
-            function yflSync(d) {
-                // ТЗ: активна только при design === 'yfl'
-                var isYfl = (d.design === 'yfl');
-                if (!isYfl) {
-                    if (lastDesign === 'yfl') {
-                        // Выход из YFL-режима — полностью сбросить состояние
-                        clearInterval(yflTimerInterval);
-                        yflTimerInterval = null;
-                        clearTimeout(yflStartTimer);
-                        clearTimeout(yflGoalTimer);
-                        clearTimeout(yflEndingTimer);
-                        clearTimeout(enteringTimer);
-                        clearTimeout(slotTimer);
-                        var t0 = tablo();
-                        if (t0) {
-                            t0.classList.remove('yfl-tablo--starting', 'yfl-tablo--goal-active', 'yfl-tablo--goal-ending', 'yfl-tablo--entering', 'yfl-tablo--slot-active');
-                            t0.style.display = ''; // вернуть управление CSS
-                            // Скрываем слот-ленты
-                            var reels0 = t0.querySelectorAll('.yfl-tablo__slot-reel');
-                            reels0.forEach(function(r) { r.style.display = 'none'; });
-                        }
-                        state = 'IDLE';
-                        prevIsRunning = false;
-                        prevHomeScore = -1; prevAwayScore = -1;
-                        prevTriggerGoal = 0;
-                        lastTeamsKey = '';
-                        lastSlotMinute = -1;
-                    }
-                    lastDesign = d.design;
-                    return;
-                }
-                var justEntered = (lastDesign !== 'yfl');
-                lastDesign = 'yfl';
-
-                // Правка v1.4: YFL entrance анимация запускается НЕ при justEntered,
-                // а только при нажатии ОСНОВНОЙ ТАЙМЕР (см. ScoreboardVisibilityManager).
-                // justEntered только инициализирует prev-значения (см. ниже).
-
-                // Скрываем YFL-табло, когда overlayState !== 'main' ИЛИ когда
-                // оператор ещё не нажал ОСНОВНОЙ ТАЙМЕР (scoreboardVisible=false).
-                var tMain = tablo();
-                if (tMain) {
-                    var isMainState = (d.overlayState === 'main' || !d.overlayState);
-                    var sbVisible = window.scoreboardVisible ? window.scoreboardVisible() : false;
-                    tMain.style.display = (isMainState && sbVisible) ? '' : 'none';
-                }
-
-                // 1) Синхронизация названий команд (всегда — на случай смены)
-                syncTeams(d);
-
-                // v1.6: сохраняем логотипы команд для entrance-анимации
-                latestHomeLogo = d.homeLogo || '';
-                latestAwayLogo = d.awayLogo || '';
-
-                // 2) Логика таймера (START_TIMER / STOP_TIMER / RESET_TIMER)
-                var timer = d.timer || {};
-                var isRunning = !!timer.isRunning;
-                var elapsedMs = num(timer.elapsed, 0);
-                var liveMs = (isRunning && timer.startTime) ? Date.now() - timer.startTime : 0;
-                var totalMs = num(timer.manualStartMin, 0) * 60000 + elapsedMs + liveMs;
-
-                // Правка v1.3 №1+№2: при первичном появлении (перезагрузка страницы
-                // или переключение на YFL-дизайн) НЕ запускать стартовую анимацию
-                // и НЕ запускать ГОЛ от старых значений Firebase. Инициализируем
-                // prev-значения из текущего снимка и пропускаем триггеры.
-                // Если таймер уже идёт — переходим сразу в LIVE и запускаем тики,
-                // но БЕЗ анимации Y→0 и БЕЗ сброса в 0.
-                if (justEntered) {
-                    prevIsRunning = isRunning;
-                    prevHomeScore = num(d.homeScore, 0);
-                    prevAwayScore = num(d.awayScore, 0);
-                    prevTriggerGoal = num(d.yflTriggerGoal, 0);
-                    yflHomeScore = prevHomeScore;
-                    yflAwayScore = prevAwayScore;
-                    setScoreDigits(yflHomeScore, yflAwayScore);
-                    // Инициализируем таймер значением из Firebase (не сбрасываем в 0)
-                    yflTimerSeconds = Math.floor(totalMs / 1000);
-                    setText('.yfl-tablo__timer', formatMMSS(yflTimerSeconds));
-                    // Если таймер уже идёт — сразу LIVE + тики, без анимации старта
-                    if (isRunning) {
-                        state = 'LIVE';
-                        updateStateAttribute();
-                        clearInterval(yflTimerInterval);
-                        yflTimerInterval = setInterval(tickTimer, 1000);
-                    }
-                }
-
-                if (!justEntered && isRunning && !prevIsRunning) {
-                    // START_TIMER (false → true) — только при реальном нажатии СТАРТ
-                    startTimerAnim();
-                } else if (!justEntered && !isRunning && prevIsRunning) {
-                    // STOP_TIMER (true → false)
-                    stopTimer();
-                }
-
-                // Поддержание актуального времени таймера на табло в LIVE/STOPPED
-                // (на случай, если оператор ставит «С мин:» или меняет elapsed вручную)
-                if (state === 'LIVE' || state === 'STOPPED' || state === 'READY' || state === 'IDLE') {
-                    var seconds = Math.floor(totalMs / 1000);
-                    if (seconds !== yflTimerSeconds && state !== 'STARTING') {
-                        yflTimerSeconds = seconds;
-                        setText('.yfl-tablo__timer', formatMMSS(seconds));
-
-                        // Правка v1.2 №5: слот-машина каждые 10 минут таймера.
-                        // На отметках 10:00, 20:00, 30:00, 40:00, ... — запускаем
-                        // барабанную анимацию счёт → логотип команды → счёт.
-                        var currentMinute = Math.floor(seconds / 60);
-                        if (isRunning && currentMinute > 0 &&
-                            currentMinute % 10 === 0 &&
-                            currentMinute !== lastSlotMinute) {
-                            lastSlotMinute = currentMinute;
-                            playSlotSpin(d);
-                        }
-                    }
-                }
-
-                // 3) RESET_TIMER: только при реальном сбросе (не при первичной загрузке)
-                //    Правка v1.3 №1: пропускаем при justEntered.
-                if (!justEntered && !isRunning && elapsedMs === 0 && num(timer.manualStartMin, 0) === 0 &&
-                    num(d.homeScore, 0) === 0 && num(d.awayScore, 0) === 0 &&
-                    state !== 'IDLE' && state !== 'READY') {
-                    resetTimer();
-                }
-
-                // 4) Логика счёта (SET_SCORE — увеличение триггерит ГОЛ)
-                //    Правка v1.3 №2: пропускаем при justEntered — не запускать ГОЛ
-                //    от старых значений Firebase при перезагрузке страницы.
-                var homeScore = num(d.homeScore, 0);
-                var awayScore = num(d.awayScore, 0);
-                if (!justEntered && prevHomeScore !== -1 && prevAwayScore !== -1) {
-                    var homeIncreased = homeScore > prevHomeScore;
-                    var awayIncreased = awayScore > prevAwayScore;
-                    if (homeIncreased || awayIncreased) {
-                        // ТЗ §12: запуск анимации ГОЛ с обновлением счёта после 7с
-                        triggerGoal(homeScore, awayScore);
-                    } else if (homeScore < prevHomeScore || awayScore < prevAwayScore) {
-                        // ТЗ §12: тихая замена при уменьшении (корректировка ошибки)
-                        yflHomeScore = homeScore; yflAwayScore = awayScore;
-                        setScoreDigits(homeScore, awayScore);
-                    }
-                }
-                yflHomeScore = homeScore; yflAwayScore = awayScore;
-                if (!justEntered) {
-                    prevHomeScore = homeScore; prevAwayScore = awayScore;
-                    prevIsRunning = isRunning;
-                }
-
-                // 5) TRIGGER_GOAL: ручной тест анимации ГОЛ (ТЗ §14)
-                //    Пульт записывает в yflTriggerGoal монotonically-growing int.
-                //    Правка v1.3 №2: пропускаем при justEntered.
-                var trig = num(d.yflTriggerGoal, 0);
-                if (!justEntered && trig !== prevTriggerGoal && trig > 0) {
-                    triggerGoal(yflHomeScore, yflAwayScore);
-                }
-                if (!justEntered) prevTriggerGoal = trig;
-            }
-
-            // --- Публичный API (для отладки из консоли и интеграции) ---
-            window.YFLTablo = {
-                getState: function() { return state; },
-                sync: yflSync,
-                triggerGoal: function() { triggerGoal(yflHomeScore, yflAwayScore); },
-                testSlot: function(d) { playSlotSpin(d || {homeLogo: '', awayLogo: ''}); },
-                playEntrance: playEntranceAnimation,
-                reset: resetTimer
-            };
-
-            // --- Подключение к существующему потоку данных ---
-            // Существующий db.on('value') записывает latestData и зовёт render().
-            // Мы добавляем отдельный listener, который зовёт yflSync(d) после
-            // каждого обновления. Это гарантирует, что YFL-логика работает
-            // ТОЛЬКО на основе актуального снимка данных и не вмешивается
-            // в существующий render().
-            db.on('value', function(snapshot) {
-                var d = snapshot.val();
-                if (d) yflSync(d);
-            });
-        })();
-
-        /* ============================================================
-           v1.4 — ScoreboardVisibilityManager
-           Управляет видимостью табло (базового и ЮФЛ) в ответ на нажатие
-           ОСНОВНОЙ ТАЙМЕР в пульте. Пульт инкрементирует scoreboardShowCounter
-           при каждом нажатии; overlay отслеживает изменение счётчика.
-
-           Поведение:
-           • При перезагрузке страницы scoreboardVisible=false → табло скрыто,
-             даже если overlayState='main' (от прошлой сессии). Табло не должно
-             появляться само — только после нажатия кнопки.
-           • При нажатии ОСНОВНОЙ ТАЙМЕР (showCounter изменился):
-             - scoreboardVisible=true → табло показывается
-             - Запускается анимация появления:
-               * Для design='yfl': YFL entrance (таймер → логотип → фрейм → цифры)
-               * Для design=1/3/4: базовое раскрытие от центра (таймер) outward
-           • При overlayState !== 'main' (ПЕРЕРЫВ, ОКОНЧЕН, etc.):
-             scoreboardVisible=false → табло скрывается
-           • При повторном нажатии ОСНОВНОЙ ТАЙМЕР (возврат из перерыва):
-             счётчик снова инкрементируется → табло снова показывается + анимация
-           ============================================================ */
-        (function ScoreboardVisibilityManager() {
-            var scoreboardVisible = false;
-            var prevShowCounter = -1;
-            var firstSnapshot = true;
-
-            // --- Анимация базового табло (design 1/3/4) ---
-            // Раскрытие от центра (таймера) outward: левые блоки расширяются
-            // влево, правые — вправо. Таймер появляется первым (fade-in).
-            function playBaseScoreboardAnimation() {
-                var sb = document.getElementById('scoreboard');
-                if (!sb) return;
-
-                var homeName = document.getElementById('homeName');
-                var awayName = document.getElementById('awayName');
-                var homeBlock = homeName ? (homeName.closest ? homeName.closest('.team-block') : homeName.parentElement) : null;
-                var awayBlock = awayName ? (awayName.closest ? awayName.closest('.team-block') : awayName.parentElement) : null;
-                var stripeHome = document.getElementById('stripeHome');
-                var stripeAway = document.getElementById('stripeAway');
-                var timerContainer = document.querySelector('.timer-container');
-
-                // Снимаем старые классы (для повторного запуска)
-                [homeBlock, awayBlock, stripeHome, stripeAway, timerContainer].forEach(function(el) {
-                    if (el) el.classList.remove('sb-unfold-left', 'sb-unfold-right', 'sb-timer-entering');
-                });
-                void sb.offsetWidth; // reflow
-
-                // Таймер появляется первым
-                if (timerContainer) timerContainer.classList.add('sb-timer-entering');
-                // Боковые блоки раскрываются от центра outward
-                if (homeBlock) homeBlock.classList.add('sb-unfold-left');
-                if (stripeHome) stripeHome.classList.add('sb-unfold-left');
-                if (awayBlock) awayBlock.classList.add('sb-unfold-right');
-                if (stripeAway) stripeAway.classList.add('sb-unfold-right');
-
-                // Убираем классы после завершения анимации
-                setTimeout(function() {
-                    [homeBlock, awayBlock, stripeHome, stripeAway, timerContainer].forEach(function(el) {
-                        if (el) el.classList.remove('sb-unfold-left', 'sb-unfold-right', 'sb-timer-entering');
-                    });
-                }, 700);
-            }
-
-            // --- Главный обработчик ---
-            db.on('value', function(snapshot) {
-                var d = snapshot.val();
-                if (!d) return;
-
-                var isMain = (d.overlayState === 'main' || !d.overlayState);
-                var showCounter = num(d.scoreboardShowCounter, 0);
-
-                if (firstSnapshot) {
-                    // При первичной загрузке: инициализируем prevShowCounter из
-                    // Firebase, НЕ показываем табло (даже если overlayState='main').
-                    prevShowCounter = showCounter;
-                    scoreboardVisible = false;
-                    firstSnapshot = false;
-                    return;
-                }
-
-                // Если счётчик изменился (оператор нажал ОСНОВНОЙ ТАЙМЕР):
-                if (showCounter !== prevShowCounter) {
-                    prevShowCounter = showCounter;
-                    if (isMain) {
-                        scoreboardVisible = true;
-                        // Правка v1.5: показываем контейнер И запускаем анимацию
-                        // СИНХРОННО (без setTimeout) — это убирает «вспышку» где
-                        // табло появлялось на 50мс без анимации. Классы анимаций
-                        // имеют base-стили (opacity:0, scaleX:0), поэтому первый
-                        // кадр рендерится в невидимом состоянии, затем анимация
-                        // раскрывает элементы.
-                        if (d.design === 'yfl') {
-                            // YFL: сначала добавляем --entering (блоки → opacity:0),
-                            // потом показываем, потом запускаем анимацию
-                            var yflTablo = document.querySelector('.yfl-tablo');
-                            if (yflTablo) {
-                                yflTablo.style.display = '';
-                                // playEntrance делает remove → reflow → add, что
-                                // перезапускает CSS-анимации. Вызываем синхронно.
-                                if (window.YFLTablo && window.YFLTablo.playEntrance) {
-                                    window.YFLTablo.playEntrance();
-                                }
-                            }
-                        } else {
-                            // Базовое табло: сначала показываем контейнер, затем
-                            // синхронно добавляем классы анимации. Базовые стили
-                            // классов (opacity:0, scaleX:0) применяются немедленно,
-                            // поэтому первый кадр — невидимый, затем анимация.
-                            var container = document.getElementById('scoreboard-container');
-                            if (container) container.style.display = 'block';
-                            playBaseScoreboardAnimation();
-                        }
-                    }
-                }
-
-                // При уходе из 'main' — скрываем табло
-                if (!isMain) {
-                    scoreboardVisible = false;
-                }
-            });
-
-            // --- Публичный API для render() и yflSync ---
-            window.scoreboardVisible = function() { return scoreboardVisible; };
-            window.ScoreboardVisibility = {
-                isVisible: function() { return scoreboardVisible; },
-                show: function() { scoreboardVisible = true; },
-                hide: function() { scoreboardVisible = false; },
-                playBase: playBaseScoreboardAnimation
-            };
-        })();
     </script>
 </body>
 </html>
