@@ -48,25 +48,25 @@
             --success-accent: #7aff9a;
             --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        /* CHPK — dark navy blue brand (#203663), white text */
+        /* CHPK — dark navy blue brand (#203663), light-blue accent (#76dcf2) */
         body[data-style="CHPK"] {
             --plaque-bg: rgba(32, 54, 99, 0.92);
             --plaque-bg-strong: rgba(28, 48, 88, 0.96);
             --plaque-bg-center: rgba(20, 36, 70, 0.95);
             --plaque-border: rgba(255, 255, 255, 0.18);
             --plaque-border-soft: rgba(255, 255, 255, 0.1);
-            --accent-color: #ffdd57;
-            --accent-color-soft: rgba(255, 221, 87, 0.4);
-            --accent-color-glow: rgba(255, 221, 87, 0.15);
-            --accent-color-faint: rgba(255, 221, 87, 0.7);
-            --accent-color-bright: rgba(255, 221, 87, 0.8);
-            --accent-border-line: rgba(255, 221, 87, 0.3);
+            --accent-color: #76dcf2;
+            --accent-color-soft: rgba(118, 220, 242, 0.4);
+            --accent-color-glow: rgba(118, 220, 242, 0.15);
+            --accent-color-faint: rgba(118, 220, 242, 0.7);
+            --accent-color-bright: rgba(118, 220, 242, 0.8);
+            --accent-border-line: rgba(118, 220, 242, 0.3);
             --danger-accent: #ff5148;
             --success-accent: #7aff9a;
             --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body { margin: 0; padding: 0; background-color: transparent; font-family: var(--font-base); overflow: hidden; width: 100vw; height: 100vh; }
-        #wrapper { position: absolute; transition: all 0.3s ease; }
+        #wrapper { position: absolute; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; }
         .pos-top-left { top: 40px; left: 40px; } .pos-top-center { top: 40px; left: 50%; transform: translateX(-50%); } .pos-top-right { top: 40px; right: 40px; }
 
         #scoreboard-container { transition: opacity 0.3s; }
@@ -87,12 +87,68 @@
         .score { font-size: 38px; font-weight: 900; transition: color 0.3s; color: #ffffff; min-width: 25px; text-align: center; }
         .timer-container { display: flex; flex-direction: column; align-items: center; }
         .timer-block { font-size: 32px; font-weight: bold; padding: 0 15px; border-left: 2px solid var(--plaque-border); border-right: 2px solid var(--plaque-border); transition: color 0.3s; color: #ffffff; }
-        .added-time-block { font-size: 16px; font-weight: bold; color: #ffdd57; margin-top: 4px; display: none; }
+
+        /* === Added-time plaque: separate container below the scoreboard ===
+           Lives inside #wrapper as a sibling of #scoreboard-container so it
+           does NOT stretch the main scoreboard height. Shown only when
+           addedTime.isActive. Uses the style's plaque variables so it matches
+           the current theme (corners / bg / accent). */
+        .added-time-plaque {
+            display: none;
+            margin: 8px 0 0;
+            padding: 6px 22px;
+            background: var(--plaque-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--plaque-border-soft);
+            border-radius: var(--plaque-radius-xs);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            color: var(--accent-color);
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-align: center;
+            white-space: nowrap;
+            animation: fadeInX 0.3s ease-out;
+            width: max-content;
+            min-width: 120px;
+        }
+        .added-time-plaque .at-min { font-family: var(--font-display); }
+        .added-time-plaque .at-timer { margin-left: 10px; opacity: 0.85; font-family: var(--font-display); }
+
+        /* === Penalty series scoreboard ===
+           Replaces the main scoreboard (top) when penaltySeries.isActive.
+           Styled entirely via the style's plaque variables so it follows the
+           chosen palette (K4TV / 3thL / CHPK / CUSTOM) and corner design. */
+        #penalty-overlay {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--plaque-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--plaque-border);
+            border-radius: var(--plaque-radius-xs);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 10px 26px 12px;
+            color: #ffffff;
+            animation: fadeInX 0.4s ease-out;
+            width: max-content;
+        }
+        #penalty-overlay .pen-title { font-size: 14px; font-weight: 900; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; text-align: center; }
+        #penalty-overlay .pen-row { display: flex; align-items: center; gap: 14px; }
+        #penalty-overlay .pen-row.home { justify-content: flex-start; }
+        #penalty-overlay .pen-row.away { justify-content: flex-end; }
+        #penalty-overlay .pen-name { font-size: 20px; font-weight: 700; text-transform: uppercase; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+        #penalty-overlay .pen-dots { display: flex; gap: 7px; }
+        #penalty-overlay .pen-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--plaque-border); box-sizing: border-box; }
+        #penalty-overlay .pen-dot.scored { background: var(--accent-color); border-color: var(--accent-color); }
+        #penalty-overlay .pen-dot.missed { background: transparent; border-color: var(--danger-accent); position: relative; }
+        #penalty-overlay .pen-dot.missed::after { content: ''; position: absolute; inset: 2px; background: linear-gradient(45deg, transparent 45%, var(--danger-accent) 45% 55%, transparent 55%); }
+        #penalty-overlay .pen-score { font-size: 22px; font-weight: 900; color: var(--accent-color); min-width: 22px; text-align: center; }
+        #penalty-overlay .pen-sep { font-size: 24px; font-weight: 900; color: #ffffff; opacity: 0.6; text-align: center; }
         @keyframes scorePop { 0% { transform: translateX(var(--score-tx)) scale(1); } 50% { transform: translateX(var(--score-tx)) scale(1.4); filter: brightness(1.5); } 100% { transform: translateX(var(--score-tx)) scale(1); } }
         .score-animate { animation: scorePop 0.4s ease-out; }
         .design-1 { border-radius: var(--plaque-radius-xs); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .design-3 { background: #0d0d0d !important; border: 2px solid #00f3ff; box-shadow: 0 0 15px #00f3ff inset, 0 0 15px #00f3ff; }
-        .design-4 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .design-2 { border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
         .big-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--plaque-bg); backdrop-filter: blur(15px); padding: 60px 120px; border-radius: var(--plaque-radius-lg); display: none; flex-direction: column; align-items: center; gap: 30px; color: white; border: 1px solid var(--plaque-border); box-shadow: 0 0 60px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
@@ -151,7 +207,7 @@
         }
         /* Design-specific border radius — matches the scoreboard style */
         body[data-design="1"] .bottom-timer-box { border-radius: 0; }
-        body[data-design="4"] .bottom-timer-box { border-radius: 18px; }
+        body[data-design="2"] .bottom-timer-box { border-radius: 18px; }
         /* Appearance animation (triggered 0.5s after placard shows) */
         .bottom-timer-box.show { animation: timerBoxAppear 0.4s ease-out forwards; }
         @keyframes timerBoxAppear {
@@ -381,7 +437,7 @@
         }
         body[data-style="K4TV"][data-design="1"] #scoreboard,
         body[data-style="K4TV"][data-design="1"] #scoreboard.design-1,
-        body[data-style="K4TV"][data-design="1"] #scoreboard.design-4,
+        body[data-style="K4TV"][data-design="1"] #scoreboard.design-2,
         body[data-style="K4TV"][data-design="1"] .design-1 {
             border-radius: 0 !important;
         }
@@ -392,7 +448,7 @@
         body[data-style="K4TV"][data-design="1"] .design-stripe.right {
             border-radius: 0 0 0 0;
         }
-        /* K4TV + design-4 (Скругленный) — leave default rounded values from :root. */
+        /* K4TV + design-2 (Скругленный) — leave default rounded values from :root. */
 
         /* === 3thL + design-1 (Классика) → острые углы на ВСЕХ плашках === */
         body[data-style="3thL"][data-design="1"] {
@@ -403,7 +459,7 @@
         }
         body[data-style="3thL"][data-design="1"] #scoreboard,
         body[data-style="3thL"][data-design="1"] #scoreboard.design-1,
-        body[data-style="3thL"][data-design="1"] #scoreboard.design-4,
+        body[data-style="3thL"][data-design="1"] #scoreboard.design-2,
         body[data-style="3thL"][data-design="1"] .design-1 {
             border-radius: 0 !important;
         }
@@ -411,7 +467,7 @@
         body[data-style="3thL"][data-design="1"] .design-stripe.right {
             border-radius: 0 0 0 0;
         }
-        /* 3thL + design-4 (Скругленный) — leave default rounded values from :root. */
+        /* 3thL + design-2 (Скругленный) — leave default rounded values from :root. */
 
         /* === CHPK + design-1 (Классика) → острые углы на ВСЕХ плашках === */
         body[data-style="CHPK"][data-design="1"] {
@@ -422,7 +478,7 @@
         }
         body[data-style="CHPK"][data-design="1"] #scoreboard,
         body[data-style="CHPK"][data-design="1"] #scoreboard.design-1,
-        body[data-style="CHPK"][data-design="1"] #scoreboard.design-4,
+        body[data-style="CHPK"][data-design="1"] #scoreboard.design-2,
         body[data-style="CHPK"][data-design="1"] .design-1 {
             border-radius: 0 !important;
         }
@@ -430,7 +486,7 @@
         body[data-style="CHPK"][data-design="1"] .design-stripe.right {
             border-radius: 0 0 0 0;
         }
-        /* CHPK + design-4 (Скругленный) — leave default rounded values from :root. */
+        /* CHPK + design-2 (Скругленный) — leave default rounded values from :root. */
 
         /* ============================================================
            FORMATION OVERLAY — Black & Gold card style
@@ -537,7 +593,7 @@
 
         /* === Main timer reveal-from-center animation ===
            Plays when #scoreboard-container goes display:none → block.
-           Restricted to Классика (design-1) and Скругленный (design-4).
+           Restricted to Прямоугольный (design-1) and Скругленный (design-2).
            `backwards` fill applies the 'from' state immediately to avoid
            a 1-frame flash at full opacity before the animation starts. */
         @keyframes scoreboardReveal {
@@ -546,7 +602,7 @@
         }
         #scoreboard-container { transform-origin: center center; }
         body[data-design="1"] #scoreboard-container.scoreboard-reveal,
-        body[data-design="4"] #scoreboard-container.scoreboard-reveal {
+        body[data-design="2"] #scoreboard-container.scoreboard-reveal {
             animation: scoreboardReveal 0.5s ease-out backwards;
         }
 
@@ -569,10 +625,17 @@
             <div id="scoreboard" class="design-1">
                 <div id="stripeHome" class="design-stripe left"></div>
                 <div class="team-block"><div id="homeMarker" class="form-marker"></div><span id="homeName" class="team-name">ХОЗЯЕВА</span><span id="homeScore" class="score">0</span></div>
-                <div class="timer-container"><div id="timer" class="timer-block">00:00</div><div id="addedTimeBlock" class="added-time-block">д.в. <span id="addedTimeVal">+0</span> (<span id="addedTimer">00:00</span>)</div></div>
+                <div class="timer-container"><div id="timer" class="timer-block">00:00</div></div>
                 <div class="team-block"><span id="awayScore" class="score">0</span><span id="awayName" class="team-name">ГОСТИ</span><div id="awayMarker" class="form-marker"></div></div>
                 <div id="stripeAway" class="design-stripe right"></div>
             </div>
+        </div>
+        <div id="addedTimePlaque" class="added-time-plaque"><span class="at-min" id="addedTimeVal">+0</span><span class="at-timer" id="addedTimer">00:00</span></div>
+        <div id="penalty-overlay">
+            <div class="pen-title">СЕРИЯ ПЕНАЛЬТИ</div>
+            <div class="pen-row home"><span class="pen-name" id="pen-home-name">ХОЗЯЕВА</span><span class="pen-dots" id="pen-home-dots"></span><span class="pen-score" id="pen-home-score">0</span></div>
+            <div class="pen-sep">:</div>
+            <div class="pen-row away"><span class="pen-score" id="pen-away-score">0</span><span class="pen-dots" id="pen-away-dots"></span><span class="pen-name" id="pen-away-name">ГОСТИ</span></div>
         </div>
     </div>
 
@@ -784,6 +847,37 @@
         function applyMarker(id, c) { const m = el(id); if (c && c !== 'transparent') { m.style.backgroundColor = c; m.style.display = 'block'; } else { m.style.display = 'none'; } }
         function applyLogo(id, u) { const i = el(id); const has = u && typeof u === 'string' && u.trim() !== ''; if (has) { if (i.getAttribute('src') !== u) i.setAttribute('src', u); i.style.display = 'block'; i.style.visibility = 'visible'; i.style.opacity = '1'; } else { i.style.display = 'none'; i.style.visibility = 'hidden'; i.style.opacity = '0'; } }
 
+        /* === Penalty series scoreboard ===
+           Shows when penaltySeries.isActive. Renders each team's 5 kick slots
+           as dots (scored = filled accent, missed = red ✕, pending = outline)
+           and the running count of scored penalties. Styled entirely via the
+           style's plaque CSS variables so it matches the current palette. */
+        function renderPenaltySeries(d, homeName, awayName) {
+          const pen = d.penaltySeries || { isActive: false, home: [], away: [] };
+          const overlay = el('penalty-overlay');
+          if (!overlay) return;
+          if (!pen.isActive) { overlay.style.display = 'none'; return; }
+          overlay.style.display = 'flex';
+
+          setText('pen-home-name', homeName);
+          setText('pen-away-name', awayName);
+
+          ['home', 'away'].forEach(side => {
+            const arr = Array.isArray(pen[side]) ? pen[side] : [];
+            let scored = 0;
+            const dotsEl = el('pen-' + side + '-dots');
+            let html = '';
+            for (let i = 0; i < 5; i++) {
+              const v = arr[i];
+              if (v === 'scored') { scored++; html += '<span class="pen-dot scored"></span>'; }
+              else if (v === 'missed') { html += '<span class="pen-dot missed"></span>'; }
+              else { html += '<span class="pen-dot"></span>'; }
+            }
+            if (dotsEl) dotsEl.innerHTML = html;
+            setText('pen-' + side + '-score', scored);
+          });
+        }
+
         // Первичное создание полной структуры базы
         db.once('value').then(s => {
           if (!s.exists()) {
@@ -794,10 +888,11 @@
               homeLogo: "", awayLogo: "",
               tournamentName: "",
               design: "1", position: "top-left",
-              style: "K4TV",  /* K4TV | 3thL | CHPK */
+              style: "K4TV",  /* K4TV | 3thL | CHPK | CUSTOM */
               overlayState: "main",
               timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
               addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
+              penaltySeries: { isActive: false, home: [null, null, null, null, null], away: [null, null, null, null, null] },
               colors: { bg: "#1a1a1a", timerFont: "#ffffff", teamFont: "#ffffff" },
               stats: {
                 possession: { home: 50, away: 50, isVisible: false },
@@ -822,12 +917,19 @@
           const colors = d.colors || {};
           const stats = d.stats || {};
           const state = d.overlayState || 'main';
-          /* Apply visual style preset to body (K4TV / 3thL / CHPK). */
+          /* Penalty series: when active, the main scoreboard/timer is hidden
+             and the penalty scoreboard takes its place at the top. */
+          const penaltyActive = !!(d.penaltySeries && d.penaltySeries.isActive);
+          /* Apply visual style preset to body (K4TV / 3thL / CHPK / CUSTOM).
+             CUSTOM («ДРУГАЯ») maps to K4TV visually — it uses the user's
+             colors.bg / timerFont / teamFont for the scoreboard, with the
+             default K4TV accent + radius behaviour. */
           const styleName = (d.style === '3thL' || d.style === 'CHPK') ? d.style : 'K4TV';
           if (document.body.dataset.style !== styleName) document.body.dataset.style = styleName;
-          /* Apply current design (1/3/4) as data-design on body — used by CSS
-             to switch plaque corner radius when style is K4TV. */
-          const designAttr = (d.design === '3' || d.design === '4') ? d.design : '1';
+          /* Apply current design (1/2) as data-design on body — used by CSS
+             to switch plaque corner radius when style is K4TV. Legacy values
+             '3' (Неон, removed) and '4' (Скругленный) are normalised: '4'→'2'. */
+          const designAttr = (d.design === '2' || d.design === '4') ? '2' : '1';
           if (document.body.dataset.design !== designAttr) document.body.dataset.design = designAttr;
 
           const homeName = d.homeTeam || 'ХОЗЯЕВА';
@@ -849,7 +951,7 @@
           applyMarker('awayMarker', d.awayFormColor);
 
           const sb = el('scoreboard');
-          const designVal = (d.design === '3' || d.design === '4') ? d.design : '1';
+          const designVal = (d.design === '2' || d.design === '4') ? '2' : '1';
           ['design-1', 'design-2', 'design-3', 'design-4'].forEach(c => sb.classList.remove(c));
           sb.classList.add('design-' + designVal);
           /* Background: solid colors.bg. */
@@ -885,8 +987,9 @@
           setText('fhb-timer-val', formatTime(totalMs));
           setText('shb-timer-val', formatTime(totalMs));
 
-          const atb = el('addedTimeBlock');
-          if (added.isActive) {
+          /* --- Added time: separate plaque below the scoreboard (no "д.в.") --- */
+          const atb = el('addedTimePlaque');
+          if (added.isActive && !penaltyActive) {
             atb.style.display = 'block';
             setText('addedTimeVal', '+' + num(added.minutes, 0));
             const liveA = (added.isRunning && added.startTime) ? Date.now() - added.startTime : 0;
@@ -894,6 +997,9 @@
           } else {
             atb.style.display = 'none';
           }
+
+          /* --- Penalty series scoreboard (replaces main scoreboard when active) --- */
+          renderPenaltySeries(d, homeName, awayName);
 
           /* --- Сводная статистика: шапка --- */
           setText('sum-home-name', homeName);
@@ -1117,11 +1223,11 @@
           if (state === 'formation-home' && d.formationHome) renderFormationOverlay('home', d.formationHome);
           if (state === 'formation-away' && d.formationAway) renderFormationOverlay('away', d.formationAway);
 
-          const isMain = state === 'main';
+          const isMain = state === 'main' && !penaltyActive;
           /* Scoreboard — handled separately from generic show(): on show,
              clears inline opacity (so the CSS @keyframes scoreboardReveal
              controls opacity) and adds .scoreboard-reveal to trigger the
-             reveal-from-center animation (design-1 / design-4 only). On hide,
+             reveal-from-center animation (design-1 / design-2 only). On hide,
              removes the class and fades out via the standard 0.7s transition. */
           (function() {
             var sb = el('scoreboard-container'); if (!sb) return;
