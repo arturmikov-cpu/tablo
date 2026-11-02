@@ -134,17 +134,17 @@
             width: max-content;
         }
         #penalty-overlay .pen-title { font-size: 14px; font-weight: 900; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; text-align: center; }
-        #penalty-overlay .pen-row { display: flex; align-items: center; gap: 14px; }
-        #penalty-overlay .pen-row.home { justify-content: flex-start; }
-        #penalty-overlay .pen-row.away { justify-content: flex-end; }
+        /* Both rows share the same order: team name → penalty marks → scored counter. */
+        #penalty-overlay .pen-row { display: flex; align-items: center; gap: 14px; justify-content: flex-start; }
         #penalty-overlay .pen-name { font-size: 20px; font-weight: 700; text-transform: uppercase; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
         #penalty-overlay .pen-dots { display: flex; gap: 7px; }
-        #penalty-overlay .pen-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--plaque-border); box-sizing: border-box; }
-        #penalty-overlay .pen-dot.scored { background: var(--accent-color); border-color: var(--accent-color); }
-        #penalty-overlay .pen-dot.missed { background: transparent; border-color: var(--danger-accent); position: relative; }
-        #penalty-overlay .pen-dot.missed::after { content: ''; position: absolute; inset: 2px; background: linear-gradient(45deg, transparent 45%, var(--danger-accent) 45% 55%, transparent 55%); }
-        #penalty-overlay .pen-score { font-size: 22px; font-weight: 900; color: var(--accent-color); min-width: 22px; text-align: center; }
-        #penalty-overlay .pen-sep { font-size: 24px; font-weight: 900; color: #ffffff; opacity: 0.6; text-align: center; }
+        #penalty-overlay .pen-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); box-sizing: border-box; }
+        /* Scored = always green, missed = always red (independent of style palette). */
+        #penalty-overlay .pen-dot.scored { background: #118a52; border-color: #118a52; }
+        #penalty-overlay .pen-dot.missed { background: transparent; border-color: #ff5148; position: relative; }
+        #penalty-overlay .pen-dot.missed::after { content: ''; position: absolute; inset: 2px; background: linear-gradient(45deg, transparent 45%, #ff5148 45% 55%, transparent 55%); }
+        /* Score counter = count of scored penalties → green. */
+        #penalty-overlay .pen-score { font-size: 22px; font-weight: 900; color: #118a52; min-width: 22px; text-align: center; }
         @keyframes scorePop { 0% { transform: translateX(var(--score-tx)) scale(1); } 50% { transform: translateX(var(--score-tx)) scale(1.4); filter: brightness(1.5); } 100% { transform: translateX(var(--score-tx)) scale(1); } }
         .score-animate { animation: scorePop 0.4s ease-out; }
         .design-1 { border-radius: var(--plaque-radius-xs); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -634,8 +634,7 @@
         <div id="penalty-overlay">
             <div class="pen-title">СЕРИЯ ПЕНАЛЬТИ</div>
             <div class="pen-row home"><span class="pen-name" id="pen-home-name">ХОЗЯЕВА</span><span class="pen-dots" id="pen-home-dots"></span><span class="pen-score" id="pen-home-score">0</span></div>
-            <div class="pen-sep">:</div>
-            <div class="pen-row away"><span class="pen-score" id="pen-away-score">0</span><span class="pen-dots" id="pen-away-dots"></span><span class="pen-name" id="pen-away-name">ГОСТИ</span></div>
+            <div class="pen-row away"><span class="pen-name" id="pen-away-name">ГОСТИ</span><span class="pen-dots" id="pen-away-dots"></span><span class="pen-score" id="pen-away-score">0</span></div>
         </div>
     </div>
 
