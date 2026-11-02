@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* === STYLE PRESETS (K4TV / 3thL / YFL) ===
+        /* === STYLE PRESETS (K4TV / 3thL / CHPK) ===
            K4TV is the default (root values).
            Other styles override the same variables. */
         :root {
@@ -64,27 +64,6 @@
             --danger-accent: #ff5148;
             --success-accent: #7aff9a;
             --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        /* YFL — lime green + purple gradient, sharp corners, Aeroport-like font */
-        body[data-style="YFL"] {
-            --plaque-bg: linear-gradient(135deg, #3a006e 0%, #6a1080 50%, #2b0070 100%);
-            --plaque-bg-strong: linear-gradient(135deg, #3a006e 0%, #6a1080 50%, #2b0070 100%);
-            --plaque-bg-center: linear-gradient(135deg, #2b0070 0%, #4a008e 100%);
-            --plaque-border: rgba(141, 220, 60, 0.45);
-            --plaque-border-soft: rgba(141, 220, 60, 0.2);
-            --plaque-radius-lg: 0px;
-            --plaque-radius-md: 0px;
-            --plaque-radius-sm: 0px;
-            --plaque-radius-xs: 0px;
-            --accent-color: #8ddc3c;
-            --accent-color-soft: rgba(141, 220, 60, 0.45);
-            --accent-color-glow: rgba(141, 220, 60, 0.25);
-            --accent-color-faint: rgba(141, 220, 60, 0.75);
-            --accent-color-bright: rgba(141, 220, 60, 0.9);
-            --accent-border-line: rgba(141, 220, 60, 0.35);
-            --danger-accent: #ff5148;
-            --success-accent: #8ddc3c;
-            --font-base: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
         }
         body { margin: 0; padding: 0; background-color: transparent; font-family: var(--font-base); overflow: hidden; width: 100vw; height: 100vh; }
         #wrapper { position: absolute; transition: all 0.3s ease; }
@@ -385,17 +364,6 @@
           .event-overlay .ev-player { font-size: 26px; }
           .event-overlay .ev-sub-row { font-size: 21px; }
         }
-
-        /* === YFL-specific overrides === */
-        /* Score numbers in lime green accent (overrides inline teamFont color). */
-        body[data-style="YFL"] .score { color: var(--accent-color) !important; }
-        /* Main scoreboard gets the purple gradient (overrides inline bg-color). */
-        body[data-style="YFL"] #scoreboard,
-        body[data-style="YFL"] #scoreboard.design-1,
-        body[data-style="YFL"] #scoreboard.design-4 {
-            background: linear-gradient(135deg, #3a006e 0%, #6a1080 50%, #2b0070 100%) !important;
-        }
-        /* Inner bottom-center box already uses --plaque-bg-center (gradient) for YFL. */
 
         /* === 3thL-specific overrides === */
         /* Main scoreboard uses the deep teal background (the operator-chosen colors.bg
@@ -826,7 +794,7 @@
               homeLogo: "", awayLogo: "",
               tournamentName: "",
               design: "1", position: "top-left",
-              style: "K4TV",  /* K4TV | 3thL | YFL | CHPK */
+              style: "K4TV",  /* K4TV | 3thL | CHPK */
               overlayState: "main",
               timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
               addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
@@ -854,8 +822,8 @@
           const colors = d.colors || {};
           const stats = d.stats || {};
           const state = d.overlayState || 'main';
-          /* Apply visual style preset to body (K4TV / 3thL / YFL). */
-          const styleName = (d.style === '3thL' || d.style === 'YFL' || d.style === 'CHPK') ? d.style : 'K4TV';
+          /* Apply visual style preset to body (K4TV / 3thL / CHPK). */
+          const styleName = (d.style === '3thL' || d.style === 'CHPK') ? d.style : 'K4TV';
           if (document.body.dataset.style !== styleName) document.body.dataset.style = styleName;
           /* Apply current design (1/3/4) as data-design on body — used by CSS
              to switch plaque corner radius when style is K4TV. */
@@ -884,14 +852,9 @@
           const designVal = (d.design === '3' || d.design === '4') ? d.design : '1';
           ['design-1', 'design-2', 'design-3', 'design-4'].forEach(c => sb.classList.remove(c));
           sb.classList.add('design-' + designVal);
-          /* Background: gradient for YFL, otherwise solid colors.bg. */
-          if (styleName === 'YFL') {
-            sb.style.background = 'linear-gradient(135deg, #3a006e 0%, #6a1080 50%, #2b0070 100%)';
-            sb.style.backgroundColor = '';
-          } else {
-            sb.style.background = '';
-            sb.style.backgroundColor = colors.bg || '#1a1a1a';
-          }
+          /* Background: solid colors.bg. */
+          sb.style.background = '';
+          sb.style.backgroundColor = colors.bg || '#1a1a1a';
 
           el('stripeHome').style.backgroundColor = hex(d.homeFormColor, '') || 'transparent';
           el('stripeAway').style.backgroundColor = hex(d.awayFormColor, '') || 'transparent';
