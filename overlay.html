@@ -122,29 +122,32 @@
         #penalty-overlay {
             display: none;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             background: var(--plaque-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--plaque-border);
             border-radius: var(--plaque-radius-xs);
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            padding: 10px 26px 12px;
+            padding: 12px 31px 14px;
             color: #ffffff;
             animation: fadeInX 0.4s ease-out;
             width: max-content;
         }
-        #penalty-overlay .pen-title { font-size: 14px; font-weight: 900; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; text-align: center; }
-        /* Both rows share the same order: team name → penalty marks → scored counter. */
-        #penalty-overlay .pen-row { display: flex; align-items: center; gap: 14px; justify-content: flex-start; }
-        #penalty-overlay .pen-name { font-size: 20px; font-weight: 700; text-transform: uppercase; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
-        #penalty-overlay .pen-dots { display: flex; gap: 7px; }
-        #penalty-overlay .pen-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); box-sizing: border-box; }
-        /* Scored = always green, missed = always red (independent of style palette). */
-        #penalty-overlay .pen-dot.scored { background: #118a52; border-color: #118a52; }
-        #penalty-overlay .pen-dot.missed { background: transparent; border-color: #ff5148; position: relative; }
-        #penalty-overlay .pen-dot.missed::after { content: ''; position: absolute; inset: 2px; background: linear-gradient(45deg, transparent 45%, #ff5148 45% 55%, transparent 55%); }
-        /* Score counter = count of scored penalties → green. */
-        #penalty-overlay .pen-score { font-size: 22px; font-weight: 900; color: #118a52; min-width: 22px; text-align: center; }
+        #penalty-overlay .pen-title { font-size: 17px; font-weight: 900; letter-spacing: 4px; color: var(--accent-color); text-transform: uppercase; text-align: center; }
+        /* Single grid spanning BOTH rows so the marks column aligns regardless of
+           each team name's length (marks are decoupled from names). Column widths:
+           name (max-content = widest name) · marks (fixed dots width) · counter. */
+        #penalty-overlay .pen-rows { display: grid; grid-template-columns: max-content max-content max-content; align-items: center; gap: 10px 18px; }
+        #penalty-overlay .pen-name { font-size: 24px; font-weight: 700; text-transform: uppercase; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; justify-self: start; }
+        #penalty-overlay .pen-dots { display: flex; gap: 8px; justify-self: start; }
+        #penalty-overlay .pen-dot { width: 19px; height: 19px; border-radius: 50%; box-sizing: border-box; }
+        /* Fixed opaque colours — independent of style palette.
+           Pending = white, scored = bright lime, missed = red (no cross). */
+        #penalty-overlay .pen-dot { background: #ffffff; }
+        #penalty-overlay .pen-dot.scored { background: #9aef3a; }
+        #penalty-overlay .pen-dot.missed { background: #f50025; }
+        /* Counter = white opaque (total scored across all series). */
+        #penalty-overlay .pen-score { font-size: 26px; font-weight: 900; color: #ffffff; min-width: 26px; text-align: center; justify-self: start; }
         @keyframes scorePop { 0% { transform: translateX(var(--score-tx)) scale(1); } 50% { transform: translateX(var(--score-tx)) scale(1.4); filter: brightness(1.5); } 100% { transform: translateX(var(--score-tx)) scale(1); } }
         .score-animate { animation: scorePop 0.4s ease-out; }
         .design-1 { border-radius: var(--plaque-radius-xs); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -633,8 +636,14 @@
         <div id="addedTimePlaque" class="added-time-plaque"><span class="at-min" id="addedTimeVal">+0</span><span class="at-timer" id="addedTimer">00:00</span></div>
         <div id="penalty-overlay">
             <div class="pen-title">СЕРИЯ ПЕНАЛЬТИ</div>
-            <div class="pen-row home"><span class="pen-name" id="pen-home-name">ХОЗЯЕВА</span><span class="pen-dots" id="pen-home-dots"></span><span class="pen-score" id="pen-home-score">0</span></div>
-            <div class="pen-row away"><span class="pen-name" id="pen-away-name">ГОСТИ</span><span class="pen-dots" id="pen-away-dots"></span><span class="pen-score" id="pen-away-score">0</span></div>
+            <div class="pen-rows">
+                <span class="pen-name" id="pen-home-name">ХОЗЯЕВА</span>
+                <span class="pen-dots" id="pen-home-dots"></span>
+                <span class="pen-score" id="pen-home-score">0</span>
+                <span class="pen-name" id="pen-away-name">ГОСТИ</span>
+                <span class="pen-dots" id="pen-away-dots"></span>
+                <span class="pen-score" id="pen-away-score">0</span>
+            </div>
         </div>
     </div>
 
@@ -852,7 +861,7 @@
            and the running count of scored penalties. Styled entirely via the
            style's plaque CSS variables so it matches the current palette. */
         function renderPenaltySeries(d, homeName, awayName) {
-          const pen = d.penaltySeries || { isActive: false, home: [], away: [] };
+          const pen = d.penaltySeries || { isActive: false, home: [], away: [], totalHome: 0, totalAway: 0 };
           const overlay = el('penalty-overlay');
           if (!overlay) return;
           if (!pen.isActive) { overlay.style.display = 'none'; return; }
@@ -860,6 +869,12 @@
 
           setText('pen-home-name', homeName);
           setText('pen-away-name', awayName);
+
+          /* Counter = total scored from previous (finished) series + scored in
+             the current series. "НОВАЯ СЕРИЯ" in the pult rolls the current
+             series' scored count into totalHome/totalAway and clears the array,
+             so the running counter never resets mid-match. */
+          const totals = { home: num(pen.totalHome, 0), away: num(pen.totalAway, 0) };
 
           ['home', 'away'].forEach(side => {
             const arr = Array.isArray(pen[side]) ? pen[side] : [];
@@ -873,7 +888,7 @@
               else { html += '<span class="pen-dot"></span>'; }
             }
             if (dotsEl) dotsEl.innerHTML = html;
-            setText('pen-' + side + '-score', scored);
+            setText('pen-' + side + '-score', totals[side] + scored);
           });
         }
 
@@ -891,7 +906,7 @@
               overlayState: "main",
               timer: { isRunning: false, startTime: 0, elapsed: 0, manualStartMin: 0, maxMinutes: 90 },
               addedTime: { isActive: false, minutes: 0, isRunning: false, startTime: 0, elapsed: 0 },
-              penaltySeries: { isActive: false, home: [null, null, null, null, null], away: [null, null, null, null, null] },
+              penaltySeries: { isActive: false, home: [null, null, null, null, null], away: [null, null, null, null, null], totalHome: 0, totalAway: 0 },
               colors: { bg: "#1a1a1a", timerFont: "#ffffff", teamFont: "#ffffff" },
               stats: {
                 possession: { home: 50, away: 50, isVisible: false },
