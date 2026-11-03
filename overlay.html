@@ -70,7 +70,7 @@
         .pos-top-left { top: 40px; left: 40px; } .pos-top-center { top: 40px; left: 50%; transform: translateX(-50%); } .pos-top-right { top: 40px; right: 40px; }
 
         #scoreboard-container { transition: opacity 0.3s; }
-        #scoreboard { position: relative; display: flex; align-items: center; padding: 12px 35px; border-radius: var(--plaque-radius-xs); gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background-color: #1a1a1a; }
+        #scoreboard { position: relative; display: flex; align-items: center; padding: 12px 35px; border-radius: var(--plaque-radius-xs); gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background: var(--plaque-bg); backdrop-filter: blur(15px); border: 1px solid var(--plaque-border-soft); }
         /* Счёт ближе к таймеру на ~2-3% (10px). --score-tx is reused in the
            scorePop keyframes so the translateX is preserved during the
            score-change animation (no position shift mid-animation). */
@@ -296,6 +296,12 @@
           font-family: var(--font-display);
           color: var(--accent-color);
           margin-right: 6px; font-size: 14px; font-weight: 700;
+        }
+        .goal-item .goal-name .goal-mark {
+          color: var(--accent-color);
+          font-weight: 700;
+          margin-left: 6px;
+          font-size: 0.85em;
         }
         @media (max-width: 720px) {
           .goal-item { font-size: 14px; }
@@ -968,9 +974,11 @@
           const designVal = (d.design === '2' || d.design === '4') ? '2' : '1';
           ['design-1', 'design-2', 'design-3', 'design-4'].forEach(c => sb.classList.remove(c));
           sb.classList.add('design-' + designVal);
-          /* Background: solid colors.bg. */
+          /* Background: style plaque color (var(--plaque-bg)) — matches other
+             placards. Inline bg override removed so the scoreboard picks up
+             the active style palette (K4TV / 3thL / CHPK / CUSTOM). */
           sb.style.background = '';
-          sb.style.backgroundColor = colors.bg || '#1a1a1a';
+          sb.style.backgroundColor = '';
 
           el('stripeHome').style.backgroundColor = hex(d.homeFormColor, '') || 'transparent';
           el('stripeAway').style.backgroundColor = hex(d.awayFormColor, '') || 'transparent';
@@ -1437,13 +1445,14 @@
                 return;
               }
               // Rebuild only if list changed (cheap comparison by length + last item id)
-              const sig = teamGoals.map(g => (g.id || '') + ':' + (g.minute || 0) + ':' + (g.playerName || '') + ':' + (g.playerNumber || '')).join('|');
+              const sig = teamGoals.map(g => (g.id || '') + ':' + (g.minute || 0) + ':' + (g.playerName || '') + ':' + (g.playerNumber || '') + ':' + (g.mark || '')).join('|');
               if (listEl.dataset.sig === sig) return; // no change → skip
               listEl.dataset.sig = sig;
               listEl.innerHTML = teamGoals.map(g => {
+                const mark = g.mark ? '<span class="goal-mark">' + escapeHtml(g.mark) + '</span>' : '';
                 return '<div class="goal-item">'
                   + '<span class="goal-min">' + escapeHtml(g.minute) + '</span>'
-                  + '<span class="goal-name">' + escapeHtml(g.playerName || '') + '</span>'
+                  + '<span class="goal-name">' + escapeHtml(g.playerName || '') + mark + '</span>'
                   + '</div>';
               }).join('');
             });
@@ -1632,11 +1641,16 @@
 
         const EVENT_ICONS = {
           goal: '<span style="font-size:54px;line-height:1;display:grid;place-items:center;width:100%;height:100%;">\u26BD</span>',
+          pen: '<span style="font-size:54px;line-height:1;display:grid;place-items:center;width:100%;height:100%;">\u26BD</span>',
+          penmiss: '<span style="font-size:54px;line-height:1;display:grid;place-items:center;width:100%;height:100%;">\u26BD</span>',
+          owngoal: '<span style="font-size:54px;line-height:1;display:grid;place-items:center;width:100%;height:100%;">\u26BD</span>',
           yc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ffd21f" transform="rotate(7 12 12)"/></svg>',
           rc: '<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5" fill="#ff4757" transform="rotate(7 12 12)"/></svg>',
         };
 
-        const ACTION_LABELS = { goal: 'ГОЛ', sub: 'ЗАМЕНА', yc: 'ПРЕДУПРЕЖДЕНИЕ', rc: 'УДАЛЕНИЕ' };
+        const ACTION_LABELS = { goal: 'ГОЛ', pen: 'ПЕНАЛЬТИ', penmiss: 'НЕЗАБИТЫЙ ПЕНАЛЬТИ', owngoal: 'АВТОГОЛ', sub: 'ЗАМЕНА', yc: 'ПРЕДУПРЕЖДЕНИЕ', rc: 'УДАЛЕНИЕ' };
+        /* Типы, отображаемые как гол (имя автора без номера). */
+        const GOAL_LIKE_TYPES = { goal:1, pen:1, penmiss:1, owngoal:1 };
 
         function renderEventOverlay(side) {
           const key = side === 'home' ? 'eventHome' : 'eventAway';
@@ -1676,10 +1690,14 @@
             if (!html) html = '<div class="ev-player">—</div>';
             bodyEl.innerHTML = html;
           } else {
-            // Для голов не выводим игровой номер — только имя автора
-            const showNum = ev.type !== 'goal' && ev.playerNumber;
+            // Для гол-подобных событий (гол / пен / незаб. пен / автогол) не выводим
+            // игровой номер — только имя автора. Пометка типа выводится справа.
+            const isGoalLike = !!GOAL_LIKE_TYPES[ev.type];
+            const showNum = !isGoalLike && ev.playerNumber;
             const numHtml = showNum ? '<span class="ev-num">' + escapeHtml(ev.playerNumber) + '</span>' : '';
-            bodyEl.innerHTML = '<div class="ev-player">' + numHtml + escapeHtml(ev.playerName || '') + '</div>';
+            const markMap = { pen:'(П)', penmiss:'(НП)', owngoal:'(АГ)' };
+            const markHtml = markMap[ev.type] ? '<span class="ev-mark" style="margin-left:10px;font-size:0.6em;color:var(--accent-color);font-weight:700;">' + markMap[ev.type] + '</span>' : '';
+            bodyEl.innerHTML = '<div class="ev-player">' + numHtml + escapeHtml(ev.playerName || '') + markHtml + '</div>';
           }
         }
 
