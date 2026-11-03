@@ -70,7 +70,7 @@
         .pos-top-left { top: 40px; left: 40px; } .pos-top-center { top: 40px; left: 50%; transform: translateX(-50%); } .pos-top-right { top: 40px; right: 40px; }
 
         #scoreboard-container { transition: opacity 0.3s; }
-        #scoreboard { position: relative; display: flex; align-items: center; padding: 12px 35px; border-radius: var(--plaque-radius-xs); gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background: var(--plaque-bg); backdrop-filter: blur(15px); border: 1px solid var(--plaque-border-soft); }
+        #scoreboard { position: relative; display: flex; align-items: center; padding: 12px 35px; border-radius: var(--plaque-radius-xs); gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background-color 0.3s; background-color: #1a1a1a; }
         /* Счёт ближе к таймеру на ~2-3% (10px). --score-tx is reused in the
            scorePop keyframes so the translateX is preserved during the
            score-change animation (no position shift mid-animation). */
@@ -974,11 +974,9 @@
           const designVal = (d.design === '2' || d.design === '4') ? '2' : '1';
           ['design-1', 'design-2', 'design-3', 'design-4'].forEach(c => sb.classList.remove(c));
           sb.classList.add('design-' + designVal);
-          /* Background: style plaque color (var(--plaque-bg)) — matches other
-             placards. Inline bg override removed so the scoreboard picks up
-             the active style palette (K4TV / 3thL / CHPK / CUSTOM). */
+          /* Background: solid colors.bg. */
           sb.style.background = '';
-          sb.style.backgroundColor = '';
+          sb.style.backgroundColor = colors.bg || '#1a1a1a';
 
           el('stripeHome').style.backgroundColor = hex(d.homeFormColor, '') || 'transparent';
           el('stripeAway').style.backgroundColor = hex(d.awayFormColor, '') || 'transparent';
